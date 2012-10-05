@@ -1,8 +1,8 @@
 <?php
 /**
  * Once the HTTP Server is configured, all the request will hit this script, 
- * the Framework start point. This script sets the default constants and 
- * initiates the FrontController module (core module of the framework).
+ * the Front Controller. This script sets the default constants, creates a 
+ * request object, initiates and runs a command controller.
  *
  * @author Miguel Angel Garcia
  *
@@ -29,17 +29,42 @@ define('APPS', '');
 // PHPro path.
 define('SYSTEM', '_PHPro');
 // Extensions path.
-define('EXTENSIONS', SYSTEM . '/extensions');
+define('EXTENSIONS', SYSTEM.'/extensions');
 // DAL (Data Access Layer) path.
-define('DAL', EXTENSIONS . '/dal');
+define('DAL', EXTENSIONS.'/dal');
 // Helpers path.
-define('HELPERS', SYSTEM . '/helpers');
+define('HELPERS', SYSTEM.'/helpers');
 // System logs path.
-define('SYS_LOG', SYSTEM . '/logs');
+define('SYS_LOG', SYSTEM.'/logs');
 
 // Sets the time zone to UTC.
 date_default_timezone_set('UTC');
 
-// Loads the Front Controller.
-require (SYSTEM . '/frontController.php');
+// Loads the Console class.
+require(SYSTEM.'/Console.php');
+// Loads the Error Handler class.
+require(SYSTEM.'/ErrorHandler.php');
+// Loads the Request class.
+require(SYSTEM.'/Request.php');
+
+try {
+    // Gets the request information.
+    $request = new Request();
+    // Loads and runs the main Command Controller process.
+    $cmd = $request->getCmd();
+    $cmd->main();
+    // Flushes the console buffer.
+    Console::flush();
+} catch (SYSException $exception) {
+    // Handles a system exception.
+    ErrorHandler::sysError($exception, $request);
+} catch (DALException $exception) {
+    // Handles a DAL (Data Access Layer) exception.
+    ErrorHandler::dalError($exception, $request);
+} catch (EXTException $exception) {
+    // Handles an Extension exception.
+    ErrorHandler::extError($exception, $request);
+}
+
+exit();
 ?>
