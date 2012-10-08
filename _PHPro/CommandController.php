@@ -1,9 +1,9 @@
 <?php
 /**
- * This class is an Abstract class needed to implement a Command Controller. It 
- * provides the basic functionality to get the request information, to redirect 
- * to another Command Controller and to load extra functionality by plug in 
- * extensions.
+ * This class is an Abstract class and must be extended to implement a Command 
+ * Controller. It provides the basic functionality to get the request 
+ * information, to redirect to another Command Controller and to load extra 
+ * functionality by plug in extensions.
  * 
  * @author Miguel Angel Garcia
  * 
@@ -41,7 +41,11 @@ abstract class CommandController {
     public $DAL;
 
     /**
-     * Loads the extensions and the helpers.
+     * Creates a new command controller, loading the extensions and the helpers 
+     * involved. All the command controllers gets a reference to the request 
+     * object as the parameter that will be shared with the extensions.
+     * 
+     * @param request  a request object reference
      */
     public function __construct (&$request) {
         $this->request = $request;
@@ -60,9 +64,9 @@ abstract class CommandController {
      * Initializes a DAL (Data Access Layer) module. The DAL module must be 
      * defined in the application configuration file.
      * 
-     * @param DALname  a string with the name of the DAL module
-     * @throws         SYSException('0300') if the DAL module is not defined 
-     * @throws         SYSException('0301') if the DAL module is missing
+     * @param DALmodule  a string with the name of the DAL module
+     * @throws           SYSException('0300') if the DAL module is not defined 
+     * @throws           SYSException('0301') if the DAL module is missing
     */
     public function loadDAL ($DALmodule) {
         $DALcfg = $this->request->get('cfg','DAL');
@@ -96,7 +100,7 @@ abstract class CommandController {
      * 
      * @param extName   a string with the extension name
      * @param plugName  a string with the name the extension will be plug in
-     * @param param     a reference to be used when creating the extension
+     * @param param     a reference to be used when creating the extension (optional)
      * @return          true if the extension is successfully loaded, otherwise false
      * @throws          SYSException(0302) if the extension is missing
      */

@@ -28,7 +28,8 @@ class Request {
     private $cfg, $request = array();
 
     /**
-     * Analyzes and updates the request.
+     * Analyzes and updates the request. Once the request is analyzed, the 
+     * framework knows which application and command controller is involved.
      * 
      * @throws  SYSException(0001) if the request does not belong to an application
      */
@@ -60,7 +61,7 @@ class Request {
     }
 
     /**
-     * Loads the application configuration file.
+     * Loads the application configuration file involved in the request.
      * 
      * @throws  SYSException(0002) if the configuration file is not available
      */
@@ -79,7 +80,8 @@ class Request {
     }
 
     /**
-     * Gets the command controller file path.
+     * Gets the command controller file path involved and stores this path in 
+     * the request.
      */
     private function getCmdPath () {
         $this->request['cmdPath'] = APP.$this->cfg['PATHS']['controllers'].$this->request['cmd'];
@@ -137,10 +139,10 @@ class Request {
     }
 
     /**
-     * Loads the command controller which will handle the request.
+     * Retrieves the command controller object which will handle the request.
      * 
      * @throws  SYSException(0404) if the command controller is not available
-     * @return  a command controller
+     * @return  a command controller object
      */
     public function getCmd () {
         Console::logSys('Loading Command Controller file '.$this->request['cmdPath']);

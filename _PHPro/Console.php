@@ -80,6 +80,7 @@ class Console {
      * better with that amount of time.
      * 
      * @param time  a float as an amount of time in seconds
+     * @return      a string with a time scale that fits better that amount of time
      */
     private static function getReadableTime ($time) {
         if ($time < 1) {
@@ -174,6 +175,8 @@ class Console {
 
     /**
      * Retrieves the log data and statistics.
+     * 
+     * @return  an associative array with the log data and statistics
      */
     public static function getLog () {
         // Calculates total statistics.
