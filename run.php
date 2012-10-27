@@ -48,9 +48,9 @@ require(SYSTEM.'/ErrorHandler.php');
 require(SYSTEM.'/Request.php');
 
 try {
-    // Gets the request information.
+    // Gets the request object with all the information.
     $request = new Request();
-    // Loads and runs the main Command Controller process.
+    // Loads and runs the main Command Controller.
     $cmd = $request->getCmd();
     $cmd->main();
     // Flushes the console buffer.

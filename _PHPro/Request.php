@@ -105,8 +105,8 @@ class Request {
     }
 
     /**
-     * Gets the request information. If a type is provided, returns the value 
-     * for that type of information or null if it is not defined. If no type, 
+     * Gets request information. If a type is provided, returns the value for 
+     * that type of information or null if it is not defined. If no type, 
      * returns the entire request object. To get access to the application 
      * configuration provide 'cfg' as the type and then the option to retrieve. 
      * If no option, returns all the configuration information or null if it 
