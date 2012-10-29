@@ -36,9 +36,43 @@ abstract class CommandController {
     public $request;
 
     /**
-     * The DAL (Data Access Layer) object.
+     * The DAL (Data Access Layer) pool.
      */
-    public $DAL;
+    private $DAL = array();
+
+    /**
+     * Loads a DAL (Data Access Layer) module into the DAL pool. The DAL module 
+     * must be defined in the application configuration file.
+     * 
+     * @param DALmodule  a string with the name of the DAL module
+     * @return           the DAL object
+     * @throws           SYSException('0300') if the DAL module is not defined 
+     * @throws           SYSException('0301') if the DAL module is missing
+    */
+    private function loadDAL ($DALmodule) {
+        $DALcfg = $this->request->get('cfg','DAL');
+        // Gets the string configuration from the DAL module.
+        if (!isset($DALcfg[$DALmodule])) {
+            throw new SYSException('0300', array(
+                'DALmodule' => $DALmodule
+            ));
+        }
+        // Gets the DAL module name and the string configuration.
+        list($DALname, $DALstring) = explode(',', $DALcfg[$DALmodule], 2);
+        // Gets the DAL file name.
+        $DALfile = DAL.'/'.$DALname.'.php';
+        // If the DAL file is missing, throws an exception.
+        if (!file_exists($DALfile)) {
+            throw new SYSException('0301', array(
+                'DALmodule' => $DALname,
+                'DALfile' => $DALfile
+            ));
+        }
+        // Creates a new DAL object.
+        require_once($DALfile);
+        $this->DAL[$DALmodule] = new $DALname($DALstring);
+    }
+
 
     /**
      * Creates a new command controller, loading the extensions and the helpers 
@@ -61,35 +95,18 @@ abstract class CommandController {
     }
 
     /**
-     * Initializes a DAL (Data Access Layer) module. The DAL module must be 
-     * defined in the application configuration file.
+     * Gets a DAL module (Data Access Layer) from the pool. If It is not 
+     * present in the pool, the DAL module will be loaded automatically.
      * 
-     * @param DALmodule  a string with the name of the DAL module
-     * @throws           SYSException('0300') if the DAL module is not defined 
-     * @throws           SYSException('0301') if the DAL module is missing
-    */
-    public function loadDAL ($DALmodule) {
-        $DALcfg = $this->request->get('cfg','DAL');
-        // Gets the string configuration from the DAL module.
-        if (!isset($DALcfg[$DALmodule])) {
-            throw new SYSException('0300', array(
-                'DALmodule' => $DALmodule
-            ));
+     * @param DALmodule  a string with the DAL module name
+     * @return           a DAL object
+     */
+    public function getDAL ($DALmodule) {
+        // Loads the DAL module if it was not previously loaded.
+        if (!isset($this->DAL[$DALmodule])) {
+            $this->loadDAL($DALmodule);
         }
-        // Gets the DAL module name and the string configuration.
-        list($DALname, $DALstring) = explode(',', $DALcfg[$DALmodule], 2);
-        // Gets the DAL file name.
-        $DALfile = DAL.'/'.$DALname.'.php';
-        // If the DAL file is missing, throws an exception.
-        if (!file_exists($DALfile)) {
-            throw new SYSException('0301', array(
-                'DALmodule' => $DALname,
-                'DALfile' => $DALfile
-            ));
-        }
-        // Creates a new DAL object.
-        require_once($DALfile);
-        $this->DAL = new $DALname($DALstring);
+        return $this->DAL[$DALmodule];
     }
 
     /**

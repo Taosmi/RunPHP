@@ -94,9 +94,12 @@ class eInputs {
             ));
         }
         // Calls the function and checks the result.
-        $result = call_user_func($filterFunction, $value, $param);
+        if ($param === null) {
+            $result = call_user_func($filterFunction, $value);
+        } else {
+            $result = call_user_func($filterFunction, $value, $param);
+        }
         if (!$result) {
-            echo $key.' '.$value.' => Do not valide '.$filter.'<br/>';
             throw new EXTException('', array(
                 'key' => $key,
                 'value' => $value,
