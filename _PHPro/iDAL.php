@@ -56,10 +56,11 @@ interface iDAL {
     public function from ($resource);
 
     /**
-     * Retrieves an item that matches the unique ID or primary key provided.
+     * Retrieves an item that matches the unique ID or primary key provided. If 
+     * no item matches the primary key, returns an empty array.
      * 
      * @param pk  a string with a unique ID or primary key
-     * @return    an associative array with the item data or null if no item is found
+     * @return    an associative array with the item data or empty
      */
     public function get ($pk);
 
@@ -79,7 +80,7 @@ interface iDAL {
      * @param query  a string with the query
      * @param fetch  a boolean, if true fetches the query result into an array (optional)
      * @return       a query result or an associative array if fetched
-     * @throws       DALException() if the query fails
+     * @throws       SYSException() if the query fails
      */
      public function query ($query, $fetch = false);
 
@@ -94,7 +95,7 @@ interface iDAL {
 
     /**
      * Sets the data that will be retrieved by the find method for each item. 
-     * If no data is  specified, the find method will retrieve a default set of 
+     * If no data is specified, the find method will retrieve a default set of 
      * data.
      * 
      * @param data  a string with the data to retrieve
@@ -102,20 +103,37 @@ interface iDAL {
     public function select ($data);
 
     /**
-     * Starts a new block of operations and establishes a connection to the 
-     * persistence system if needed.
+     * Creates a connection to the persistence system. If there is already an 
+     * available connection, it will be reused.
+     * 
+     * @throws  SYSException() if the connection could not be established
+     */
+    public function connect ();
+
+    /**
+     * Closes the connection to the persistence system.
+     * 
+     * @throws  SYSException() if the connection could not be closed
+     */
+    public function disconnect ();
+
+    /**
+     * Starts a new block of operations to the persistence system. This method 
+     * is not mandatory when querying the persistence system.
      */
     public function init ();
 
     /**
-     * Consolidates the changes of the current block of operations and closes 
-     * the connection to the persistence system.
+     * Consolidates the changes of the current block of operations to the 
+     * persistence system. This method is not mandatory when the init() method 
+     * was not used before.
      */
     public function commit ();
 
     /**
-     * Discards the changes of the current block of operations and closes the 
-     * connection to the persistence system.
+     * Discards the changes of the current block of operations to the 
+     * persistence system. This method is not mandatory when querying the 
+     * persistence system.
      */
     public function rollback ();
 

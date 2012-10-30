@@ -56,14 +56,13 @@ class DataVal {
             return false;
         }
         // Checks if the date is correct.
-        array_shift($date);
         switch ($pattern) {
             case 'eu':
-                list($day, $month, $year) = $date; break;
+                list(, $day, $month, $year) = $date; break;
             case 'us':
-                list($month, $day, $year) = $date; break;
+                list(, $month, $day, $year) = $date; break;
             default:
-                list($year, $month, $day) = $date;
+                list(, $year, $month, $day) = $date;
         }
         return checkdate($month, $day, $year);
     }
