@@ -60,7 +60,6 @@ class eModel {
         // Creates the object model.
         require_once($modelFile);
         $model = new $modelName($this->cmd);
-        $model->loadDAL();
         // Returns the model.
         return $model;
     }
@@ -105,20 +104,22 @@ class Model {
      */
     public function __construct ($cmd) {
         $this->cmd = $cmd;
+        $this->loadDAL();
     }
 
     /**
      * Loads a DAL (Data Access Layer) module. If no DAL module name is 
      * provided, loads the DAL module specified in the model class.
      */
-    public function loadDAL ($DALmodule = null) {
-        // If no DAL module, gets it from the model configuration if any.
-        if (!$DALmodule && isset($this->DALmodule)) {
-            $DALmodule = $this->DALmodule;
+    public function loadDAL ($DALcfg = null) {
+        // If no DAL configuration, gets it from the model configuration if any.
+        if (!$DALcfg && isset($this->DALcfg)) {
+            $DALcfg = $this->DALcfg;
         }
-        // Loads the DAL module.
-        if ($DALmodule) {
-            $this->DAL =& $this->cmd->getDAL($DALmodule);
+        // Loads the DAL module and sets the target entity.
+        if ($DALcfg) {
+            $this->DAL =& $this->cmd->getDAL($DALcfg['module']);
+            $this->DAL->from($DALcfg['entity']);
         }
     }
 
@@ -145,7 +146,6 @@ class Model {
         // Creates the object model.
         require_once($modelFile);
         $model = new $modelName($this->cmd);
-        $model->loadDAL();
         // Returns the model.
         return $model;
     }
