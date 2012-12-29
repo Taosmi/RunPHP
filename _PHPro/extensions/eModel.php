@@ -118,7 +118,7 @@ class Model {
         }
         // Loads the DAL module and sets the target entity.
         if ($DALcfg) {
-            $this->DAL =& $this->cmd->getDAL($DALcfg['module']);
+            $this->DAL =& $this->cmd->DAL->load($DALcfg['module']);
             $this->DAL->from($DALcfg['entity']);
         }
     }
@@ -128,26 +128,9 @@ class Model {
      *
      * @param modelName  a string with the model name
      * @return           the requested model object
-     * @throws           EXTException() if the Model does not exist
      */
     public function loadModel ($modelName) {
-        // Gets the model path from the application configuration.
-        $paths = $this->cmd->request->get('cfg', 'PATHS');
-        $modelPath = APP.$paths['models'];
-        // Loads the model file.
-        $modelFile = $$modelPath.'/'.$modelName.'.php';
-        // If the model file is missing, throws an exception.
-        if (!file_exists($modelFile)) {
-            throw new EXTException('', array(
-                'modelName' => $modelName,
-                'modelFile' => $modelFile
-            ));
-        }
-        // Creates the object model.
-        require_once($modelFile);
-        $model = new $modelName($this->cmd);
-        // Returns the model.
-        return $model;
+        return $this->cmd->Model->load($modelName);
     }
 }
 ?>

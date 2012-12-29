@@ -36,12 +36,6 @@ abstract class CommandController {
     public $request;
 
     /**
-     * The DAL (Data Access Layer) pool.
-     */
-    private $DAL = array();
-
-
-    /**
      * Creates a new command controller, loading the extensions and the helpers 
      * involved. All the command controllers gets a reference to the request 
      * object as the parameter that will be shared with the extensions.
@@ -59,46 +53,6 @@ abstract class CommandController {
         foreach ($this->request->get('cfg','HELPERS') as $helper) {
             include_once(HELPERS.$helper);
         }
-    }
-
-    /**
-     * Gets a DAL module (Data Access Layer) from the pool. If It is not 
-     * present in the pool, the DAL module will be loaded automatically.
-     * The DAL module must be defined in the application configuration file.
-     * 
-     * @param DALcfg  an associative array with the DAL module name, the entity an primary key
-     * @return           a DAL object
-     * @throws           SYSException('0300') if the DAL module is not defined 
-     * @throws           SYSException('0301') if the DAL module is missing
-     */
-    public function getDAL ($DALmodule) {
-        // Returns the DAL module if it was previously loaded.
-        if (isset($this->DAL[$DALmodule])) {
-            return $this->DAL[$DALmodule];
-        }
-        // Loads a new DAL module.
-        // Gets the string configuration from the DAL module.
-        $DALcfg = $this->request->get('cfg','DAL');
-        if (!isset($DALcfg[$DALmodule])) {
-            throw new SYSException('0300', array(
-                'DALmodule' => $DALmodule
-            ));
-        }
-        // Gets the DAL module name and the string configuration.
-        list($DALname, $DALstring) = explode(',', $DALcfg[$DALmodule], 2);
-        // Gets the DAL file name.
-        $DALfile = DAL.'/'.$DALname.'.php';
-        // If the DAL file is missing, throws an exception.
-        if (!file_exists($DALfile)) {
-            throw new SYSException('0301', array(
-                'DALmodule' => $DALname,
-                'DALfile' => $DALfile
-            ));
-        }
-        // Creates and returns a new DAL object.
-        require_once($DALfile);
-        $this->DAL[$DALmodule] = new $DALname($DALstring);
-        return $this->DAL[$DALmodule];
     }
 
     /**

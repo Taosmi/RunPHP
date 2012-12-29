@@ -30,8 +30,6 @@ define('APPS', '');
 define('SYSTEM', '_PHPro');
 // Extensions path.
 define('EXTENSIONS', SYSTEM.'/extensions');
-// DAL (Data Access Layer) path.
-define('DAL', EXTENSIONS.'/dal');
 // Helpers path.
 define('HELPERS', SYSTEM.'/helpers');
 // System logs path.
@@ -58,9 +56,6 @@ try {
 } catch (SYSException $exception) {
     // Handles a system exception.
     ErrorHandler::sysError($exception, $request);
-} catch (DALException $exception) {
-    // Handles a DAL (Data Access Layer) exception.
-    ErrorHandler::dalError($exception, $request);
 } catch (EXTException $exception) {
     // Handles an Extension exception.
     ErrorHandler::extError($exception, $request);
