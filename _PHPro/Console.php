@@ -123,19 +123,22 @@ class Console {
      * @throws  SYSException(0100) if the log path does not exist
      */
     public static function flush () {
-        global $cfg;
+        global $request;
+        // Gets the log path.
+        $log = $request->get('cfg', 'LOG');
+        $logPath = $request->get('cfg', 'PATHS');
         // Checks if the application global configuration variable is set to write log files.
-        if (!$cfg['LOG']['debug'] || ($cfg['LOG']['debug'] === 'OnlyDisplay')) {
+        if (!$log['debug'] || ($log['debug'] === 'OnlyDisplay')) {
             return false;
         }
         // Checks if the log directory exists.
-        if (!is_dir(APP.$cfg['PATHS']['logs'])) {
+        if (!is_dir(APP.$logPath['logs'])) {
             throw new SYSException('0100', array(
-                'path' => $cfg['PATHS']['logs']
+                'path' => $logPath['logs']
             ));
         }
         // Opens the file.
-        $filePath = APP.$cfg['PATHS']['logs'].'/log'.date('Y.m.d').'.txt';
+        $filePath = APP.$logPath['logs'].'/log'.date('Y.m.d').'.txt';
         $file = fopen($filePath, 'a');
         // Formats the log messages and writes them.
         foreach (self::$logBuffer as $logItem) {
