@@ -28,6 +28,8 @@
 define('APPS', '');
 // PHPro path.
 define('SYSTEM', '_PHPro');
+// Framework internal locales path.
+define('LOCALES', SYSTEM.'/locales');
 // Extensions path.
 define('EXTENSIONS', SYSTEM.'/extensions');
 // Helpers path.
@@ -44,6 +46,8 @@ require(SYSTEM.'/Console.php');
 require(SYSTEM.'/ErrorHandler.php');
 // Loads the Request class.
 require(SYSTEM.'/Request.php');
+// Loads the i18n class.
+require(SYSTEM.'/I18n.php');
 
 try {
     // Gets the request object with all the information.
