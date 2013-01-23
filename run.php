@@ -53,7 +53,7 @@ try {
     // Gets the request object with all the information.
     $request = new Request();
     // Loads and runs the main Command Controller.
-    $cmd = $request->getCmd();
+    $cmd = $request->get('cmdObj');
     $cmd->main();
     // Flushes the console buffer.
     Console::flush();

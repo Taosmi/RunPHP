@@ -1,8 +1,8 @@
 <?php
 /**
- * This class provides the methods to manage a request: analyzing a request and 
- * loading the application configuration on creation time, loading the command 
- * controller and retrieving information about the request.
+ * This class analyzes the request to know which application configuration and 
+ * command controller are involved for load them. Also provides methods to 
+ * retrieve information about the request itself.
  * 
  * @author Miguel Angel Garcia
  * 
@@ -29,7 +29,7 @@ class Request {
 
     /**
      * Analyzes and updates the request. Once the request is analyzed, the 
-     * framework knows which application and command controller is involved.
+     * framework knows which application and command controller are involved.
      * 
      * @throws  SYSException(0001) if the request does not belong to an application
      */
@@ -80,6 +80,25 @@ class Request {
     }
 
     /**
+     * Retrieves the command controller object which will handle the request.
+     * 
+     * @throws  SYSException(0404) if the command controller is not available
+     * @return  a command controller object
+     */
+    private function getCmd () {
+        // Checks the command controller is available.
+        if (!file_exists($this->request['cmdPath'])) {
+            throw new SYSException('0404', array(
+                'path' => $this->request['cmdPath']
+            ));
+        }
+        // Loads the command controller.
+        require($this->request['cmdPath']);
+        $cmdName = basename($this->request['cmd']);
+        return new $cmdName($this);
+    }
+
+    /**
      * Gets the command controller file path involved and stores this path in 
      * the request.
      */
@@ -109,8 +128,8 @@ class Request {
      * that type of information or null if it is not defined. If no type, 
      * returns the entire request object. To get access to the application 
      * configuration provide 'cfg' as the type and then the option to retrieve. 
-     * If no option, returns all the configuration information or null if it 
-     * is not defined.
+     * To get the command controller object provide 'cmdObj'. If no option, 
+     * returns all the configuration information or null if it is not defined.
      * 
      * @param type    a string with the type of info to get from the request (optional)
      * @param option  a string with the configuration option to retrieve (optional)
@@ -122,6 +141,8 @@ class Request {
             return $this->request;
         }
         switch ($type) {
+            case 'cmdObj':
+                return $this->getCmd();
             case 'cfg':
                 if (!$option) {
                     return $this->cfg;
@@ -136,26 +157,6 @@ class Request {
                 }
         }
         return null;
-    }
-
-    /**
-     * Retrieves the command controller object which will handle the request.
-     * 
-     * @throws  SYSException(0404) if the command controller is not available
-     * @return  a command controller object
-     */
-    public function getCmd () {
-        Console::logSys('Loading Command Controller file '.$this->request['cmdPath']);
-        // Checks the command controller is available.
-        if (!file_exists($this->request['cmdPath'])) {
-            throw new SYSException('0404', array(
-                'path' => $this->request['cmdPath']
-            ));
-        }
-        // Loads the command controller.
-        require($this->request['cmdPath']);
-        $cmdName = basename($this->request['cmd']);
-        return new $cmdName($this);
     }
 }
 ?>
