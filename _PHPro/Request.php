@@ -61,25 +61,6 @@ class Request {
     }
 
     /**
-     * Loads the application configuration file involved in the request.
-     * 
-     * @throws  SYSException(0002) if the configuration file is not available
-     */
-    private function loadCfg () {
-        // Defines the Application path and the base HTTP URL.
-        define('APP', APPS.$this->request['appName']);
-        define('BASE_URL', 'http://'.APP);
-        // Loads the application configuration file.
-        Console::logSys('Loading the configuration file for '.APP);
-        if (!file_exists(APP.'/config.ini')) {
-            throw new SYSException('0002', array(
-                'appName' => $this->request['appName']
-            ));
-        }
-        $this->cfg = parse_ini_file(APP.'/config.ini', true);
-    }
-
-    /**
      * Retrieves the command controller object which will handle the request.
      * 
      * @throws  SYSException(0404) if the command controller is not available
@@ -110,6 +91,25 @@ class Request {
             $this->request['cmdPath'].= '/index';
         }
         $this->request['cmdPath'].= '.php';
+    }
+
+    /**
+     * Loads the application configuration file involved in the request.
+     * 
+     * @throws  SYSException(0002) if the configuration file is not available
+     */
+    private function loadCfg () {
+        // Defines the Application path and the base HTTP URL.
+        define('APP', APPS.$this->request['appName']);
+        define('BASE_URL', 'http://'.APP);
+        // Loads the application configuration file.
+        Console::logSys('Loading the configuration file for '.APP);
+        if (!file_exists(APP.'/config.ini')) {
+            throw new SYSException('0002', array(
+                'appName' => $this->request['appName']
+            ));
+        }
+        $this->cfg = parse_ini_file(APP.'/config.ini', true);
     }
 
 
