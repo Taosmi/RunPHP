@@ -44,22 +44,42 @@ abstract class CommandController {
      */
     public function __construct (&$request) {
         $this->request = $request;
-        Console::logSys('Running the Command Controller '.$this->request->get('cmd'));
+        Logger::logSys('Running the Command Controller '.$this->request->get('cmd'));
         // Loads the extensions.
         foreach ($this->request->get('cfg','EXTS') as $eName => $eFile) {
             $this->loadExtension($eFile, $eName, $this);
         }
         // Loads the Helpers.
         foreach ($this->request->get('cfg','HELPERS') as $helper) {
-            include_once(HELPERS.$helper);
+            $this->loadHelper($helper);
         }
     }
 
     /**
+     * Loads a helper. The helper name must be the helper file name starting 
+     * with a slash (/).
+     * 
+     * @param helper  a string with the helper name
+     * @throws        SYSException(0302) if the helper is missing
+     */
+    public function loadHelper ($helper) {
+        // Checks if the helper exists.
+        $helperFile = HELPERS.$helper;
+        if (!file_exists($helperFile)) {
+            throw new SYSException('0302', array(
+                'extName' => $extName,
+                'file' => $extFile
+            ));
+        }
+        // Includes the file.
+        include_once(HELPERS.$helper);
+    }
+
+    /**
      * Loads an extension. The extension name must be the extension file name 
-     * starting with a / and without path and file extension (.php) and must be 
-     * equal to the extension class name. If the plug name is already in use, 
-     * no extension will be loaded.
+     * starting with a slash (/) and without path and file extension (.php) and 
+     * must be equal to the extension class name. If the plug name is already 
+     * in use, no extension will be loaded.
      * 
      * @param extName   a string with the extension name
      * @param plugName  a string with the name the extension will be plug in
@@ -84,6 +104,8 @@ abstract class CommandController {
         require_once($extFile);
         $extClass = basename($extName);
         $this->$plugName = new $extClass($param);
+        // Loads the internationalizacion domain for the extension.
+        I18n::loadSysDomain(substr($extName, 1));
         return true;
     }
 
@@ -94,8 +116,8 @@ abstract class CommandController {
      */
     public function redirect ($to) {
         // Updates the console.
-        Console::logSys('Redirected to '.$to);
-        Console::flush();
+        Logger::logSys('Redirected to '.$to);
+        Logger::flush();
         // Redirects the flow.
         header('Location: '.BASE_URL.$to);
         exit();

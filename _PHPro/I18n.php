@@ -32,10 +32,10 @@ class I18n {
     private static function set ($locale) {
         $newLocale = setlocale(LC_MESSAGES, $locale);
         if ($locale !== $newLocale) {
-            Console::logWarning('The locale \''.$locale.'\' is not available on the system');
+            Logger::logWarning('The locale \''.$locale.'\' is not available on the system');
             return false;
         }
-        Console::logSys('The current locale is set to \''.$locale.'\'');
+        Logger::logSys('The current locale is set to \''.$locale.'\'');
         return $newLocale;
     }
 
@@ -123,7 +123,7 @@ class I18n {
     public static function setLocale ($locale = null) {
         // Sets the locale from the argument.
         if ($locale) {
-            Console::logSys('Setting the locale \''.$locale.'\'...');
+            Logger::logSys('Setting the locale \''.$locale.'\'...');
             return self::set($locale);
         }
         // If the argument is null, tries to get the locale.
@@ -131,21 +131,21 @@ class I18n {
         $i18n = $request->get('cfg', 'I18N');
         // Gets the locale from the cookie.
         if ($i18n['fromCookie']) {
-            Console::logSys('Setting the locale from Cookie...');
+            Logger::logSys('Setting the locale from Cookie...');
             $locale = self::setLocaleFromCookie();
         }
         // Gets the locale from the HTTP request.
         if (!$locale && $i18n['fromHTTP']) {
-            Console::logSys('Setting the locale from HTTP...');
+            Logger::logSys('Setting the locale from HTTP...');
             $locale = self::setLocaleFromHTTP();
         }
         // Gets the locale from the default configuration.
         if (!$locale && $i18n['default']) {
-            Console::logSys('Setting the locale from default configuration...');
+            Logger::logSys('Setting the locale from default configuration...');
             $locale = self::set($i18n['default']);
         }
         if (!$locale) {
-            Console::logSys('No locale has been set');
+            Logger::logSys('No locale has been set');
         }
         // Returns the current locale.
         return $locale;

@@ -1,7 +1,7 @@
 <?php
 /**
  * This class analyzes the request to know which application configuration and 
- * command controller are involved for load them. Also provides methods to 
+ * command controller are involved for load them. Also provides a get method to 
  * retrieve information about the request itself.
  * 
  * @author Miguel Angel Garcia
@@ -34,7 +34,6 @@ class Request {
      * @throws  SYSException(0001) if the request does not belong to an application
      */
     private function analyze () {
-        Console::logSys('Processing new request.');
         // Analyzes the request.
         if (isset($_SERVER['SERVER_NAME'])) {
             // HTTP request.
@@ -53,7 +52,7 @@ class Request {
         if (filter_var($this->request['appName'], FILTER_VALIDATE_IP)) {
             $this->request['appName'] = $_SERVER['COMPUTERNAME'];
         }
-        Console::logSys($this->request);
+        Logger::logSys($this->request);
         // The request must belong to an application, otherwise throws an error.
         if (!$this->request['appName']) {
             throw new SYSException('0001');
@@ -103,7 +102,7 @@ class Request {
         define('APP', APPS.$this->request['appName']);
         define('BASE_URL', 'http://'.APP);
         // Loads the application configuration file.
-        Console::logSys('Loading the configuration file for '.APP);
+        Logger::logSys('Loading the configuration file for '.APP);
         if (!file_exists(APP.'/config.ini')) {
             throw new SYSException('0002', array(
                 'appName' => $this->request['appName']

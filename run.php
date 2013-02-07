@@ -22,7 +22,7 @@
  */
 
 /**
- * Path Constants.
+ * Framework settings.
  */
 // Applications path.
 define('APPS', '');
@@ -36,12 +36,14 @@ define('EXTENSIONS', SYSTEM.'/extensions');
 define('HELPERS', SYSTEM.'/helpers');
 // System logs path.
 define('SYS_LOG', SYSTEM.'/logs');
+// Display console.
+define('CONSOLE', true);
 
 // Sets the time zone to UTC.
 date_default_timezone_set('UTC');
 
-// Loads the Console class.
-require(SYSTEM.'/Console.php');
+// Loads the Logger class.
+require(SYSTEM.'/Logger.php');
 // Loads the Error Handler class.
 require(SYSTEM.'/ErrorHandler.php');
 // Loads the Request class.
@@ -50,13 +52,18 @@ require(SYSTEM.'/Request.php');
 require(SYSTEM.'/I18n.php');
 
 try {
+    Logger::logSys('Processing new request.');
     // Gets the request object with all the information.
     $request = new Request();
+    // Loads the internationalization domains.
+    I18n::loadSysDomain('system');
+    I18n::loadDomain('messages');
+    I18n::setDomain('messages');
     // Loads and runs the main Command Controller.
     $cmd = $request->get('cmdObj');
     $cmd->main();
     // Flushes the console buffer.
-    Console::flush();
+    Logger::flush();
 } catch (SYSException $exception) {
     // Handles a system exception.
     ErrorHandler::sysError($exception, $request);
