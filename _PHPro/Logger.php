@@ -4,7 +4,7 @@
  * the framework's actions (DAL access, errors, memory usage, system info, time 
  * consumed or warnings). This log methods must be placed wisely in your code 
  * in order to get a good debug information with them. All the framework's 
- * scripts are using the system log method in key points to easy debug.
+ * scripts are using the log methods in key points to easy debug.
  * 
  * @author Miguel Angel Garcia
  * 
@@ -22,10 +22,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class Console {
+class Logger {
 
     /**
-     * Stores all the log data.
+     * Stores all the application log data and system log data.
      */
     private static $logBuffer = array();
 
@@ -103,42 +103,19 @@ class Console {
     }
 
     /**
-     * Calculates the request statistics and processes the logs.
-     */
-    private static function processLog () {
-        // Calculates the total request time.
-        list($msec, $sec) = explode(' ', microtime());
-        $time = ((float)$sec + (float)$msec) - $_SERVER['REQUEST_TIME_FLOAT'];
-        // Calculates the statistics.
-        self::$totalStats['time'] = self::getReadableTime($time);
-        self::$totalStats['memory'] = self::getReadableSize(memory_get_peak_usage());
-        self::$totalStats['files'] = get_included_files();
-    }
-
-
-    /**
-     * Writes the log file whenever the appropriated flag is set on the 
-     * application global configuration variable.
+     * Writes the log to a file.
      * 
-     * @throws  SYSException(0100) if the log path does not exist
+     * @param path  a string with the log path relative to the application folder
      */
-    public static function flush () {
-        global $request;
-        // Gets the log path.
-        $log = $request->get('cfg', 'LOG');
-        $logPath = $request->get('cfg', 'PATHS');
-        // Checks if the application global configuration variable is set to write log files.
-        if (!$log['debug'] || ($log['debug'] === 'OnlyDisplay')) {
-            return false;
-        }
+    private static function toFile ($path) {
         // Checks if the log directory exists.
-        if (!is_dir(APP.$logPath['logs'])) {
+        if (!is_dir(APP.$path)) {
             throw new SYSException('0100', array(
-                'path' => $logPath['logs']
+                'path' => $path
             ));
         }
         // Opens the file.
-        $filePath = APP.$logPath['logs'].'/log'.date('Y.m.d').'.txt';
+        $filePath = APP.$path.'/log'.date('Y.m.d').'.txt';
         $file = fopen($filePath, 'a');
         // Formats the log messages and writes them.
         foreach (self::$logBuffer as $logItem) {
@@ -148,11 +125,10 @@ class Console {
                     $msg.= '('.$logItem['date'].') DAL >> '.$logItem['duration']."\n";
                     break;
                 case 'error':
-                    $msg = '('.$logItem['date'].') Error on line '.$logItem['line'].' >> '.$logItem['code'].' '.$logItem['msg']."\n".
-                            '('.$logItem['date'].') Error file: '.$logItem['file']."\n".
-                            '('.$logItem['date'].') Error details: '.$logItem['details']."\n";
+                    $msg = '('.$logItem['date'].') Error >> code '.$logItem['code'].': '.$logItem['msg']."\n".
+                            '('.$logItem['date'].') Error >> file: '.$logItem['file'].', line: '.$logItem['line']."\n";
                     break;
-                case 'log':
+                case 'info':
                     $msg = '('.$logItem['date'].') Log >> '.$logItem['msg']."\n";
                     break;
                 case 'memory':
@@ -177,13 +153,48 @@ class Console {
     }
 
     /**
+     * Calculates and updates the request statistics.
+     */
+    private static function updateStats () {
+        // Calculates the total request time.
+        list($msec, $sec) = explode(' ', microtime());
+        $time = ((float)$sec + (float)$msec) - $_SERVER['REQUEST_TIME_FLOAT'];
+        // Updates the statistics.
+        self::$totalStats['time'] = self::getReadableTime($time);
+        self::$totalStats['memory'] = self::getReadableSize(memory_get_peak_usage());
+        self::$totalStats['files'] = get_included_files();
+    }
+
+
+    /**
+     * Generates the log to the target depending on the type setting.
+     */
+    public static function flush () {
+        // Display de console.
+        if (CONSOLE) {
+            $console = self::getLog();
+            require(SYSTEM.'/htmlConsole.php');
+        }
+        // Generates the log.
+        global $request;
+        if ($request) {
+            $log = $request->get('cfg', 'LOGS');
+            switch ($log['type']) {
+            case 'file':
+                self::toFile($log['target']);
+                break;
+            }
+        }
+    }
+
+    /**
      * Retrieves the log data and statistics.
      * 
      * @return  an associative array with the log data and statistics
      */
     public static function getLog () {
-        // Calculates total statistics.
-        self::processLog();
+        // Updates total statistics.
+        self::updateStats();
         // Returns the log info.
         return array(
             'stats' => self::$totalStats,
@@ -199,7 +210,7 @@ class Console {
     public static function log ($msg) {
         // Logs the new entry.
         self::$logBuffer[] = array(
-            'type' => 'log',
+            'type' => 'info',
             'date' => date('Y-m-d H:i:s'),
             'msg' => print_r($msg, true)
         );
@@ -238,16 +249,15 @@ class Console {
      * @param request  an array with a request error information
      * @param msg      a string with a message (optional)
      */
-    public static function logError ($request, $msg = null) {
+    public static function logError ($error, $msg = null) {
         // Logs the new error entry.
         self::$logBuffer[] = array(
             'type' => 'error',
             'date' => date('Y-m-d H:i:s'),
-            'code' => $request['code'],
-            'file' => $request['file'],
-            'line' => $request['line'],
-            'msg' => $request['msg'],
-            'details' => $request['details']
+            'code' => $error['code'],
+            'file' => $error['file'],
+            'line' => $error['line'],
+            'msg' => $msg
         );
     }
 
@@ -273,9 +283,9 @@ class Console {
 
     /**
      * Logs a system message to console. The log includes the creation time. 
-     * The purpose of this method is to separate the system logs and the user 
-     * logs, so they can be filtered conveniently. So, this method must be 
-     * used only by framework's scripts.
+     * The purpose of this method is to separate the framework log from the 
+     * application logs, so they can be filtered conveniently. So, this method 
+     * must be used only by framework's scripts.
      * 
      * @param msg  a string with a message
      */ 
