@@ -67,8 +67,7 @@ abstract class CommandController {
         $helperFile = HELPERS.$helper;
         if (!file_exists($helperFile)) {
             throw new SYSException('0302', array(
-                'extName' => $extName,
-                'file' => $extFile
+                'helper' => $helper
             ));
         }
         // Includes the file.
