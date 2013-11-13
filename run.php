@@ -1,8 +1,11 @@
 <?php
+
+namespace ProWeb;
+
+
 /**
- * Once the HTTP Server is configured, all the request will hit this script, 
- * the Front Controller. This script sets the default constants, creates a 
- * request object, initiates and runs a command controller.
+ * All the requests will hit this script, the Front Controller.
+ * This script initializes the framework resources needed to run ProWeb.
  *
  * @author Miguel Angel Garcia
  *
@@ -21,56 +24,56 @@
  * limitations under the License.
  */
 
-/**
- * Framework settings.
- */
-// Applications path.
-define('APPS', '');
-// PHPro path.
-define('SYSTEM', '_PHPro');
-// Framework internal locales path.
-define('LOCALES', SYSTEM.'/locales');
-// Extensions path.
-define('EXTENSIONS', SYSTEM.'/extensions');
-// Helpers path.
-define('HELPERS', SYSTEM.'/helpers');
-// System logs path.
-define('SYS_LOG', SYSTEM.'/logs');
-// Display console.
-define('CONSOLE', true);
+// Framework path.
+define('SYSTEM', 'ProWeb');
+// Web applications path.
+define('WEBAPPS', 'webapps');
+
+// Loads the PHPro class auto-loader.
+require(SYSTEM.'/Loader.php');
+// Registers the auto-loader.
+Loader::register();
+
+// Sets the locale from a Cookie or from the request or from default.
+define('AUTO_LOCALE', true);
+// Default locale.
+define('DEFAULT_LOCALE', 'en_US');
+// Framework locals.
+define('SYS_LOCALES', SYSTEM.'/locales');
+
+// System log level.
+define('SYS_LOG_LEVEL', Logger::$LOG_ON);
+// System log file.
+define('SYSLOG', SYSTEM.'/logs');
 
 // Sets the time zone to UTC.
 date_default_timezone_set('UTC');
 
-// Loads the Logger class.
-require(SYSTEM.'/Logger.php');
-// Loads the Error Handler class.
-require(SYSTEM.'/ErrorHandler.php');
-// Loads the Request class.
-require(SYSTEM.'/Request.php');
-// Loads the i18n class.
-require(SYSTEM.'/I18n.php');
-
 try {
-    Logger::logSys('Processing new request.');
-    // Gets the request object with all the information.
-    $request = new Request();
-    // Loads the internationalization domains.
-    I18n::loadSysDomain('system');
-    I18n::loadDomain('messages');
-    I18n::setDomain('messages');
-    // Loads and runs the main Command Controller.
-    $cmd = $request->get('cmdObj');
-    $cmd->main();
-    // Flushes the console buffer.
-    Logger::flush();
-} catch (SYSException $exception) {
-    // Handles a system exception.
-    ErrorHandler::sysError($exception, $request);
-} catch (EXTException $exception) {
-    // Handles an Extension exception.
-    ErrorHandler::extError($exception, $request);
-}
+    // Gets the locale and sets the Framework locale.
+    I18n::setLocale();
+    I18n::loadDomain('system', SYS_LOCALES);
+    // Gets the request info and the application configuration.
+    $request = Router::getRequest();
+    $appCfg = Router::getAppConfig($request);
+    // Application locale.
+    I18n::setDomain($appCfg['I18N']['domain']);
+    I18n::loadDomain($appCfg['I18N']['domain'], APP.$appCfg['I18N']['path']);
+    // Loads and runs the Controller.
+    $controller = Router::getController($appCfg, $request);
+    $controller->main();
+} catch (ErrorException $exception) {
+    ErrorHandler::sysError($request, $exception);
+} catch (Error404Exception $exception) {
+    ErrorHandler::error404($exception);
+} 
+
+// Shows the console.
+$console = Logger::getLog();
+require(SYSTEM.'/html/console.php');
+
+// Flush the log;
+Logger::flush($appCfg);
 
 exit();
 ?>

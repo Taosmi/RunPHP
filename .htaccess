@@ -1,0 +1,25 @@
+#It is not allowed to show the directory list.
+Options All -Indexes
+Options +FollowSymLinks
+
+#The HTTP requests body has a 1 MB maximum size.
+LimitRequestBody 1024000
+
+RewriteEngine On
+
+#Bad robots and spyders are not allowed.
+#RewriteCond %{HTTP_USER_AGENT} ^Anarchie [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^ASPSeek [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^attach [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^autoemailspider [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^Xaldon\ WebSpider [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^Xenu [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^Zeus.*Webster [OR]
+#RewriteCond %{HTTP_USER_AGENT} ^Zeus
+#Redirects robots to other web.
+#RewriteRule ^.*$ http://www.otraweb.com [R,L]
+
+#Main rules.
+RewriteRule ^$ /run.php?controller=index&%{QUERY_STRING} [L]
+RewriteRule ^([\w\d-]+)$ /run.php?controller=$1&%{QUERY_STRING} [L]
+RewriteRule ^([\w\d-]+)/([\w\d-]*)$ /run.php?controller=$1&resource=$2&%{QUERY_STRING} [L]
