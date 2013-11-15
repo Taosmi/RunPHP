@@ -102,8 +102,7 @@ class Router {
             'appName' => $_SERVER['SERVER_NAME'],
             'controller' => $_GET['controller'],
             'resource' => $_GET['resource'],
-            'postData' => $_POST,
-            'getData' => $_GET
+            'data' => $_REQUEST
         );
         // If the server name is an IP address, uses the Computer Name instead.
         if (filter_var($request['appName'], FILTER_VALIDATE_IP)) {

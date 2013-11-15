@@ -33,6 +33,7 @@ class ViewExt extends ProWeb\Extension {
      */
     private $options;
 
+
     /**
      * Initiates the extension.
      */

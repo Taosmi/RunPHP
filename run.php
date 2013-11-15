@@ -66,13 +66,13 @@ try {
     ErrorHandler::sysError($request, $exception);
 } catch (Error404Exception $exception) {
     ErrorHandler::error404($exception);
-} 
+}
 
-// Shows the console.
-$console = Logger::getLog();
-require(SYSTEM.'/html/console.php');
-
-// Flush the log;
+// Shows the console and flushes the log.
+if ($appCfg['LOGS']['console'] && array_key_exists('console', $request['data'])) {
+    $console = Logger::getLog();
+    require(SYSTEM.'/html/console.php');
+}
 Logger::flush($appCfg);
 
 exit();
