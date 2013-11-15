@@ -26,10 +26,13 @@ class ErrorHandler {
 
     public static function sysError ($request, $exception) {
         // Gets the error message.
-        $errorMsg = __($exception->getMessage(), 'system');
-        // Logs the error.
-        Logger::error('%s: %s\n%s\n%s (line %s)', $exception->getMessage(), $errorMsg, $exception->data['error'], basename($exception->getFile()), $exception->getLine());
-        // Shows the error page.
+        $logTxt = 'Code '.$exception->getMessage().': '.__($exception->getMessage(), 'system').'\n';
+        $logTxt.= 'Program: '.basename($exception->getFile()). ' ('.$exception->getLine().')\n';
+        foreach (array_keys($exception->data) as $key) {
+            $logTxt.= $key.': '.$exception->data[$key].'\n';
+        }
+        // Logs the error and shows the error page.
+        Logger::error($logTxt);
         include(SYSTEM.'/html/error.php');
     }
 
