@@ -58,12 +58,10 @@ class Router {
             ));
         }
         // Defines the application log configuration.
-        if ($cfg['LOGS']['logLevel'] === '0') {
-            define('LOG_LEVEL', 0);
-        } else if ($cfg['LOGS']['logLevel'] === '1') {
-            define('LOG_LEVEL', 1);
-        } else {
-            define('LOG_LEVEL', 2);
+        switch ($cfg['LOGS']['logStatus']) {
+            case '0': define('LOG_LEVEL', 0); break;
+            case '1': define('LOG_LEVEL', 1); break;
+            default: define('LOG_LEVEL', 2);
         }
         // Returns the configuration properties.
         return $cfg;
