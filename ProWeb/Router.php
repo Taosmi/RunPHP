@@ -37,7 +37,7 @@ class Router {
     public static function getAppConfig ($request) {
         // The request must belong to an application, otherwise throws an error.
         if (!$request['appName']) {
-            throw new ProWeb\ErrorException('0001');
+            throw new ErrorException('0001');
         }
         // Defines the Application path and the base HTTP URL.
         define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['appName']);
@@ -53,7 +53,7 @@ class Router {
         $cfg = parse_ini_file($configFile, true);
         // Checks if the log folder exists.
         if (!is_dir(APP.$cfg['LOGS']['path'])) {
-            throw new ProWeb\ErrorException('0003', array(
+            throw new ErrorException('0003', array(
                 'path' => APP.$cfg['LOGS']['path']
             ));
         }
@@ -82,7 +82,7 @@ class Router {
         $controllerFile = APP.$controllerName.'.php';
         // Checks if the controller exists.
         if (!file_exists($controllerFile)) {
-            throw new ProWeb\Error404Exception($controllerFile);
+            throw new Error404Exception($request['appName'].$request['url'], $controllerFile);
         }
         // Converts the controller name to a name-space class.
         $controllerName = str_replace('/', '\\', $controllerName);
@@ -98,8 +98,9 @@ class Router {
         // Analyzes the request.
         $request = array(
             'from' => $_SERVER['REMOTE_ADDR'],
-            'method' => $_SERVER['REQUEST_METHOD'],
             'appName' => $_SERVER['SERVER_NAME'],
+            'method' => $_SERVER['REQUEST_METHOD'],
+            'url' => $_SERVER['REQUEST_URI'],
             'controller' => $_GET['controller'],
             'resource' => $_GET['resource'],
             'data' => $_REQUEST

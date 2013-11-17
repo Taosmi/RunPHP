@@ -38,10 +38,13 @@ class ErrorHandler {
 
     public static function error404 ($exception) {
         // Gets the error message.
-        $errorMsg = __($exception->getMessage(), 'system');
-        // Logs the error.
-        Logger::error('<<< 404 ERROR processing %s', $exception->getMessage());
-        // Shows the error page.
+        $logTxt = 'Code '.$exception->getMessage().': '.__($exception->getMessage(), 'system').'\n';
+        $logTxt.= 'Program: '.basename($exception->getFile()). ' ('.$exception->getLine().')\n';
+        foreach (array_keys($exception->data) as $key) {
+            $logTxt.= $key.': '.$exception->data[$key].'\n';
+        }
+        // Logs the error and shows the error page.
+        Logger::error($logTxt);
         include(SYSTEM.'/html/error404.php');
     }
 

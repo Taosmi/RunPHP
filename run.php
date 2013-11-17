@@ -62,10 +62,10 @@ try {
     // Loads and runs the Controller.
     $controller = Router::getController($appCfg, $request);
     $controller->main();
-} catch (ErrorException $exception) {
-    ErrorHandler::sysError($request, $exception);
 } catch (Error404Exception $exception) {
     ErrorHandler::error404($exception);
+} catch (ErrorException $exception) {
+    ErrorHandler::sysError($request, $exception);
 }
 
 // Shows the console and flushes the log.
