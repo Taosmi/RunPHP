@@ -1,8 +1,4 @@
 <?php
-
-namespace ProWeb\Helpers;
-
-
 /**
  * The Data Manipulation class is a static class that implements functionality 
  * to manipulate data.
