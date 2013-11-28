@@ -21,5 +21,4 @@ RewriteEngine On
 
 #Main rules.
 RewriteRule ^$ /run.php?controller=index&%{QUERY_STRING} [L]
-RewriteRule ^([\w\d-]+)$ /run.php?controller=$1&%{QUERY_STRING} [L]
-RewriteRule ^([\w\d-]+)/([\w\d-]*)$ /run.php?controller=$1&resource=$2&%{QUERY_STRING} [L]
+RewriteRule ^([\w\d-/@]+)$ /run.php?controller=$1&%{QUERY_STRING} [L]

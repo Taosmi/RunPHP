@@ -75,18 +75,29 @@ class Router {
      * @param cfg      An associative array with an application configuration. 
      * @param request  An associative array with a request information.
      * @return         A controller object.
+     * @throws         Error404Exception if no controller is available.
      */
-    public static function getController ($cfg, $request) {
-        // Creates and returns the controller.
+    public static function getController ($cfg, &$request) {
+        // The extra parameters and the controller name.
+        $extraparam = array();
         $controllerName = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR.$request['controller'];
-        $controllerFile = APP.$controllerName.'.php';
-        // Checks if the controller exists.
-        if (!file_exists($controllerFile)) {
-            throw new Error404Exception($request['appName'].$request['url'], $controllerFile);
+        // Tries to get a controller.
+        $loops = 2;
+        while ($loops && $controllerName) {
+            if (file_exists(APP.$controllerName.'.php')) {
+                $request['controller'] = $controllerName;
+                $request['data']['resource'] = implode($extraparam);
+                // Converts the controller name to a name-space class.
+                $controllerName = str_replace('/', '\\', $controllerName);
+                return new $controllerName($cfg, $request);
+            }
+            $lastSlash = strrpos($controllerName, '/');
+            $extraparam[] = substr($controllerName, $lastSlash + 1);
+            $controllerName = substr($controllerName, 0, $lastSlash);
+            $loops -= 1;
         }
-        // Converts the controller name to a name-space class.
-        $controllerName = str_replace('/', '\\', $controllerName);
-        return new $controllerName($cfg, $request);
+        // No controller found for the HTTP request.
+        throw new Error404Exception($request['appName'].$request['url'], $controllerFile);
     }
 
     /**
@@ -101,10 +112,11 @@ class Router {
             'appName' => $_SERVER['SERVER_NAME'],
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
-            'controller' => $_GET['controller'],
-            'resource' => $_GET['resource'],
+            'controller' => $_REQUEST['controller'],
+            'resource' => '',
             'data' => $_REQUEST
         );
+        unset($request['data']['controller']);
         // If the server name is an IP address, uses the Computer Name instead.
         if (filter_var($request['appName'], FILTER_VALIDATE_IP)) {
             $request['appName'] = $_SERVER['COMPUTERNAME'];
