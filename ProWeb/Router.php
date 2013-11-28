@@ -86,7 +86,7 @@ class Router {
         while ($loops && $controllerName) {
             if (file_exists(APP.$controllerName.'.php')) {
                 $request['controller'] = $controllerName;
-                $request['data']['resource'] = implode($extraparam);
+                $request['resource'] = implode($extraparam);
                 // Converts the controller name to a name-space class.
                 $controllerName = str_replace('/', '\\', $controllerName);
                 return new $controllerName($cfg, $request);

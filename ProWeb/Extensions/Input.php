@@ -92,7 +92,7 @@ class Input extends ProWeb\Extension {
      */
     public function get ($key) {
         // If no input data, returns null.
-        if (!array_key_exists($key, $_REQUEST)) {
+        if (!array_key_exists($key, $this->controller->request['data'])) {
             return null;
         }
         // Parses the input data to avoid XSS attacks.

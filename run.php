@@ -74,6 +74,6 @@ if ($appCfg['LOGS']['console'] && array_key_exists('console', $request['data']))
     require(SYSTEM.'/html/console.php');
 }
 Logger::flush($appCfg);
-var_dump($request);
+
 exit();
 ?>
