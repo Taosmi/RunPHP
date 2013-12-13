@@ -20,5 +20,6 @@ RewriteEngine On
 #RewriteRule ^.*$ http://www.otraweb.com [R,L]
 
 #Main rules.
-RewriteRule ^$ /run.php?controller=index&%{QUERY_STRING} [L]
-RewriteRule ^([\w\d-/@]+)$ /run.php?controller=$1&%{QUERY_STRING} [L]
+RewriteRule ^$ /run.php?controller=index [QSA,L]
+RewriteRule ^([\w\d-/@]+)/$ /run.php?controller=$1 [QSA,L]
+RewriteRule ^([\w\d-/@]+)$ /run.php?controller=$1 [QSA,L]
