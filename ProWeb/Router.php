@@ -78,22 +78,27 @@ class Router {
      * @throws         Error404Exception if no controller is available.
      */
     public static function getController ($cfg, &$request) {
-        // The extra parameters and the controller name.
+        // The controller root, the controller name and the extra parameters.
+        $root = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR;
+        $controller = $request['controller'];
         $extraparam = array();
-        $controllerName = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR.$request['controller'];
         // Tries to get a controller.
         $loops = 2;
-        while ($loops && $controllerName) {
-            if (file_exists(APP.$controllerName.'.php')) {
-                $request['controller'] = $controllerName;
+        while ($loops && $controller) {
+            if (is_dir(APP.$root.$controller)) {
+                $controller.= DIRECTORY_SEPARATOR.'index';
+            }
+            if (file_exists(APP.$root.$controller.'.php')) {
+                $request['controller'] = $controller;
                 $request['resource'] = implode($extraparam);
                 // Converts the controller name to a name-space class.
+                $controllerName = substr($root.$controller, 1);
                 $controllerName = str_replace('/', '\\', $controllerName);
                 return new $controllerName($cfg, $request);
             }
-            $lastSlash = strrpos($controllerName, '/');
-            $extraparam[] = substr($controllerName, $lastSlash + 1);
-            $controllerName = substr($controllerName, 0, $lastSlash);
+            $lastSlash = strrpos($controller, '/');
+            $extraparam[] = substr($controller, $lastSlash + 1);
+            $controller = substr($controller, 0, $lastSlash);
             $loops -= 1;
         }
         // No controller found for the HTTP request.
