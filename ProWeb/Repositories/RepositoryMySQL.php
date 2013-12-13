@@ -62,8 +62,8 @@ class RepositoryMySQL implements IRepository {
      * @return        Returns true if the object was successfully added.
      */
     public function add ($object) {
-        // Gets the object keys and values.
-        $objData = get_object_vars($object);
+        // Gets the object keys and values (only the not falsy).
+        $objData = array_filter(get_object_vars($object));
         $keys = implode(',', array_keys($objData));
         $values = '"'.implode('","', array_values($objData)).'"';
         // Query time.
