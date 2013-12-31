@@ -1,10 +1,7 @@
 <?php
 
-namespace ProWeb;
-
- 
 /**
- * Auto loader for the core and controller classes.
+ * Registers functions for the auto-loading of classes when required.
  * 
  * @author Miguel Angel Garcia
  * 
@@ -22,35 +19,38 @@ namespace ProWeb;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class Loader {
-
-    /**
-     * Registers the auto-load functions.
-     */
-    public static function register () {
-        spl_autoload_extensions('.php');
-        spl_autoload_register('ProWeb\Loader::autoCore');
-        spl_autoload_register('ProWeb\Loader::autoWebApp');
-    }
+namespace ProWeb {
 
     /**
      * Auto-load function for the core classes.
-     * 
-     * @param class  A string with the complete core class name.
+     *
+     * Tries to load the class from a file at the PHProWeb folder, adding the
+     * namespace path and the extension '.php' to the class name.
+     *
+     * @param string $class  The complete core class name.
      */
-    private static function autoCore ($class) {
+    function autoCore ($class) {
+        // Seven is the length for 'ProWeb/'.
         $class = str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 7)).'.php';
         include_once($class);
     }
 
     /**
-     * Auto-load function for the controllers.
+     * Auto-load function for the controller classes.
+
+     * Tries to load the class from a file at the WebApps folder, adding the
+     * application name, the controller path and the extension '.php' to the
+     * class name.
      *
-     * @param class  A string with the complete controller class name.  
+     * @param string $class  The complete controller class name.
      */
-    private static function autoWebApp ($class) {
+    function autoWebApp ($class) {
         $class = str_replace('\\', DIRECTORY_SEPARATOR, APP.'\\'.$class).'.php';
         include_once($class);
     }
+
+    // Registers the auto-load functions.
+    spl_autoload_extensions('.php');
+    spl_autoload_register('ProWeb\autoCore');
+    spl_autoload_register('ProWeb\autoWebApp');
 }
-?>
