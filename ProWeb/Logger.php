@@ -2,24 +2,23 @@
 
 namespace ProWeb;
 
-
 /**
- * This class provides all the log methods needed to retrieve information about 
- * the framework's actions (repository access, errors, memory usage, system 
- * info, time consumed or warnings). This log methods must be placed wisely in 
- * your code in order to get a good debug information with them. All the 
- * framework's scripts are using them in key points to easy debug.
- * 
+ * This class provides all the log methods needed to log all kind of events.
+ *
+ * Repository access, errors, memory usage, system info, time consumed or
+ * warnings can be log but only if this methods are placed wisely in your code.
+ * All the framework's scripts are using them in key points to easy debug.
+ *
  * @author Miguel Angel Garcia
- * 
+ *
  * Copyright 2012 TAOSMI Technology
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,11 +28,16 @@ namespace ProWeb;
 class Logger {
 
     /**
-     * The log can be enabled, disabled or configured to only store errors.
+     * The log can be disabled (0), enabled(1) or configured to only store
+     * errors (2).
      */
-    public static $LOG_OFF = 0;
-    public static $LOG_ON = 1;
-    public static $LOG_ERRORS = 2;
+    private static $LOG_OFF = 0;
+    private static $LOG_ON = 1;
+
+    /**
+     * The current log level. By default 2 (only errors).
+     */
+    private static $level = 2;
 
     /**
      * Log data buffer.
@@ -43,71 +47,67 @@ class Logger {
     /**
      * Number of access to the persistent data.
      */
-    private static $numReposAccess = 0;
+    private static $numRepoAccess = 0;
 
 
     /**
-     * Logs a debug message. The extra parameters will be interpolated with 
-     * the message.
-     * 
-     * @param msg  A string with a message.
+     * Logs a debug message.
+     * The extra parameters will be interpolated with the message. Logged only
+     * when LOG_ON.
+     *
+     * @param string $msg  A message.
      */
     public static function debug ($msg) {
         // Checks the log configuration.
-        if (LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
+        if (self::$level === Logger::$LOG_ON) {
+            // Gets the message interpolated with the context.
+            $msg = self::interpolate(func_get_args());
+            // Logs the new debug entry.
+            self::log('debug', $msg);
         }
-        // Gets the message interpolated with the context.
-        $msg = self::interpolate(func_get_args());
-        // Logs the new debug entry.
-        self::log('debug', $msg);
     }
 
     /**
-     * Logs a message error. The extra parameters will be interpolated with 
-     * the message.
+     * Logs a message error.
+     * The extra parameters will be interpolated with the message. Logged only
+     * when LOG_ERRORS.
      *
-     * @param msg  A string with a message. 
+     * @param string $msg  A message.
      */
     public static function error ($msg) {
         // Checks the log configuration.
-        if (LOG_LEVEL == Logger::$LOG_OFF) {
-            return false;
+        if (self::$level != Logger::$LOG_OFF) {
+            // Gets the message interpolated with the context.
+            $msg = self::interpolate(func_get_args());
+            // Logs the new error entry.
+            self::log('error', $msg);
         }
-        // Gets the message interpolated with the context.
-        $msg = self::interpolate(func_get_args());
-        // Logs the new error entry.
-        self::log('error', $msg);
     }
 
     /**
-     * Generates the log to the target depending on the type setting.
+     * Stores the logs to the file.
      * 
-     * @param cfg  An associative array with an application configuration.
+     * @param array $cfg  The application configuration.
      */
     public static function flush ($cfg) {
         // Opens the files.
         $appFilePath = APP.$cfg['LOGS']['path'].'/log'.date('Y.m.d').'.txt';
         $appFile = fopen($appFilePath, 'a');
-        $sysFilePath = SYSLOG.'/log'.date('Y.m.d').'.txt';
-        $sysFile = fopen($sysFilePath, 'a');
-        // Writes the log file.
-        $id = mt_rand();
+        // The id that identifies the logs from this request.
+        $id = mt_rand(0, 10000);
+        // Writes the log files.
         foreach (self::$logBuffer as $logItem) {
-            if ($logItem['level'] === 'sys') {
-                fwrite($sysFile, $logItem[date].' '.$id.' ['.APP.'] '.$logItem['msg']."\n");
-            } else {
-                fwrite($appFile, $logItem[date].' '.$id.' ['.$logItem['level'].'] '.$logItem['msg']."\n");
-            }
+            fwrite($appFile, sprintf("%s (%05d) [%s] %7s - %s\n", $logItem['date'], $id, APP, $logItem['level'], $logItem['msg']));
         }
         // Closes the file.
-        fclose($file);
+        fclose($appFile);
     }
 
     /**
      * Retrieves the log data and statistics.
+     * When this method is called, it is assumed that moment as the end time.
      * 
-     * @return  An associative array with the log data and statistics.
+     * @return array  The log data and statistics.
      */
     public static function getLog () {
         // Gets the request time.
@@ -117,104 +117,115 @@ class Logger {
             'time' => self::getReadableTime($time),
             'memory' => self::getReadableSize(memory_get_peak_usage()),
             'files' => get_included_files(),
-            'repo' => self::$numReposAccess,
+            'repo' => self::$numRepoAccess,
             'logs' => self::$logBuffer
         );
     }
 
     /**
-     * Logs the memory usage of an object. If no object, logs the memory usage 
-     * of the current script at this very moment.
-     * 
-     * @param object  A variable to measure (optional).
+     * Logs the memory usage of an object.
+     * If no object, logs the memory usage of the current script at this very
+     * moment. Logged only when LOG_ON.
+     *
+     * @param string $msg     A message.
+     * @param object $object  A variable to measure (optional).
      */
     public static function memory ($msg, $object = null) {
         // Checks the log configuration.
-        if (LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
+        if (self::$level === Logger::$LOG_ON) {
+            // Calculates the memory usage.
+            $memory = ($object !== null) ? strlen(serialize($object)) : memory_get_usage();
+            $msg.= ' ('.self::getReadableSize($memory).')';
+            // Logs the new memory entry.
+            self::log('memory', $msg);
         }
-        // Calculates the memory usage.
-        $memory = ($object !== null) ? strlen(serialize($object)) : memory_get_usage();
-        $msg.= ' ('.self::getReadableSize($memory).')';
-        // Logs the new memory entry.
-        self::log('memory', $msg);
     }
 
     /**
-     * Logs a repository access. If a start time is provided, calculates 
-     * the gap between now and the start time.
-     * 
-     * @param msg        A string with a repository query.
-     * @param startTime  A float with the start UNIX time-stamp of the query.
+     * Logs a repository access.
+     * If a start time is provided, calculates the gap between now and the start
+     * time. Logged only when LOG_ON.
+     *
+     * @param string $msg        A repository query.
+     * @param float  $startTime  The start UNIX time-stamp of the query (optional).
      */
     public static function repo ($msg, $startTime = null) {
         // Checks the log configuration.
-        if (LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
+        if (self::$level === Logger::$LOG_ON) {
+            // Gets the gap between the start time and the end time.
+            if ($startTime) {
+                $duration = microtime(true) - $startTime;
+                $msg.= ' ('.self::getReadableTime($duration).')';
+            }
+            // Logs the new repository access and updates the counter.
+            self::log('repo', $msg);
+            self::$numRepoAccess += 1;
         }
-        // Gets the gap between the start time and the end time if available.
-        if ($startTime) {
-            $duration = microtime(true) - $startTime;
-            $msg.= ' ('.self::getReadableTime($duration).')';
-        }
-        // Logs the new repository access and updates the counter.
-        self::log('repo', $msg);
-        self::$numReposAccess += 1;
     }
 
     /**
-     * Logs a message to the system log. The extra parameters will be 
-     * interpolated with the message.
-     * 
-     * @param msg  A string with the message.
+     * Sets a new log level.
+     * The log level should be 0 (off), 1 (on) or 2 (only errors).
+     *
+     * @param int $level  A new log level.
+     */
+    public static function setLevel ($level) {
+        self::$level = $level;
+    }
+
+    /**
+     * Logs a message to the system log.
+     * The extra parameters will be interpolated with the message. Logged only
+     * when LOG_ON.
+     *
+     * @param string $msg  A message.
      */
     public static function sys ($msg) {
         // Checks the log configuration.
-        if (SYS_LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
-        }
-        // Gets the message interpolated with the context.
-        $msg = self::interpolate(func_get_args());
-        // Logs the new error entry.
-        self::log('sys', $msg);
+        if (self::$level === Logger::$LOG_ON) {
+            // Gets the message interpolated with the context.
+            $msg = self::interpolate(func_get_args());
+            // Logs the new error entry.
+            self::log('system', $msg);
+            }
     }
 
     /**
-     * Logs a message with the amount of seconds passed since the request 
-     * arrived until this very moment. The extra parameters will be interpolated 
-     * with the message.
-     * 
-     * @param msg  A string with a message.
+     * Logs a message with the amount of seconds passed since the request
+     * arrived at the server until this very moment.
+     * The extra parameters will be interpolated with the message. Logged only
+     * when LOG_ON.
+     *
+     * @param string $msg  A message.
      */
     public static function time ($msg) {
         // Checks the log configuration.
-        if (LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
+        if (self::$level === Logger::$LOG_ON) {
+            // Gets the message interpolated with the context.
+            $msg = self::interpolate(func_get_args());
+            // Calculates the time gap.
+            $time = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+            $msg.= ' ('.self::getReadableTime($time).')';
+            // Logs the new time entry.
+            self::log('time', $msg);
         }
-        // Gets the message interpolated with the context.
-        $msg = self::interpolate(func_get_args());
-        // Calculates the time gap.
-        $time = microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-        $msg.= ' ('.self::getReadableTime($time).')';
-        // Logs the new time entry.
-        self::log('time', $msg);
     }
 
     /**
-     * Logs a warning message. The extra parameters will be interpolated with 
-     * the message.
-     * 
-     * @param msg  A string with a warning message.
+     * Logs a warning message.
+     * The extra parameters will be interpolated with the message. Logged only
+     * when LOG_ON.
+     *
+     * @param string $msg  A warning message.
      */ 
     public static function warning ($msg) {
         // Checks the log configuration.
-        if (LOG_LEVEL != Logger::$LOG_ON) {
-            return false;
+        if (self::$level === Logger::$LOG_ON) {
+            // Gets the message interpolated with the context.
+            $msg = self::interpolate(func_get_args());
+            // Logs the new warning entry.
+            self::log('warning', $msg);
         }
-        // Gets the message interpolated with the context.
-        $msg = self::interpolate(func_get_args());
-        // Logs the new warning entry.
-        self::log('warning', $msg);
     }
 
 
@@ -223,8 +234,8 @@ class Logger {
      * better with that size number. The minimum size unit is byte and the 
      * maximum size unit is terabyte.
      * 
-     * @param size  A number with a file/memory size in bytes.
-     * @return      A string with a file/memory size that fits better that size number.
+     * @param int $size  A file/memory size in bytes.
+     * @return string    A file/memory size that fits better that size number.
      */
     private static function getReadableSize ($size) {
         // Default number formats and available units measures.
@@ -240,7 +251,7 @@ class Logger {
             };
             $size /= 1024;
         }
-        // Bytes are not fractioned.
+        // Bytes are not fractionated.
         if ($unit == 'bytes') {
             $numFormat = '%01d %s';
         }
@@ -253,8 +264,8 @@ class Logger {
      * better with that amount of time. The minimum time unit is milliseconds 
      * and the maximum time unit is minutes.
      * 
-     * @param time  A float as an amount of time in seconds.
-     * @return      A string with a time scale that fits better that amount of time.
+     * @param float $time  An amount of time in seconds.
+     * @return string      A time that fits better that amount of time.
      */
     private static function getReadableTime ($time) {
         if ($time < 1) {
@@ -279,7 +290,8 @@ class Logger {
     /**
      * Interpolates the first string of the array with the other ones.
      * 
-     * @param context  An array with strings to interpolate with.
+     * @param array $context  Strings to interpolate with.
+     * @return string         The first string interpolated with the others.
      */
     private static function interpolate ($context) {
         $msg = $context[0];
@@ -293,8 +305,8 @@ class Logger {
     /**
      * Logs a message.
      * 
-     * @param level  A string with the log level.
-     * @param msg    A string with the message.
+     * @param string $level  A log level.
+     * @param string $msg    A message.
      */
     private static function log ($level, $msg) {
         // Logs the new entry.
@@ -305,4 +317,3 @@ class Logger {
         );
      }
 }
-?>
