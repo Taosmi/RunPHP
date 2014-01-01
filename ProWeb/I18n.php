@@ -27,6 +27,17 @@ namespace ProWeb {
     class I18n {
 
         /**
+         * The auto-locale mode. By default false.
+         */
+        private static $autolocale = false;
+
+        /**
+         * The default locale.
+         */
+        private static $defaultLocale = 'es_US';
+
+
+        /**
          * Sets a locale as the current one.
          *
          * If the locale is not available returns false, otherwise returns the
@@ -103,6 +114,24 @@ namespace ProWeb {
         }
 
         /**
+         * Sets the auto-locale mode enabled or disabled.
+         *
+         * @param boolean $auto  The auto-locale mode.
+         */
+        public static function setAutoLocale ($auto) {
+            self::$autolocale = $auto;
+        }
+
+        /**
+         * Sets the default locale.
+         *
+         * @param string $locale  A locale to use as default.
+         */
+        public static function setDefaultLocale ($locale) {
+            self::$defaultLocale = $locale;
+        }
+
+        /**
          * Sets a domain as the current one.
          *
          * @param string $domain  A domain name.
@@ -129,19 +158,19 @@ namespace ProWeb {
             }
             // If no argument and the auto-locale is set, tries to get it.
             // Gets the locale from the cookie.
-            if (AUTO_LOCALE) {
+            if (self::$autolocale) {
                 Logger::sys('Setting the locale from Cookie...');
                 $locale = self::setLocaleFromCookie();
             }
             // Gets the locale from the HTTP request.
-            if (AUTO_LOCALE && !$locale) {
+            if (self::$autolocale && !$locale) {
                 Logger::sys('Setting the locale from HTTP...');
                 $locale = self::setLocaleFromHTTP();
             }
             // Gets the locale from the default configuration.
-            if (DEFAULT_LOCALE && !$locale) {
+            if (self::$defaultLocale && !$locale) {
                 Logger::sys('Setting the locale from default...');
-                $locale = self::set(DEFAULT_LOCALE);
+                $locale = self::set(self::$defaultLocale);
             }
             if (!$locale) {
                 Logger::sys('No locale has been set');
