@@ -3,7 +3,7 @@
 namespace ProWeb {
 
     /**
-     * This class provides all the static methods needed to manage i18n.
+     * This class provides all the methods needed to manage i18n.
      *
      * It is based on 'gettext' so you will need an external tool to provide the
      * text files translations.
