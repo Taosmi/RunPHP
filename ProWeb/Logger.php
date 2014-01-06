@@ -68,19 +68,24 @@ class Logger {
     }
 
     /**
-     * Logs a message error.
-     * The extra parameters will be interpolated with the message. Logged only
-     * when LOG_ERRORS.
+     * Logs an exception error.
+     * Logged only when LOG_ERRORS.
      *
-     * @param string $msg  A message.
+     * @param ErrorException $exception  An error exception object.
      */
-    public static function error ($msg) {
+    public static function error ($exception = null) {
         // Checks the log configuration.
         if (self::$level != Logger::$LOG_OFF) {
-            // Gets the message interpolated with the context.
-            $msg = self::interpolate(func_get_args());
-            // Logs the new error entry.
-            self::log('error', $msg);
+            // Logs the error entries.
+            self::log('error', 'Code '.$exception->getCode().': '.$exception->getMessage());
+            self::log('error', 'Program: '.basename($exception->getFile()). ' ('.$exception->getLine().')');
+            if (!empty($exception->data)) {
+                $logTxt = '';
+                foreach (array_keys($exception->data) as $key) {
+                    $logTxt.= $key.': '.$exception->data[$key].', ';
+                }
+                self::log('error', $logTxt);
+            }
         }
     }
 
