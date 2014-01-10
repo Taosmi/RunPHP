@@ -31,8 +31,8 @@ class Logger {
      * The log can be disabled (0), enabled(1) or configured to only store
      * errors (2).
      */
-    private static $LOG_OFF = 0;
-    private static $LOG_ON = 1;
+    private static $LOG_OFF = '0';
+    private static $LOG_ON = '1';
 
     /**
      * The current log level. By default 2 (only errors).
