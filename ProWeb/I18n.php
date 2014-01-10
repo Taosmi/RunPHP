@@ -49,10 +49,10 @@ namespace ProWeb {
         private static function set ($locale) {
             $newLocale = setlocale(LC_MESSAGES, $locale);
             if ($locale !== $newLocale) {
-                Logger::sys('ATTENTION! The locale "%s" is not available on the system.', $locale);
+                Logger::sys(__('ATTENTION! The locale "%s" is not available on the system.', 'system'), $locale);
                 return '';
             }
-            Logger::sys('The current locale is set to "%s".', $locale);
+            Logger::sys(__('The current locale is set to "%s".', 'system'), $locale);
             return $newLocale;
         }
 
@@ -153,27 +153,23 @@ namespace ProWeb {
         public static function setLocale ($locale = null) {
             // Sets the locale from the argument.
             if ($locale) {
-                Logger::sys('Setting the locale "%s".', $locale);
                 return self::set($locale);
             }
             // If no argument and the auto-locale is set, tries to get it.
             // Gets the locale from the cookie.
             if (self::$autolocale) {
-                Logger::sys('Setting the locale from Cookie...');
                 $locale = self::setLocaleFromCookie();
             }
             // Gets the locale from the HTTP request.
             if (self::$autolocale && !$locale) {
-                Logger::sys('Setting the locale from HTTP...');
                 $locale = self::setLocaleFromHTTP();
             }
             // Gets the locale from the default configuration.
             if (self::$defaultLocale && !$locale) {
-                Logger::sys('Setting the locale from default...');
                 $locale = self::set(self::$defaultLocale);
             }
             if (!$locale) {
-                Logger::sys('No locale has been set');
+                Logger::sys(__('No locale has been set.', 'system'));
             }
             // Returns the current locale.
             return $locale;
