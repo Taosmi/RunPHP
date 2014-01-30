@@ -2,7 +2,6 @@
 
 namespace ProWeb;
 
-
 /**
  * This class is an abstract class and must be extended to implement a Extension. 
  * 
@@ -45,4 +44,3 @@ abstract class Extension {
         $this->init();
     }
 }
-?>

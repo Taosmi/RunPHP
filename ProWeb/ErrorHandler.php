@@ -22,8 +22,8 @@
 namespace ProWeb {
 
     /**
-     * Logs an error and shows an error page that matches the error type.
-     * If no error type available shows the default error page.
+     * Shows an error page that matches the type error if available.
+     * If no type error available shows the default error page.
      * If no default error page shows the framework error page.
      *
      * @param ErrorException $exception  An error exception.
@@ -31,10 +31,10 @@ namespace ProWeb {
     function doError ($exception) {
         // Logs the error.
         Logger::error($exception);
-        // Shows the application specific error page.
         $errorPath = APP.'/views/errors/';
         $errorPage = $exception->type.'Error.php';
         if (file_exists($errorPath.$errorPage)) {
+            // Shows the application specific error page.
             include($errorPath.$errorPage);
         } else if (file_exists($errorPath.'error.php')) {
             // Shows the application default error page.
