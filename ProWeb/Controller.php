@@ -2,7 +2,6 @@
 
 namespace ProWeb;
 
-
 /**
  * This class is an abstract class and must be extended to implement a Controller.
  * A controller runs when its path (relative to the webApp) matches the HTTP 
@@ -44,15 +43,14 @@ abstract class Controller {
      * Loads the extensions involved. All the controllers get a reference to the 
      * application configuration and to the request information.
      * 
-     * @param cfg      An associative array with an application configuration. 
-     * @param request  An associative array with the request information.
+     * @param array $cfg      An application configuration.
+     * @param array $request  The request information.
      */
     public function __construct ($cfg, $request) {
         $this->cfg = $cfg;
         $this->request = $request;
-        // Loads the extensions.
-        Logger::sys('Initializing the Controller "%s"', $request['controller']);
         // Plugs the extensions.
+        Logger::sys(__('Initializing the Controller "%s".', 'system'), $request['controller']);
         foreach ($cfg['EXTS'] as $extName => $extClass) {
             $this->loadExtension($extName, $extClass, $this);
         }
@@ -61,51 +59,46 @@ abstract class Controller {
     /**
      * Loads an extension. The extension name must be the extension file name 
      * starting with a slash (/) and without path and file extension (.php) and 
-     * must be equal to the extension class name. If the plug name is already 
-     * in use, no extension will be loaded.
-     * 
-     * @param extName   A string with the name the extension will be plug-in.
-     * @param extClass  A string with the extension class name.
-     * @param param     A reference to be used when creating the extension (optional).
-     * @return          True if the extension is successfully loaded, otherwise false.
-     * @throws          ErrorException(0004) if the extension name is already used.
-     * @throws          ErrorException(0005) if the extension class is missing.
+     * must be equal to the extension class name.
+     *
+     * @param string     $extName     The name the extension will be plug-in.
+     * @param string     $extClass    The extension class name.
+     * @param Controller $controller  A controller reference to be used when creating the extension.
+     * @throws ErrorException(0004)   If the extension name is already used.
+     * @throws ErrorException(0005)   If the extension class is missing.
      */
     public function loadExtension ($extName, $extClass, $controller) {
         // Checks if the plug name is available.
         if (isset($this->$extName)) {
-            throw new ErrorException('0004', array(
+            throw new ErrorException(0004, __('The extension name is already in use.', 'system'), array(
                 'extName' => $extName
-            ));
+            ), 'system');
         }
         // Checks if the extension file exists.
         $extFile = str_replace('\\', DIRECTORY_SEPARATOR, $extClass).'.php';
         if (!file_exists($extFile)) {
-            throw new ErrorException('0006', array(
+            throw new ErrorException(0005, __('The extension class is missing.', 'system'), array(
                 'extName' => $extName,
                 'file' => $extFile
-            ));
+            ), 'system');
         }
-        // Plugs the extension.
+        // Plugs the extension and loads the i18n domain.
         $this->$extName = new $extClass($controller);
-        // Loads the internationalization domain of the extension.
-        //I18n::loadSysDomain(substr($extName, 1));
-        return true;
+        I18n::loadDomain($extName, SYS_LOCALES);
     }
 
     /**
      * Redirects to another Command Controller. Must be used before sending or 
      * displaying any data.
      * 
-     * @param to  A string with the /controller format.
+     * @param string $to  The controller path.
      */
     public function redirect ($to) {
         // Updates the log.
-        Logger::debug('<<< Redirecting to Controller %s', $to);
+        Logger::debug(__('Redirecting to Controller "%s".', 'system'), $to);
         Logger::flush($this->cfg);
         // Redirects the flow.
         header('Location: '.BASE_URL.$to);
         exit();
     }
 }
-?>
