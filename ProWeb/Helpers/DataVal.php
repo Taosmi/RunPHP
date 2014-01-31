@@ -2,11 +2,10 @@
 
 namespace ProWeb\Helpers;
 
-
 /**
  * The Data Validation class is a static class that implements functionality to 
  * validate data. Add here your validation methods to use it later on the 
- * controllers when validate your data with the Input->check method.
+ * controllers when validate your data with the Inputs->check method.
  * 
  * @author Miguel Angel Garcia Reguera
  * 
@@ -27,12 +26,12 @@ namespace ProWeb\Helpers;
 class DataVal {
 
     /**
-     * Checks if the value contains alphabetical characters (a-z) or 
-     * digits (0-9) or dots (.) or commas (,) or dashes (-) or underscores (_) 
-     * or semicolons (:).
+     * Checks if a string contains alphabetical characters (a-z) or digits
+     * (0-9) or dots (.) or commas (,) or dashes (-) or underscores (_) or
+     * semicolons (:).
      *
-     * @param value  A string with the characters.
-     * @return       True if the value contains the characters, otherwise false.
+     * @param string $value  The string to validate.
+     * @return boolean       True if the value contains the characters, otherwise false.
      */
     public static function alpha ($value) {
         return filter_var($value, FILTER_VALIDATE_REGEXP, array(
@@ -41,16 +40,16 @@ class DataVal {
     }
 
     /**
-     * Checks if a value is a valid date. By default the date provided will 
-     * be checked against the international pattern. Dashes (-) or slashes (/) 
-     * or dots(.) may be used as separators. Available date patterns are:
-     *      'eu'  => DD-MM-YYYY     Europe style
-     *      'us'  => MM-DD-YYYY     USA style
-     *      'int' => YYYY-MM-DD     International style
+     * Checks if a string contains a valid date. By default the date provided
+     * will be checked against the international pattern. Dashes (-) or slashes
+     * (/) or dots(.) may be used as separators. Available date patterns are:
+     *      'eu'  => DD-MM-YYYY     Europe format
+     *      'us'  => MM-DD-YYYY     USA format
+     *      'int' => YYYY-MM-DD     International format
      *
-     * @param value    A string with the date.
-     * @param pattern  A string with the date pattern name (optional).
-     * @return         True if the value is a valid date, otherwise false.
+     * @param string $value    A value with the date.
+     * @param string $pattern  A date pattern name (optional).
+     * @return boolean         True if the value is a valid date, otherwise false.
      */
     public static function date ($value, $pattern = 'int') {
         // Checks if the format is correct.
@@ -72,10 +71,10 @@ class DataVal {
     }
 
     /**
-     * Checks if a value contains only digits.
+     * Checks if a string contains only digits.
      *
-     * @param value  A string with the digits.
-     * @return       True if the value contains only digits, otherwise false.
+     * @param string $value  The value with only digits.
+     * @return boolean       True if the value contains only digits, otherwise false.
      */
     public static function digits ($value) {
         return filter_var($value, FILTER_VALIDATE_REGEXP, array(
@@ -84,59 +83,59 @@ class DataVal {
     }
 
     /**
-     * Checks if a value is a valid email.
+     * Checks if a string is a valid email.
      *
-     * @param value  A string with the email.
-     * @return       True if the value is a valid email, otherwise false.
+     * @param string $value  A value with an email.
+     * @return boolean       True if the value is a valid email, otherwise false.
      */
     public static function email ($value) {
         return filter_var($value, FILTER_VALIDATE_EMAIL);
     }
 
     /**
-     * Checks if a string has a specified length.
+     * Checks if a string has a specific length.
      *
-     * @param value  A string.
-     * @param ln     A number that indicates the string length.
-     * @return       True if the string length is equal to the length provided, otherwise false.
+     * @param string $value   A string.
+     * @param int    $length  The supposed string length.
+     * @return boolean        True if the string length is equal to the length provided, otherwise false.
      */
-    public static function length ($value, $ln) {
-        return (strlen($value) === $ln);
+    public static function length ($value, $length) {
+        return (strlen($value) === $length);
     }
 
     /**
-     * Checks if a string has a maximum length.
+     * Checks if a string has a length smaller than the length provided.
      *
-     * @param value  A string.
-     * @param ln     A number that indicates the maximum string length.
-     * @return       True if the string length is smaller or equal than the length provided, otherwise false.
+     * @param string $value      A string.
+     * @param int    $maxLength  The maximum string length.
+     * @return boolean           True if the string length is smaller or equal than the length provided, otherwise false.
      */
-    public static function maxLength ($value, $maxLn) {
-        return (strlen($value) <= $maxLn);
+    public static function maxLength ($value, $maxLength) {
+        return (strlen($value) <= $maxLength);
     }
 
     /**
-     * Checks if a string has a minimum length.
+     * Checks if a string has a length higher than the length provided.
      *
-     * @param value  A string.
-     * @param ln     A number that indicates the minimum string length.
-     * @return       True if the string length is bigger or equal than the length provided, otherwise false.
+     * @param string $value      A string.
+     * @param int    $minLength  The minimum string length.
+     * @return boolean           True if the string length is higher or equal than the length provided, otherwise false.
      */
-    public static function minLength ($value, $minLn) {
-        return (strlen($value) >= $minLn);
+    public static function minLength ($value, $minLength) {
+        return (strlen($value) >= $minLength);
     }
 
     /**
      * Checks if a number has a valid format. By default the number provided 
-     * will be checked against the German style. Available date patterns are:
-     *      'ch' => 1'234'567'890,12    Swiss style
-     *      'fr' => 1 234 567 890,12    French style
-     *      'gb' => 1,234,567,890.12    British style
-     *      'de' => 1.234.567.890,12    German style
+     * will be checked against the German format. Available date patterns are:
+     *      'ch' => 1'234'567'890,12    Swiss format
+     *      'fr' => 1 234 567 890,12    French format
+     *      'gb' => 1,234,567,890.12    British format
+     *      'de' => 1.234.567.890,12    German format
      * 
-     * @param value    A string with the number.
-     * @param pattern  A string with the pattern name (optional).
-     * @return         True if the string is a valid number, otherwise false.
+     * @param string $value    The number.
+     * @param string $pattern  The pattern name (optional).
+     * @return boolean         True if the string is a valid number, otherwise false.
      */
      public static function number ($value, $pattern = '') {
         // Gets the number format.
@@ -161,11 +160,11 @@ class DataVal {
     }
 
     /**
-     * Checks if a value is in between of two values.
+     * Checks if a value is in range.
      *
-     * @param value  A numeric value.
-     * @param range  A string with a minimum and maximum value separated by comma.
-     * @return       True if the value is in between, otherwise false.
+     * @param int    $value  A value.
+     * @param string $range  A minimum and maximum value separated by comma.
+     * @return boolean       True if the value is in range, otherwise false.
      */
     public static function range ($value, $range) {
         list($min, $max) = explode(',', $range);
@@ -175,11 +174,10 @@ class DataVal {
     /**
      * Checks if a value is not null and not an empty string.
      *
-     * @param value  A string.
-     * @return       True if the characters is not null and not an empty string, otherwise false.
+     * @param string $value  A value.
+     * @return boolean       True if the value is not null and not empty, otherwise false.
      */
     public static function required ($value) {
         return ($value !== '' && $value !== null);
     }
 }
-?>
