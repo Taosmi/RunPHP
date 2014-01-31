@@ -39,8 +39,11 @@ namespace ProWeb {
         } else if (file_exists($errorPath.'error.php')) {
             // Shows the application default error page.
             include($errorPath.'error.php');
+        } else if (file_exists(SYSTEM.'/html/'.$exception->type.'Error.php')) {
+            // Shows the system specific error page.
+            include(SYSTEM.'/html/'.$exception->type.'Error.php');
         } else {
-            // Shows the system error page.
+            // Shows the system fatal error page.
             include(SYSTEM.'/html/error.php');
         }
     }
