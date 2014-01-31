@@ -2,10 +2,9 @@
 
 namespace ProWeb;
 
-
 /**
  * All the requests will hit this script, the Front Controller.
- * This script initializes the framework resources needed to run ProWeb.
+ * This script initializes the framework resources needed to run the PHProWeb.
  *
  * @author Miguel Angel Garcia
  *
@@ -28,52 +27,54 @@ namespace ProWeb;
 define('SYSTEM', 'ProWeb');
 // Web applications path.
 define('WEBAPPS', 'webapps');
-
-// Loads the PHPro class auto-loader.
-require(SYSTEM.'/Loader.php');
-// Registers the auto-loader.
-Loader::register();
-
-// Sets the locale from a Cookie or from the request or from default.
-define('AUTO_LOCALE', true);
-// Default locale.
-define('DEFAULT_LOCALE', 'en_US');
 // Framework locals.
 define('SYS_LOCALES', SYSTEM.'/locales');
-
-// System log level.
-define('SYS_LOG_LEVEL', Logger::$LOG_ON);
-// System log file.
-define('SYSLOG', SYSTEM.'/logs');
-
 // Sets the time zone to UTC.
 date_default_timezone_set('UTC');
 
 try {
-    // Gets the locale and sets the Framework locale.
-    I18n::setLocale();
+    // Loads the PHProWeb class auto-loader and the Router functions.
+    require(SYSTEM.'/Loader.php');
+    require(SYSTEM.'/Router.php');
+    // Gets the request info, the application configuration and the system domain.
+    $request = getRequest();
+    $appCfg = getAppConfig($request);
     I18n::loadDomain('system', SYS_LOCALES);
-    // Gets the request info and the application configuration.
-    $request = Router::getRequest();
-    $appCfg = Router::getAppConfig($request);
-    // Application locale.
-    I18n::setDomain($appCfg['I18N']['domain']);
+    // Checks request and configuration.
+    if (empty($appCfg)) {
+        throw new ErrorException(0000, null, $request, 'system');
+    }
+    // Defines the Application path and the base HTTP URL.
+    define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['appName']);
+    define('BASE_URL', 'http://'.$request['appName']);
+    // Log and I18n configuration.
+    Logger::setLevel($appCfg['LOGS']['logLevel']);
+    I18n::setAutoLocale($appCfg['I18N']['autolocale']);
+    I18n::setDefaultLocale($appCfg['I18N']['default']);
+    // Loads the application domain and sets the locale.
     I18n::loadDomain($appCfg['I18N']['domain'], APP.$appCfg['I18N']['path']);
+    I18n::setDomain($appCfg['I18N']['domain']);
+    I18n::setLocale();
     // Loads and runs the Controller.
-    $controller = Router::getController($appCfg, $request);
+    Logger::sys(__('Request from %s to "%s/%s".', 'system'), $request['from'], $request['appName'], $request['controller']);
+    $controller = getController($appCfg, $request);
+    // No controller found for the HTTP request.
+    if (!$controller) {
+        throw new ErrorException(0404, null, $request, 'notFound');
+    }
     $controller->main();
-} catch (Error404Exception $exception) {
-    ErrorHandler::error404($exception);
 } catch (ErrorException $exception) {
-    ErrorHandler::sysError($request, $exception);
+    // Handles the error as properly as possible.
+    require(SYSTEM.'/ErrorHandler.php');
+    doError($exception);
 }
 
 // Shows the console and flushes the log.
-if ($appCfg['LOGS']['console'] && array_key_exists('console', $request['data'])) {
-    $console = Logger::getLog();
-    require(SYSTEM.'/html/console.php');
+if (!empty($appCfg) && !empty($request)) {
+    if ($appCfg['LOGS']['console'] && array_key_exists('console', $request['data'])) {
+        require(SYSTEM.'/html/console.php');
+    }
+    Logger::flush($appCfg);
 }
-Logger::flush($appCfg);
 
 exit();
-?>
