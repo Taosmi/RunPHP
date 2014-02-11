@@ -41,25 +41,25 @@ class DataVal {
 
     /**
      * Checks if a string contains a valid date. By default the date provided
-     * will be checked against the international pattern. Dashes (-) or slashes
-     * (/) or dots(.) may be used as separators. Available date patterns are:
+     * will be checked against the international format. Dashes (-) or slashes
+     * (/) or dots(.) may be used as separators. Available date formats are:
      *      'eu'  => DD-MM-YYYY     Europe format
      *      'us'  => MM-DD-YYYY     USA format
-     *      'int' => YYYY-MM-DD     International format
+     *      'int' => YYYY-MM-DD     International format (default)
      *
-     * @param string $value    A value with the date.
-     * @param string $pattern  A date pattern name (optional).
-     * @return boolean         True if the value is a valid date, otherwise false.
+     * @param string $value   A value with the date.
+     * @param string $format  The input date format (optional).
+     * @return boolean        True if the value is a valid date, otherwise false.
      */
-    public static function date ($value, $pattern = 'int') {
+    public static function date ($value, $format = 'int') {
         // Checks if the format is correct.
-        $format = '/^(\d+)[-\.\/](\d+)[-\.\/](\d+)$/';
-        $result = preg_match($format, $value, $date);
+        $pattern = '/^(\d+)[-\.\/](\d+)[-\.\/](\d+)$/';
+        $result = preg_match($pattern, $value, $date);
         if (!$result) {
             return false;
         }
         // Checks if the date is correct.
-        switch ($pattern) {
+        switch ($format) {
             case 'eu':
                 list(, $day, $month, $year) = $date; break;
             case 'us':
@@ -127,14 +127,14 @@ class DataVal {
 
     /**
      * Checks if a number has a valid format. By default the number provided 
-     * will be checked against the German format. Available date patterns are:
+     * will be checked against the German format. Available date formats are:
      *      'ch' => 1'234'567'890,12    Swiss format
      *      'fr' => 1 234 567 890,12    French format
      *      'gb' => 1,234,567,890.12    British format
-     *      'de' => 1.234.567.890,12    German format
+     *      'de' => 1.234.567.890,12    German format (default)
      * 
      * @param string $value    The number.
-     * @param string $pattern  The pattern name (optional).
+     * @param string $pattern  The number format (optional).
      * @return boolean         True if the string is a valid number, otherwise false.
      */
      public static function number ($value, $pattern = '') {
