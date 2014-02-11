@@ -3,7 +3,6 @@
 namespace ProWeb\Extensions;
 use ProWeb, ProWeb\Helpers;
 
-
 /**
  * This class is a core extension. Implements the functionality to manage the 
  * input data that is received from the web. Inputs are parsed to prevent the 
@@ -35,51 +34,45 @@ class Inputs extends ProWeb\Extension {
 
 
     /**
-     * Initiates the extension. This extensions requires the DataVal.php file 
-     * to be into the helpers folder, otherwise throws an extension exception.
-     * 
-     * @throws  EXTException() if the DataVal helper could not be found.
+     * Initiates the extension. This extensions requires a Data Validation class
+     * to be into the helpers folder, otherwise throws a system error exception.
+     *
+     * @throws \ProWeb\ErrorException if the Data Validation helper could not be found.
      */
     public function init () {
         // This extension requires the DataVal helper class.
         if (!class_exists(self::$DATAVAL_CLASS)) {
-            throw new ProWeb\ErrorException('1000');
+            throw new ProWeb\ErrorException(1000, __('The Inputs extension requires a Data Validation helper class to be available.', 'Inputs'), array(
+                'DataValHelper' => self::$DATAVAL_CLASS
+            ), 'system');
         }
     }
 
-    /*
-     * Tests a key and his value against a filter validation. If the value does 
-     * not pass the validation, throws an exception.
-     * 
-     * @param key     A string with the key name.
-     * @param filter  A string with a filter to apply or a function.
-     * @param param   A parameter used by the filter (optional).
-     * @throws        ErrorException() if the filter does not exists.
-     * @throws        ErrorException() if the key does not pass the validation.
+    /**
+     * Tests a key and his value against a filter validation. If the value does
+     * not pass the validation, returns false. Otherwise returns true.
+     *
+     * @param string   $key     The key name that holds a request value.
+     * @param string   $filter  A filter to apply or a function.
+     * @param string   $param   A parameter used by the filter (optional).
+     * @return boolean          True if the value pass the test. Otherwise false.
+     * @throws                  \ProWeb\ErrorException if the filter is not available.
      */
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new ProWeb\ErrorException('1001', array(
+            throw new ProWeb\ErrorException(1001, __('The Inputs extension requires the filter to be available in the Data Validation helper class.', 'Inputs'), array(
                 'filter' => $filter
-            ));
+            ), 'system');
         }
         // Gets the value and the function name.
         $value = $this->get($key);
         $filterFunction = self::$DATAVAL_CLASS.'::'.$filter;
-        // Calls the function and checks the result.
+        // Calls the function and returns the result.
         if ($param === null) {
-            $result = call_user_func($filterFunction, $value);
+            return call_user_func($filterFunction, $value);
         } else {
-            $result = call_user_func($filterFunction, $value, $param);
-        }
-        if (!$result) {
-            throw new ProWeb\ErrorException('1002', array(
-                'key' => $key,
-                'value' => $value,
-                'filter' => $filter,
-                'param' => $param
-            ));
+            return call_user_func($filterFunction, $value, $param);
         }
     }
 
@@ -87,8 +80,8 @@ class Inputs extends ProWeb\Extension {
      * Gets the value corresponding to the key from the input data. If the key 
      * does not exists, returns null.
      * 
-     * @param key  A string with the input data key name.
-     * @return     The corresponding value or null.
+     * @param string $key  The input data key name.
+     * @return string      The corresponding value or null.
      */
     public function get ($key) {
         // If no input data, returns null.
@@ -96,7 +89,6 @@ class Inputs extends ProWeb\Extension {
             return null;
         }
         // Parses the input data to avoid XSS attacks.
-        return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)),ENT_QUOTES);
+        return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
     }
 }
-?>
