@@ -3,7 +3,6 @@
 namespace ProWeb\Extensions;
 use ProWeb;
 
-
 /**
  * This class is a core extension. Implements the functionality to manage user 
  * authentication and session data storage.
@@ -27,47 +26,41 @@ use ProWeb;
 class Session extends ProWeb\Extension {
 
     /**
-     * The session name and the non encrypted session finger print.
+     * The session name and the non encrypted session fingerprint.
      */
-    private $sName, $uniqId;
-
-    /**
-     * The request type, needed to check for special shell access level.
-     */
-    private $requestType;
+    private $sName, $fingerPrint;
 
 
     /**
-     * Initiates the extension. Starts the session and stores the session name 
-     * and the request type.
+     * Initiates the extension. Starts the session and stores the session name
+     * and the request type. Also generates the fingerprint for the session as
+     * the application name plus the User-Agent plus the visitor IP plus the
+     * session id.
      */
     public function init () {
         // Initiates the session.
         session_start();
         // Gets the session name and the request type.
         $this->sName = session_name();
-        $this->requestType = $this->controller->request['method'];
-        // Sets the user uniqId as the host name plus the visitor IP.
-        $this->uniqId = php_uname('n').$_SERVER['REMOTE_ADDR'];
+        // Sets the user fingerprint.
+        $this->fingerPrint = APP.$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].session_id();
     }
 
     /**
      * Authorizes the current session and stores the authorization data. It 
      * will replace the previous one if any and regenerates the session Id.
      * 
-     * @param user   A string with the user Id.
-     * @param level  A number with the user access level (optional).
-     * @param data   An associative array with more data (optional).
+     * @param string $user  An user Id.
+     * @param array  $data  An associative array with more data (optional).
      */
-    public function authorize ($user, $level = null, $data = null) {
+    public function authorize ($user, $data = null) {
         // Erases previous session data and regenerates the session ID.
         $_SESSION = array();
-        session_regenerate_id();
-        // Sets the user finger print as the uniqId MD5 encrypted.
-        $_SESSION['fingerprint'] = md5($this->uniqId);
+        session_regenerate_id(true);
+        // Sets the user finger print MD5 encrypted.
+        $_SESSION['fingerprint'] = md5($this->fingerPrint);
         // Sets the session user data.
         $_SESSION['user'] = $user;
-        $_SESSION['level'] = $level;
         $_SESSION['data'] = $data;
     }
 
@@ -75,8 +68,8 @@ class Session extends ProWeb\Extension {
      * Gets the data of the current session with the provided key. If there is 
      * no authorized session or the key does not exist, returns null.
      * 
-     * @param key  A string with a key name.
-     * @return     The session data requested or null.
+     * @param string $key  A key name.
+     * @return array       The session data requested or null.
      */
     public function get ($key) {
         if (array_key_exists($key, $_SESSION['data'])) {
@@ -86,42 +79,23 @@ class Session extends ProWeb\Extension {
     }
 
     /**
-     * Checks if the user is authorized. If an access level is provided, checks 
-     * if the user meets that access level. The access level is just a number 
-     * that represents the privilege of a user, the lower the more privileges 
-     * the user have.
-     * 
-     * @param level  A number with an access level (optional).
-     * @return       True if the user is authorized, otherwise false.
+     * Checks if the user is authorized.
+     *
+     * @return boolean    True if the user is authorized, otherwise false.
      */
-    public function isAuthorized ($level = null) {
-        // Checks if the finger print exists.
-        if (!isset($_SESSION['fingerprint'])) {
-            return false;
-        }
+    public function isAuthorized () {
         // Checks if the finger print is correct.
-        if ($_SESSION['fingerprint'] !== md5($this->uniqId)) {
-            return false;
+        if ($_SESSION['fingerprint'] === md5($this->fingerPrint)) {
+            return true;
         }
-        // Checks if the user meets the access level required.
-        if ($level !== null) {
-            if (!isset($_SESSION['level'])) {
-                return false;
-            }
-            // Checks special shell access level.
-            if ($level === 0) {
-                return ($this->requestType === 'shell');
-            }
-            return ($level >= $_SESSION['level']);
-        }
-        return true;
+        return false;
     }
 
     /**
      * Sets a key value pair to the session.
      * 
-     * @param key    A string with a key name to set on the session.
-     * @param value  The corresponding value.
+     * @param string $key    A key name to set on the session.
+     * @param object $value  The corresponding value.
      */
     public function set ($key, $value) {
         $_SESSION['data'][$key] = $value;
@@ -131,7 +105,7 @@ class Session extends ProWeb\Extension {
      * Destroys the current authorized session and the cookie session. This 
      * method must be executed before any header is sent to the browser.
      */
-    public function unauthorize () {
+    public function unauthorized () {
         // Erases the session data.
         $_SESSION = array();
         // Erases the session cookie.
@@ -143,4 +117,3 @@ class Session extends ProWeb\Extension {
         session_destroy();
     }
 }
-?>
