@@ -37,7 +37,7 @@ class Inputs extends ProWeb\Extension {
      * Initiates the extension. This extensions requires a Data Validation class
      * to be into the helpers folder, otherwise throws a system error exception.
      *
-     * @throws \ProWeb\ErrorException if the Data Validation helper could not be found.
+     * @throws \ProWeb\ErrorException  If the Data Validation helper could not be found.
      */
     public function init () {
         // This extension requires the DataVal helper class.
@@ -56,7 +56,7 @@ class Inputs extends ProWeb\Extension {
      * @param string   $filter  A filter to apply or a function.
      * @param string   $param   A parameter used by the filter (optional).
      * @return boolean          True if the value pass the test. Otherwise false.
-     * @throws                  \ProWeb\ErrorException if the filter is not available.
+     * @throws \ProWeb\ErrorException  If the filter is not available.
      */
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
