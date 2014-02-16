@@ -50,7 +50,7 @@ abstract class Controller {
         $this->cfg = $cfg;
         $this->request = $request;
         // Plugs the extensions.
-        Logger::sys(__('Initializing the Controller "%s".', 'system'), $request['controller']);
+        Logger::sys(__('Initializing the Controller "%s".', 'System'), $request['controller']);
         foreach ($cfg['EXTS'] as $extName => $extClass) {
             $this->loadExtension($extName, $extClass, $this);
         }
@@ -70,14 +70,14 @@ abstract class Controller {
     public function loadExtension ($extName, $extClass, $controller) {
         // Checks if the plug name is available.
         if (isset($this->$extName)) {
-            throw new ErrorException(0004, __('The extension name is already in use.', 'system'), array(
+            throw new ErrorException(0004, __('The extension name is already in use.', 'System'), array(
                 'extName' => $extName
             ), 'system');
         }
         // Checks if the extension file exists.
         $extFile = str_replace('\\', DIRECTORY_SEPARATOR, $extClass).'.php';
         if (!file_exists($extFile)) {
-            throw new ErrorException(0005, __('The extension class is missing.', 'system'), array(
+            throw new ErrorException(0005, __('The extension class is missing.', 'System'), array(
                 'extName' => $extName,
                 'file' => $extFile
             ), 'system');
@@ -95,7 +95,7 @@ abstract class Controller {
      */
     public function redirect ($to) {
         // Updates the log.
-        Logger::debug(__('Redirecting to Controller "%s".', 'system'), $to);
+        Logger::debug(__('Redirecting to Controller "%s".', 'System'), $to);
         Logger::flush($this->cfg);
         // Redirects the flow.
         header('Location: '.BASE_URL.$to);

@@ -49,10 +49,10 @@ namespace ProWeb {
         private static function set ($locale) {
             $newLocale = setlocale(LC_MESSAGES, $locale);
             if ($locale !== $newLocale) {
-                Logger::sys(__('ATTENTION! The locale "%s" is not available on the system.', 'system'), $locale);
+                Logger::sys(__('ATTENTION! The locale "%s" is not available on the system.', 'System'), $locale);
                 return '';
             }
-            Logger::sys(__('The current locale is set to "%s".', 'system'), $locale);
+            Logger::sys(__('The current locale is set to "%s".', 'System'), $locale);
             return $newLocale;
         }
 
@@ -169,7 +169,7 @@ namespace ProWeb {
                 $locale = self::set(self::$defaultLocale);
             }
             if (!$locale) {
-                Logger::sys(__('No locale has been set.', 'system'));
+                Logger::sys(__('No locale has been set.', 'System'));
             }
             // Returns the current locale.
             return $locale;
