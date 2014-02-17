@@ -1,0 +1,58 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PHProWeb\n"
+"POT-Creation-Date: 2014-02-17 21:23+0100\n"
+"PO-Revision-Date: 2014-02-17 21:25+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: D:\\Moh\\Docs\\Projects\\PHPro\\ProWeb\\locales\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: D:\\Moh\\Docs\\Projects\\PHPro\n"
+
+#: D:\Moh\Docs\Projects\PHPro/run.php:44
+msgid "There is no application configuration file."
+msgstr "No existe el fichero de configuración de la aplicación."
+
+#: D:\Moh\Docs\Projects\PHPro/run.php:59
+#, php-format
+msgid "Request from %s to \"%s/%s\"."
+msgstr "Petición desde %s para \"%s/%s\"."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/Controller.php:53
+#, php-format
+msgid "Initializing the Controller \"%s\"."
+msgstr "Iniciando el controlador \"%s\"."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/Controller.php:73
+msgid "The extension name is already in use."
+msgstr "Ya existe una extensión con ese nombre."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/Controller.php:80
+msgid "The extension class is missing."
+msgstr "La clase de la extensión no existe."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/Controller.php:98
+#, php-format
+msgid "Redirecting to Controller \"%s\"."
+msgstr "Redireccionando al controlador \"%s\"."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/I18n.php:52
+#, php-format
+msgid "ATTENTION! The locale \"%s\" is not available on the system."
+msgstr "¡Atención! La locale \"%s\" no está disponible en el sistema."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/I18n.php:55
+#, php-format
+msgid "The current locale is set to \"%s\"."
+msgstr "La locale actual es ahora \"%s\"."
+
+#: D:\Moh\Docs\Projects\PHPro/ProWeb/I18n.php:172
+msgid "No locale has been set."
+msgstr "No se ha establecido ninguna locale."
