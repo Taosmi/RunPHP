@@ -3,7 +3,6 @@
 namespace ProWeb\Extensions;
 use ProWeb;
 
-
 /**
  * This class is a core extension. Implements the functionality to load a View 
  * object. Once loaded, a View object holds the content that will be rendered 
@@ -48,13 +47,12 @@ class ViewExt extends ProWeb\Extension {
     /**
      * Loads a View.
      * 
-     * @param viewName  A string with the view name.
-     * @return          The requested view object.
+     * @param string $viewName  The view name.
+     * @return View             The requested view object.
      */
     public function load ($viewName) {
         // Loads and returns the view.
-        ProWeb\Logger::sys('Loading View "%s"', $viewName);
+        ProWeb\Logger::sys(__('Loading View "%s".', 'View'), $viewName);
         return new View($viewName, $this->options);
     }
 }
-?>

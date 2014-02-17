@@ -3,7 +3,6 @@
 namespace ProWeb\Extensions;
 use ProWeb;
 
-
 /**
  * This class implements the functionality to load a file as a View. This file 
  * may have variables that will be replaced by data at render time. The view 
@@ -38,9 +37,9 @@ class View {
     /**
      * Checks if the view file exists.
      * 
-     * @param name     A string with the name of the view.
-     * @param options  An associative array with the view options.
-     * @throws         ErrorException() if the view does not exist.
+     * @param string $name     The name of the view.
+     * @param array  $options  The view options.
+     * @throws \ProWeb\ErrorException()  If the view does not exist.
      */
     public function __construct ($name, &$options) {
         // Stores private data.
@@ -49,7 +48,7 @@ class View {
         // Checks if the view content exists.
         $this->file = $this->options['viewsPath'].$this->name.'.php';
         if (!file_exists($this->file)) {
-            throw new ProWeb\ErrorException('1010', array(
+            throw new ProWeb\ErrorException('1100', __('The view does not exist.', 'View'), array(
                 'view' => $this->name,
                 'file' => $this->file
             ));
@@ -60,8 +59,8 @@ class View {
     /**
      * Sets a variable to be accessible from the page.
      * 
-     * @param key    A string with the variable name.
-     * @param value  The variable value.
+     * @param string $key    The variable name.
+     * @param string $value  The variable value.
      */
     public function set ($key, $value) {
         $this->varsPage[$key] = $value;
@@ -81,16 +80,16 @@ class View {
      * Displays a template from inside a view. Very useful to separate common 
      * visual segments (headers, footer, etc.) into independent files.
      * 
-     * @param template  A string with the name of the template.
-     * @param dynData   An array that should be accessible inside the template.
-     * @throws          ErrorException() if the template does not exist.
+     * @param string $template  The name of the template.
+     * @param array  $dynData   Data that should be accessible inside the template.
+     * @throws \ProWeb\ErrorException()  If the template does not exist.
      */
     public function renderTemplate ($template, $dynData = null) {
         // Checks if the template content exists.
         $templateFile = $this->options['templatesPath'].$template.'.php';
         if (!file_exists($templateFile)) {
-            throw new ProWeb\ErrorException('1011', array(
-                'view' => $template,
+            throw new ProWeb\ErrorException('1101', __('The template does not exist.', 'View'), array(
+                'template' => $template,
                 'file' => $templateFile
             ));
         }
@@ -98,4 +97,3 @@ class View {
         require($templateFile);
     }
 }
-?>
