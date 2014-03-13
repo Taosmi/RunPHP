@@ -23,6 +23,33 @@
 namespace ProWeb {
 
     /**
+     * Shows an error page that matches the type error if available.
+     * If no type error available shows the default error page.
+     * If no default error page shows the framework error page.
+     *
+     * @param ErrorException $exception  An error exception.
+     */
+    function doError ($exception) {
+        // Logs the error.
+        Logger::error($exception);
+        $errorPath = APP.'/views/errors/';
+        $errorPage = $exception->type.'Error.php';
+        if (file_exists($errorPath.$errorPage)) {
+            // Shows the application specific error page.
+            include($errorPath.$errorPage);
+        } else if (file_exists($errorPath.'error.php')) {
+            // Shows the application default error page.
+            include($errorPath.'error.php');
+        } else if (file_exists(SYSTEM.'/html/'.$exception->type.'Error.php')) {
+            // Shows the system specific error page.
+            include(SYSTEM.'/html/'.$exception->type.'Error.php');
+        } else {
+            // Shows the system fatal error page.
+            include(SYSTEM.'/html/error.php');
+        }
+    }
+
+    /**
      * Loads the application configuration file involved in a request.
      * If the application configuration is not available, returns an empty array.
      * 
