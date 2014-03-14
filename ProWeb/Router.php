@@ -23,6 +23,39 @@
 namespace ProWeb {
 
     /**
+     * Auto-load function for the core classes.
+     *
+     * Tries to load the class from a file at the PHProWeb folder, adding the
+     * namespace path and the extension '.php' to the class name.
+     *
+     * @param string $class  The complete core class name.
+     */
+    function autoCore ($class) {
+        // Seven is the length for 'ProWeb/'.
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 7)).'.php';
+        include_once($class);
+    }
+
+    /**
+     * Auto-load function for the controller classes.
+
+     * Tries to load the class from a file at the WebApps folder, adding the
+     * application name, the controller path and the extension '.php' to the
+     * class name.
+     *
+     * @param string $class  The complete controller class name.
+     */
+    function autoWebApp ($class) {
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, APP.'\\'.$class).'.php';
+        include_once($class);
+    }
+
+    // Registers the auto-load functions.
+    spl_autoload_extensions('.php');
+    spl_autoload_register('ProWeb\autoCore');
+    spl_autoload_register('ProWeb\autoWebApp');
+
+    /**
      * Shows an error page that matches the type error if available.
      * If no type error available shows the default error page.
      * If no default error page shows the framework error page.
