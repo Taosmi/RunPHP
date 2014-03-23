@@ -6,7 +6,7 @@ namespace ProWeb;
  * This class is an abstract class and must be extended to implement a Controller.
  * A controller runs when its path (relative to the webApp) matches the HTTP 
  * request URL. The controller decides what to do next. By default, it provides 
- * the functionality to load extensions and to redirect to another Controller.
+ * the functionality to manage the input data and to redirect to another Controller.
  * 
  * @author Miguel Angel Garcia
  * 
@@ -31,6 +31,11 @@ abstract class Controller {
      */
     public $cfg, $request;
 
+    // The data validation class name to be used.
+    private static $DATAVAL_CLASS = 'ProWeb\Helpers\DataVal';
+    // The list of allowed HTML tags.
+    private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
+
 
     /**
      * Abstract method to implement on any Controller. This method will be 
@@ -49,42 +54,51 @@ abstract class Controller {
     public function __construct ($cfg, $request) {
         $this->cfg = $cfg;
         $this->request = $request;
-        // Plugs the extensions.
-        Logger::sys(__('Initializing the Controller "%s".', 'System'), $request['controller']);
-        foreach ($cfg['EXTS'] as $extName => $extClass) {
-            $this->loadExtension($extName, $extClass, $this);
+    }
+
+
+    /**
+     * Tests a key and his value against a filter validation. If the value does
+     * not pass the validation, returns false. Otherwise returns true.
+     *
+     * @param string   $key     The key name that holds a request value.
+     * @param string   $filter  A filter or function to apply.
+     * @param string   $param   A parameter used by the filter (optional).
+     * @return boolean          True if the value pass the test. Otherwise false.
+     * @throws                  ErrorException if the filter is not available.
+     */
+    public function check ($key, $filter, $param = null) {
+        // Checks if the method exists.
+        if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
+            throw new ErrorException(1001, __('The Inputs extension requires the filter to be available in the Data Validation helper class.', 'Inputs'), array(
+                'filter' => $filter
+            ), 'system');
+        }
+        // Gets the value and the function name.
+        $value = $this->get($key);
+        $filterFunction = self::$DATAVAL_CLASS.'::'.$filter;
+        // Calls the function and returns the result.
+        if ($param === null) {
+            return call_user_func($filterFunction, $value);
+        } else {
+            return call_user_func($filterFunction, $value, $param);
         }
     }
 
     /**
-     * Loads an extension. The extension name must be the extension file name 
-     * starting with a slash (/) and without path and file extension (.php) and 
-     * must be equal to the extension class name.
+     * Gets the value corresponding to the key from the input data. If the key
+     * does not exists, returns null.
      *
-     * @param string     $extName     The name the extension will be plug-in.
-     * @param string     $extClass    The extension class name.
-     * @param Controller $controller  A controller reference to be used when creating the extension.
-     * @throws ErrorException(0004)   If the extension name is already used.
-     * @throws ErrorException(0005)   If the extension class is missing.
+     * @param string $key  The input data key name.
+     * @return string      The corresponding value or null.
      */
-    public function loadExtension ($extName, $extClass, $controller) {
-        // Checks if the plug name is available.
-        if (isset($this->$extName)) {
-            throw new ErrorException(0004, __('The extension name is already in use.', 'System'), array(
-                'extName' => $extName
-            ), 'system');
+    public function get ($key) {
+        // If no input data, returns null.
+        if (!array_key_exists($key, $this->request['data'])) {
+            return null;
         }
-        // Checks if the extension file exists.
-        $extFile = str_replace('\\', DIRECTORY_SEPARATOR, $extClass).'.php';
-        if (!file_exists($extFile)) {
-            throw new ErrorException(0005, __('The extension class is missing.', 'System'), array(
-                'extName' => $extName,
-                'file' => $extFile
-            ), 'system');
-        }
-        // Plugs the extension and loads the i18n domain.
-        $this->$extName = new $extClass($controller);
-        I18n::loadDomain($extName, SYS_LOCALES);
+        // Parses the input data to avoid XSS attacks.
+        return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
     }
 
     /**
