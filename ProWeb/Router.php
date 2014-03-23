@@ -6,7 +6,7 @@
  *
  * @author Miguel Angel Garcia
  *
- * Copyright 2012 TAOSMI Technology
+ * Copyright 2014 TAOSMI Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace ProWeb {
+namespace {
 
     /**
-     * Auto-load function for the core classes.
-     *
-     * Tries to load the class from a file at the PHProWeb folder, adding the
-     * namespace path and the extension '.php' to the class name.
+     * Auto-load function for the core classes. Tries to load the class from a
+     * file at the PHProWeb folder, adding the namespace path and the extension
+     * '.php' to the class name.
      *
      * @param string $class  The complete core class name.
      */
     function autoCore ($class) {
-        // Seven is the length for 'ProWeb/'.
-        $class = str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 7)).'.php';
+        // Replaces the \ with the directory separator slash.
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
         include_once($class);
     }
 
     /**
-     * Auto-load function for the controller classes.
-
-     * Tries to load the class from a file at the WebApps folder, adding the
-     * application name, the controller path and the extension '.php' to the
-     * class name.
+     * Auto-load function for the web applications classes. Tries to load the
+     * class from a file at the WebApps folder, adding the application name and
+     * the extension '.php' to the class name.
      *
      * @param string $class  The complete controller class name.
      */
@@ -52,8 +49,11 @@ namespace ProWeb {
 
     // Registers the auto-load functions.
     spl_autoload_extensions('.php');
-    spl_autoload_register('ProWeb\autoCore');
-    spl_autoload_register('ProWeb\autoWebApp');
+    spl_autoload_register('autoCore');
+    spl_autoload_register('autoWebApp');
+}
+
+namespace ProWeb {
 
     /**
      * Shows an error page that matches the type error if available.
@@ -115,27 +115,26 @@ namespace ProWeb {
         // The controller root, the controller name and the extra parameters.
         $root = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR;
         $controller = $request['controller'];
-        $extraParam = array();
+//        $extraParam = array();
         // If it is a folder, tries the default index controller.
         if (is_dir(APP.$root.$controller)) {
             $controller.= DIRECTORY_SEPARATOR.'index';
         }
         // Tries to find a controller.
-        $loops = 2;
-        while ($loops && $controller) {
+//        $loops = 2;
+//        while ($loops && $controller) {
             if (file_exists(APP.$root.$controller.'.php')) {
                 $request['controller'] = $controller;
-                $request['resource'] = implode($extraParam);
+//                $request['resource'] = implode($extraParam);
                 // Converts the controller name to a name-space class.
-                $controllerName = substr($root.$controller, 1);
-                $controllerName = str_replace('/', '\\', $controllerName);
+                $controllerName = str_replace('/', '\\', substr($root.$controller, 1));
                 return new $controllerName($cfg, $request);
             }
-            $lastSlash = strrpos($controller, '/');
-            $extraParam[] = substr($controller, $lastSlash + 1);
-            $controller = substr($controller, 0, $lastSlash);
-            $loops -= 1;
-        }
+//            $lastSlash = strrpos($controller, '/');
+//            $extraParam[] = substr($controller, $lastSlash + 1);
+//            $controller = substr($controller, 0, $lastSlash);
+//            $loops -= 1;
+        //}
         return null;
     }
 
