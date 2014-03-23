@@ -25,7 +25,7 @@ use ProWeb\ErrorException;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class View {
+class HtmlView {
 
     /**
      * The view file and the variables that will be accessible from inside the
@@ -79,10 +79,9 @@ class View {
      * visual segments (headers, footer, etc.) into independent files.
      * 
      * @param string $template  The name of the template.
-     * @param array  $dynData   Data that should be accessible inside the template.
-     * @throws ErrorException()  If the template does not exist.
+     * @throws                  ErrorException() if the template does not exist.
      */
-    public function renderTemplate ($template, $dynData = null) {
+    public function renderTemplate ($template) {
         // Checks if the template content exists.
         $templateFile = APP.$template.'.php';
         if (!file_exists($templateFile)) {
