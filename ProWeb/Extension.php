@@ -38,6 +38,8 @@ abstract class Extension {
 
     /**
      * Initiates the extension.
+     *
+     * @param array $controller  The controller for the current request.
      */
     public function __construct (&$controller) {
         $this->controller = $controller;
