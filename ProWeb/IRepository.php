@@ -63,20 +63,21 @@ interface IRepository {
      * Modifies the items that matches the options provided with the new data. 
      * If no options, modifies all of them.
      * 
-     * @param object $data     An item with the new data.
+     * @param object $item     An item with the new data.
      * @param array  $options  A filter criteria (optional).
      * @return int             The number of modified items.
      */
-    public function modify ($data, $options = null);
+    public function modify ($item, $options = null);
 
     /**
      * Executes a custom query directly to the persistence resource.
      * 
-     * @param string $query  A query.
-     * @return object        The query result.
-     * @throws               ErrorException() if the query fails.
+     * @param string $query   A query.
+     * @param array  $data    The placeholders data if placeholders are used (optional).
+     * @return \PDOStatement  The query statement.
+     * @throws                ErrorException if the query fails.
      */
-     public function query ($query);
+     public function query ($query, $data = null);
 
     /**
      * Removes the items that matches the options provided. If no options, 
@@ -88,13 +89,13 @@ interface IRepository {
     public function remove ($options = null);
 
     /**
-     * Sets the data that will be retrieved by the find method for each item. 
+     * Sets the fields that will be retrieved by the find method for each item.
      * If no data is specified, the find method will retrieve a default set of 
      * data.
      * 
-     * @param string $data  A separated by comma list of fields.
+     * @param string $fields  A separated by comma list of fields.
      */
-    public function select ($data);
+    public function select ($fields);
 
     /**
      * Sets the class name for the objects retrieved from the repository. This 
@@ -109,11 +110,11 @@ interface IRepository {
      * Starts a new block of operations. This method is not mandatory when only 
      * querying the repository.
      */
-    public function init ();
+    public function beginTransaction ();
 
     /**
      * Consolidates the changes of the current block of operations. This method 
-     * is mandatory when the init() method was used before.
+     * is mandatory when the beginTransaction() method was used before.
      */
     public function commit ();
 
