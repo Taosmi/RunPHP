@@ -5,7 +5,7 @@ namespace proWeb\plugins;
 /**
  * The Data Validation class is a static class that implements functionality to 
  * validate data. Add here your validation methods to use it later on the 
- * controllers when validate your data with the Inputs->check method.
+ * controllers when validate your data with the this->check method.
  * 
  * @author Miguel Angel Garcia Reguera
  * 
