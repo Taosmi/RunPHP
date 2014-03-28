@@ -1,0 +1,30 @@
+
+@font-face {
+    font-family: 'SegoeUINormal';
+    src: url('/webapps/taosmi.es/resources/fonts/segoe-ui-72888-webfont.eot');
+    src: url('/webapps/taosmi.es/resources/fonts/segoe-ui-72888-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/webapps/taosmi.es/resources/fonts/segoe-ui-72888-webfont.woff') format('woff'),
+         url('/webapps/taosmi.es/resources/fonts/segoe-ui-72888-webfont.ttf') format('truetype'),
+         url('/webapps/taosmi.es/resources/fonts/segoe-ui-72888-webfont.svg#SegoeUINormal') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.logo {
+    margin: auto;
+    padding-top: 100px;
+    width: 215px;
+}
+
+.saying {
+    display: none;
+    font-family: SegoeUINormal;
+    margin-top: 20px;
+    text-align: center;
+}
+.saying p {
+    margin: 0px;
+}
+.saying p#quote {
+    font-style: italic;
+}
