@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use ProWeb\Controller, ProWeb\Plugins\HtmlView;
+use proWeb\Controller, proWeb\plugins\HtmlView;
 
 /**
  * The controller for /index.

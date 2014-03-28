@@ -1,6 +1,6 @@
 <?php
 
-namespace proWeb\helpers;
+namespace proWeb\plugins;
 
 /**
  * The Data Validation class is a static class that implements functionality to 

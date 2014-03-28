@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use ProWeb\Controller, ProWeb\Plugins\JsonView;
+use proWeb\Controller, proWeb\plugins\JsonView;
 use domain\SayingRepository;
 
 /**
