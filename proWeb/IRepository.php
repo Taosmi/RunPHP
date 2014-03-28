@@ -2,23 +2,23 @@
 
 namespace proWeb;
 
-/** 
- * The Repository Interface defines the interaction with a persistence system 
- * by setting a basic CRUD functionality (add, remove, modify and find), a 
- * transaction control (init, commit and rollback) and a backup process to be 
- * implemented. It is also defined a direct way to access the persistence 
- * system with custom queries.
- * 
+/**
+ * This class defines the interaction with a persistence system by setting a
+ * basic CRUD functionality (add, remove, modify and find), a transaction
+ * control (init, commit and rollback) and a backup process to be implemented.
+ * It is also defined a direct way to access the persistence system with custom
+ * queries.
+ *
  * @author Miguel Angel Garcia
- * 
+ *
  * Copyright 2014 TAOSMI Technology
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
