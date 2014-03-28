@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb;
+namespace proWeb;
 
 /**
  * This class implements an extended version of an Exception with additional 

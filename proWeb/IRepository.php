@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb;
+namespace proWeb;
 
 /** 
  * The Repository Interface defines the interaction with a persistence system 

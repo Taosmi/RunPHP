@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb;
+namespace proWeb;
 
 /**
  * This class is an abstract class and must be extended to implement a Controller.

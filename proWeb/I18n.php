@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb {
+namespace proWeb {
 
     /**
      * This class provides all the methods needed to manage i18n.

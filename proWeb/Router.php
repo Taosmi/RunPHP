@@ -53,7 +53,7 @@ namespace {
     spl_autoload_register('autoWebApp');
 }
 
-namespace ProWeb {
+namespace proWeb {
 
     /**
      * Shows an error page that matches the type error if available.
