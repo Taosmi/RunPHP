@@ -1,7 +1,7 @@
 <?php
 
 namespace proWeb\plugins;
-use proWeb\ErrorException;
+use proWeb\ErrorException, proWeb\Logger;
 
 /**
  * This class implements the functionality to load an HTML file as a View. This
@@ -45,11 +45,12 @@ class HtmlView {
         $this->name = $name;
         // Checks if the view content exists.
         $this->file = APP.$this->name.'.php';
+        Logger::sys(__('Loading HTML View "%s".', 'system'), $name);
         if (!file_exists($this->file)) {
-            throw new ErrorException('1100', __('The view does not exist.', 'View'), array(
+            throw new ErrorException(0100, __('The view does not exist.', 'system'), array(
                 'view' => $this->name,
                 'file' => $this->file
-            ));
+            ), 'system');
         }
     }
 
@@ -85,10 +86,10 @@ class HtmlView {
         // Checks if the template content exists.
         $templateFile = APP.$template.'.php';
         if (!file_exists($templateFile)) {
-            throw new ErrorException('1101', __('The template does not exist.', 'View'), array(
+            throw new ErrorException(0101, __('The HTML template does not exist.', 'system'), array(
                 'template' => $template,
                 'file' => $templateFile
-            ));
+            ), 'system');
         }
         // Includes the template file.
         require($templateFile);
