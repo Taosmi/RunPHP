@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb\Plugins;
+namespace proWeb\plugins;
 
 /**
  * This class implements the functionality to render a data structure with JSON

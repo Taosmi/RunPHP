@@ -1,7 +1,7 @@
 <?php
 
-namespace ProWeb\Plugins;
-use ProWeb\ErrorException;
+namespace proWeb\plugins;
+use proWeb\ErrorException;
 
 /**
  * This class implements the functionality to load an HTML file as a View. This
