@@ -1,6 +1,7 @@
 <?php
 
 namespace proWeb\plugins;
+use proWeb\Logger;
 
 /**
  * This class implements the functionality to render a data structure with JSON
@@ -55,6 +56,7 @@ class JsonView {
      * output system.
      */
     public function render () {
+        Logger::sys(__('Encoding JSON View.', 'system'));
         echo json_encode($this->data);
     }
 }

@@ -32,7 +32,8 @@ abstract class Controller {
     public $cfg, $request;
 
     // The data validation class name to be used.
-    private static $DATAVAL_CLASS = 'ProWeb\Helpers\DataVal';
+    private static $DATAVAL_CLASS = 'proWeb\plugins\DataVal';
+
     // The list of allowed HTML tags.
     private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
 
@@ -70,7 +71,8 @@ abstract class Controller {
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new ErrorException(1001, __('The Inputs extension requires the filter to be available in the Data Validation helper class.', 'Inputs'), array(
+            throw new ErrorException(0010, __('The Data Validation class or the filter is not available.', 'system'), array(
+                'DataVal' => self::$DATAVAL_CLASS,
                 'filter' => $filter
             ), 'system');
         }
@@ -109,7 +111,7 @@ abstract class Controller {
      */
     public function redirect ($to) {
         // Updates the log.
-        Logger::debug(__('Redirecting to Controller "%s".', 'System'), $to);
+        Logger::debug(__('Redirecting to Controller "%s".', 'system'), $to);
         Logger::flush($this->cfg);
         // Redirects the flow.
         header('Location: '.BASE_URL.$to);
