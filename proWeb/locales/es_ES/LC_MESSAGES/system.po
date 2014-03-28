@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PHProWeb\n"
-"POT-Creation-Date: 2014-03-28 23:52+0100\n"
-"PO-Revision-Date: 2014-03-28 23:53+0100\n"
+"POT-Creation-Date: 2014-03-29 00:08+0100\n"
+"PO-Revision-Date: 2014-03-29 00:08+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -52,9 +52,17 @@ msgstr "La vista no existe."
 msgid "The HTML template does not exist."
 msgstr "La plantilla HTML no existe."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/JsonView.php:58
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/JsonView.php:59
 msgid "Encoding JSON View."
 msgstr "Codificando la vista en JSON."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:44
+msgid "The connection to the persistence has failed."
+msgstr "La conexión contra la persistencia ha fallado."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:104
+msgid "The query to the persistence has failed."
+msgstr "La query contra la persistencia ha fallado."
 
 #: D:\Moh\Docs\Projects\PHPro/run.php:43
 msgid "There is no application configuration file."
