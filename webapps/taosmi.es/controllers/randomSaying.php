@@ -14,7 +14,7 @@ class randomSaying extends Controller {
      */
     public function main () {
         // Gets a random saying.
-        $sayingRepo = new SayingRepository();
+        $sayingRepo = new SayingRepository($this->cfg['REPOS']['taosmi']);
         $saying = $sayingRepo->findRandom();
         // Render the page.
         $template = new JsonView($saying);
