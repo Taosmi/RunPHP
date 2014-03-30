@@ -125,10 +125,10 @@ interface IRepository {
     public function rollback ();
 
     /**
-     * Makes a backup of the repositories. If no repositories, backups all of 
-     * them.
-     * 
-     * @param string $repositories  A separated by comma list of repositories (optional).
+     * Makes a script as backup of the repository. The script is saved to the
+     * resources folder of the webApp with the provided name.
+     *
+     * @param string $fileName  The file to save the script (optional).
      */
-    public function backup ($repositories = null);
+    public function backup ($fileName = null);
 }

@@ -31,6 +31,16 @@ class RepositoryPDO implements IRepository {
     private $pdo, $table, $fields, $objectName;
 
 
+    /**
+     * The connection string must be formatted as:
+     *      tech:host=hostname;dbname=dbname,user,password
+     * The available technologies are the same that the PHP PDO drivers.
+     * This is an example of MySQL connection string:
+     *      mysql:host=db18.1and1.es;dbname=db355827412,guest,12345
+     *
+     * @param string $connection  A connection string.
+     * @throws                    ErrorException if the connection fails.
+     */
     public function __construct ($connection) {
         // Gets the DB resource.
         try {
@@ -136,42 +146,38 @@ class RepositoryPDO implements IRepository {
         $this->pdo->rollBack();
     }
 
-    public function backup ($entities = null) {
-        // Gets the tables.
-/*
-        if ($entities) {
-            $tables = explode(',', $entities);
-        } else {
-            $qResult = mysql_query('SHOW TABLES');
-            while ($item = mysql_fetch_row($qResult)) {
-                $tables[] = $item[0];
-            }
+    public function backup ($fileName = null) {
+        // Checks if the the table is set.
+        if (!$this->table) {
+            echo "ERROR";
         }
-        // Gets the tables data.
-        $script = '';
-        foreach ($tables as $table) {
-            // Drops the table if already exists.
-            $script.= "\n".'DROP TABLE IF EXISTS '.$table.';'."\n";
-            // Creates the table.
-            $qResult = mysql_fetch_row(mysql_query('SHOW CREATE TABLE '.$table.';'));
-            $script.= $qResult[1]."\n";
-            // Populates the table with the data.
-            $qResult = mysql_query('SELECT * FROM '.$table.';');
-            while ($item = mysql_fetch_row($qResult)) {
-                $script.= 'INSERT INTO '.$table.' VALUES(';
-                // Cleans the parameters.
-                foreach ($item as &$value) {
-                    $value = addslashes(str_replace("\r\n", "\\r\\n", $value));
-                }
-                $script.= '"'.implode('","', $item).'"';
-                $script.= ');'."\n";
+        // Checks the file name.
+        if (!$fileName) {
+            $fileName = 'repo_'.$this->table;
+        }
+        $script = '-- Table creation'."\r\n";
+        // Gets the table creation script.
+        $script.= "\n".'DROP TABLE IF EXISTS '.$this->table.';'."\n";
+        $stmtTable = $this->pdo->query('SHOW CREATE TABLE '.$this->table.';');
+        $stmtTable ->setFetchMode(PDO::FETCH_ASSOC);
+        $script.= $stmtTable->fetchColumn(1).";\n";
+        // Gets the data script.
+        $script.= '-- Data'."\r\n";
+        $stmtData = $this->pdo->query('SELECT * FROM '.$this->table.';');
+        $stmtData->setFetchMode(PDO::FETCH_ASSOC);
+        while ($item = $stmtData->fetch()) {
+            $script.= 'INSERT INTO '.$this->table.' VALUES(';
+            // Cleans the parameters.
+            foreach ($item as &$value) {
+                $value = addslashes(str_replace("\r\n", "\\r\\n", $value));
             }
+            $script.= '"'.implode('","', $item).'"';
+            $script.= ');'."\n";
         }
         // Writes the file.
-        $file = fopen(APP.'/dal-backup-'.date('Ymd').'.sql', 'w+');
+        $file = fopen(RESOURCES.'/'.$fileName.'.'.date('Ymd.His').'.sql', 'w+');
         fwrite($file, $script);
         fclose($file);
-*/
     }
 
 
