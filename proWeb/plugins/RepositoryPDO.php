@@ -32,7 +32,8 @@ class RepositoryPDO implements IRepository {
 
 
     /**
-     * The connection string must be formatted as:
+     * Initiates the repository connection. The connection string must be
+     * formatted as:
      *      tech:host=hostname;dbname=dbname,user,password
      * The available technologies are the same that the PHP PDO drivers.
      * This is an example of MySQL connection string:
@@ -149,7 +150,7 @@ class RepositoryPDO implements IRepository {
     public function backup ($fileName = null) {
         // Checks if the the table is set.
         if (!$this->table) {
-            echo "ERROR";
+            throw new ErrorException(0112, __('The repository has not a source table.', 'system'), null, 'system');
         }
         // Checks the file name.
         if (!$fileName) {
