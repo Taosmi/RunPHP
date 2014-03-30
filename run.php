@@ -1,6 +1,6 @@
 <?php
 
-namespace ProWeb;
+namespace proWeb;
 
 /**
  * All the requests will hit this script, the Front Controller.
@@ -8,7 +8,7 @@ namespace ProWeb;
  *
  * @author Miguel Angel Garcia
  *
- * Copyright 2012 TAOSMI Technology
+ * Copyright 2014 TAOSMI Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,16 @@ namespace ProWeb;
  * limitations under the License.
  */
 
-// Framework path.
-define('SYSTEM', 'ProWeb');
-// Web applications path.
+// Framework path and Web applications path.
+define('SYSTEM', 'proWeb');
 define('WEBAPPS', 'webapps');
-// Framework locals.
+// Framework locales.
 define('SYS_LOCALES', SYSTEM.'/locales');
 // Sets the time zone to UTC.
 date_default_timezone_set('UTC');
 
 try {
-    // Loads the PHProWeb class auto-loader and the Router functions.
-    require(SYSTEM.'/Loader.php');
+    // Loads the PHProWeb Route functions.
     require(SYSTEM.'/Router.php');
     // Gets the request info, the application configuration and the system domain.
     $request = getRequest();
@@ -42,10 +40,11 @@ try {
     I18n::loadDomain('system', SYS_LOCALES);
     // Checks request and configuration.
     if (empty($appCfg)) {
-        throw new ErrorException(0000, null, $request, 'system');
+        throw new ErrorException(0000, __('There is no application configuration file.', 'system'), $request, 'system');
     }
-    // Defines the Application path and the base HTTP URL.
+    // Defines the Application path, the Resources path and the base HTTP URL.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['appName']);
+    define('RESOURCES', APP.$appCfg['PATHS']['resources']);
     define('BASE_URL', 'http://'.$request['appName']);
     // Log and I18n configuration.
     Logger::setLevel($appCfg['LOGS']['logLevel']);
@@ -65,7 +64,6 @@ try {
     $controller->main();
 } catch (ErrorException $exception) {
     // Handles the error as properly as possible.
-    require(SYSTEM.'/ErrorHandler.php');
     doError($exception);
 }
 
