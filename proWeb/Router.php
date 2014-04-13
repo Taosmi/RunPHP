@@ -85,7 +85,7 @@ namespace proWeb {
     /**
      * Loads the application configuration file involved in a request.
      * If the application configuration is not available, returns an empty array.
-     * 
+     *
      * @param array $request  A request information.
      * @return array          An application configuration or an empty array.
      */
@@ -112,35 +112,26 @@ namespace proWeb {
      * @return Controller      A controller object or null.
      */
     function getController ($cfg, $request) {
-        // The controller root, the controller name and the extra parameters.
+        // The controller root and the controller name.
         $root = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR;
         $controller = $request['controller'];
-//        $extraParam = array();
         // If it is a folder, tries the default index controller.
         if (is_dir(APP.$root.$controller)) {
             $controller.= DIRECTORY_SEPARATOR.'index';
         }
         // Tries to find a controller.
-//        $loops = 2;
-//        while ($loops && $controller) {
-            if (file_exists(APP.$root.$controller.'.php')) {
-                $request['controller'] = $controller;
-//                $request['resource'] = implode($extraParam);
-                // Converts the controller name to a name-space class.
-                $controllerName = str_replace('/', '\\', substr($root.$controller, 1));
-                return new $controllerName($cfg, $request);
-            }
-//            $lastSlash = strrpos($controller, '/');
-//            $extraParam[] = substr($controller, $lastSlash + 1);
-//            $controller = substr($controller, 0, $lastSlash);
-//            $loops -= 1;
-        //}
+        if (file_exists(APP.$root.$controller.'.php')) {
+            $request['controller'] = $controller;
+            // Converts the controller name to a name-space class.
+            $controllerName = str_replace('/', '\\', substr($root.$controller, 1));
+            return new $controllerName($cfg, $request);
+        }
         return null;
     }
 
     /**
      * Analyzes the HTTP request and retrieves the request information needed.
-     * 
+     *
      * @return array  The request information.
      */
     function getRequest () {

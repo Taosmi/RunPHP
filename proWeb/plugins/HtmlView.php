@@ -6,7 +6,7 @@ use proWeb\ErrorException, proWeb\Logger;
 /**
  * This class implements the functionality to load an HTML file as a View. This
  * file may have variables that will be replaced by data at render time. The view
- * must only have visual information, the business logic must take place at the 
+ * must only have visual information, the business logic must take place at the
  * domain layer.
  *
  * @author Miguel Angel Garcia
@@ -36,7 +36,7 @@ class HtmlView {
 
     /**
      * Checks if the view file exists.
-     * 
+     *
      * @param string $name     The name of the view.
      * @throws ErrorException()  If the view does not exist.
      */
@@ -57,7 +57,7 @@ class HtmlView {
 
     /**
      * Sets a variable to be accessible from the page.
-     * 
+     *
      * @param string $key    The variable name.
      * @param string $value  The variable value.
      */
@@ -66,7 +66,7 @@ class HtmlView {
     }
 
     /**
-     * Exposes the variables and displays the view content to the output 
+     * Exposes the variables and displays the view content to the output
      * system.
      */
     public function render () {
@@ -76,9 +76,9 @@ class HtmlView {
     }
 
     /**
-     * Displays a template from inside a view. Very useful to separate common 
+     * Displays a template from inside a view. Very useful to separate common
      * visual segments (headers, footer, etc.) into independent files.
-     * 
+     *
      * @param string $template  The name of the template.
      * @throws                  ErrorException() if the template does not exist.
      */

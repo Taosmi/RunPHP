@@ -91,7 +91,7 @@ class Logger {
 
     /**
      * Stores the logs to the file.
-     * 
+     *
      * @param array $cfg  The application configuration.
      */
     public static function flush ($cfg) {
@@ -111,7 +111,7 @@ class Logger {
     /**
      * Retrieves the log data and statistics.
      * When this method is called, it is assumed that moment as the end time.
-     * 
+     *
      * @return array  The log data and statistics.
      */
     public static function getLog () {
@@ -192,7 +192,7 @@ class Logger {
             $msg = self::interpolate(func_get_args());
             // Logs the new error entry.
             self::log('system', $msg);
-            }
+        }
     }
 
     /**
@@ -222,7 +222,7 @@ class Logger {
      * when LOG_ON.
      *
      * @param string $msg  A warning message.
-     */ 
+     */
     public static function warning ($msg) {
         // Checks the log configuration.
         if (self::$level === Logger::$LOG_ON) {
@@ -235,10 +235,10 @@ class Logger {
 
 
     /**
-     * Changes the unit of a file/memory size in bytes to a unit that fits 
-     * better with that size number. The minimum size unit is byte and the 
+     * Changes the unit of a file/memory size in bytes to a unit that fits
+     * better with that size number. The minimum size unit is byte and the
      * maximum size unit is terabyte.
-     * 
+     *
      * @param int $size  A file/memory size in bytes.
      * @return string    A file/memory size that fits better that size number.
      */
@@ -265,10 +265,10 @@ class Logger {
     }
 
     /**
-     * Changes the unit of an amount of time in seconds to a unit that fits 
-     * better with that amount of time. The minimum time unit is milliseconds 
+     * Changes the unit of an amount of time in seconds to a unit that fits
+     * better with that amount of time. The minimum time unit is milliseconds
      * and the maximum time unit is minutes.
-     * 
+     *
      * @param float $time  An amount of time in seconds.
      * @return string      A time that fits better that amount of time.
      */
@@ -294,7 +294,7 @@ class Logger {
 
     /**
      * Interpolates the first string of the array with the other ones.
-     * 
+     *
      * @param array $context  Strings to interpolate with.
      * @return string         The first string interpolated with the others.
      */
@@ -309,7 +309,7 @@ class Logger {
 
     /**
      * Logs a message.
-     * 
+     *
      * @param string $level  A log level.
      * @param string $msg    A message.
      */
@@ -320,5 +320,5 @@ class Logger {
             'date' => date('Y-m-d H:i:s'),
             'msg' => $msg
         );
-     }
+    }
 }

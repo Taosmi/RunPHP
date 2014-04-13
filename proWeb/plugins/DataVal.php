@@ -3,20 +3,20 @@
 namespace proWeb\plugins;
 
 /**
- * The Data Validation class is a static class that implements functionality to 
- * validate data. Add here your validation methods to use it later on the 
+ * The Data Validation class is a static class that implements functionality to
+ * validate data. Add here your validation methods to use it later on the
  * controllers when validate your data with the this->check method.
- * 
+ *
  * @author Miguel Angel Garcia Reguera
- * 
+ *
  * Copyright 2012 TAOSMI Technology
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -126,18 +126,18 @@ class DataVal {
     }
 
     /**
-     * Checks if a number has a valid format. By default the number provided 
+     * Checks if a number has a valid format. By default the number provided
      * will be checked against the German format. Available date formats are:
      *      'ch' => 1'234'567'890,12    Swiss format
      *      'fr' => 1 234 567 890,12    French format
      *      'gb' => 1,234,567,890.12    British format
      *      'de' => 1.234.567.890,12    German format (default)
-     * 
+     *
      * @param string $value    The number.
      * @param string $pattern  The number format (optional).
      * @return boolean         True if the string is a valid number, otherwise false.
      */
-     public static function number ($value, $pattern = '') {
+    public static function number ($value, $pattern = '') {
         // Gets the number format.
         switch ($pattern) {
             case 'ch':
@@ -151,7 +151,7 @@ class DataVal {
                 $format = '/^[+-]?\d{1,3}(?:,?\d{3})*(\.\d{1,2})?$/';
                 break;
             case 'de': default:
-                $format = '/^[+-]?\d{1,3}(?:\.?\d{3})*(,\d{1,2})?$/';
+            $format = '/^[+-]?\d{1,3}(?:\.?\d{3})*(,\d{1,2})?$/';
         }
         // Checks if the format is correct.
         return filter_var($value, FILTER_VALIDATE_REGEXP, array(

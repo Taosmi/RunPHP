@@ -43,7 +43,7 @@ class JsonView {
 
     /**
      * Sets a key - value pair to the JSON data.
-     * 
+     *
      * @param string $key    The key name.
      * @param string $value  The key value.
      */

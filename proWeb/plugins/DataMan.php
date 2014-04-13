@@ -3,25 +3,25 @@
 namespace proWeb\plugins;
 
 /**
- * The Data Manipulation class is a static class that implements functionality 
+ * The Data Manipulation class is a static class that implements functionality
  * to manipulate data.
- * 
+ *
  * @author Miguel Angel Garcia Reguera
- * 
+ *
  * Copyright 2012 TAOSMI Technology
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 class DataMan {
 
     /**
@@ -48,7 +48,7 @@ class DataMan {
             case 'us':
                 list(, $month, $separator, $day, $year) = $date; break;
             case 'eu': default:
-                list(, $day, $separator, $month, $year) = $date;
+            list(, $day, $separator, $month, $year) = $date;
         }
         if (!checkdate($month, $day, $year)) {
             return false;
@@ -58,13 +58,13 @@ class DataMan {
     }
 
     /**
-     * Formats a string with a number into a currency value. By default it will 
+     * Formats a string with a number into a currency value. By default it will
      * be formatted as German currency. Available formats are:
      *      'ch' => 1'234'567'890,12    Swiss format
      *      'fr' => 1 234 567 890,12    French format
      *      'gb' => 1,234,567,890.12    British format
      *      'de' => 1.234.567.890,12    German format (default)
-     * 
+     *
      * @param string $value   A number.
      * @param string $format  The currency format (optional).
      * @return string         The value formatted as a currency value.
@@ -78,16 +78,16 @@ class DataMan {
             case 'gb':
                 return number_format($value, 2, '.', ',');
             case 'de': default:
-                return number_format($value, 2, ',', '.');
+            return number_format($value, 2, ',', '.');
         }
     }
 
     /**
-     * Truncates a string at the nearest white space found nearby the length 
-     * provided and adds a final pad. The string will be truncated at 30 
-     * characters length by default. If the string is shorter than the limit, 
+     * Truncates a string at the nearest white space found nearby the length
+     * provided and adds a final pad. The string will be truncated at 30
+     * characters length by default. If the string is shorter than the limit,
      * does nothing.
-     * 
+     *
      * @param string $string  A string to manipulate.
      * @param int    $limit   The maximum length of the output string (optional).
      * @param string $pad     The final pad (optional).
@@ -133,7 +133,7 @@ class DataMan {
             case 'us':
                 return $month.$separator.$day.$separator.$year;
             case 'eu': default:
-                return $day.$separator.$month.$separator.$year;
+            return $day.$separator.$month.$separator.$year;
         }
     }
 

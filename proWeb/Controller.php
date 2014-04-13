@@ -4,20 +4,20 @@ namespace proWeb;
 
 /**
  * This class is an abstract class and must be extended to implement a Controller.
- * A controller runs when its path (relative to the webApp) matches the HTTP 
- * request URL. The controller decides what to do next. By default, it provides 
+ * A controller runs when its path (relative to the webApp) matches the HTTP
+ * request URL. The controller decides what to do next. By default, it provides
  * the functionality to manage the input data and to redirect to another Controller.
- * 
+ *
  * @author Miguel Angel Garcia
- * 
+ *
  * Copyright 2014 TAOSMI Technology
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,16 +39,16 @@ abstract class Controller {
 
 
     /**
-     * Abstract method to implement on any Controller. This method will be 
+     * Abstract method to implement on any Controller. This method will be
      * executed by the framework just after the Controller is loaded.
      */
     abstract public function main ();
 
 
     /**
-     * Loads the extensions involved. All the controllers get a reference to the 
+     * Loads the extensions involved. All the controllers get a reference to the
      * application configuration and to the request information.
-     * 
+     *
      * @param array $cfg      An application configuration.
      * @param array $request  The request information.
      */
@@ -80,11 +80,16 @@ abstract class Controller {
         $value = $this->get($key);
         $filterFunction = self::$DATAVAL_CLASS.'::'.$filter;
         // Calls the function and returns the result.
-        if ($param === null) {
-            return call_user_func($filterFunction, $value);
-        } else {
-            return call_user_func($filterFunction, $value, $param);
+        $result = call_user_func($filterFunction, $value, $param);
+        if (!$result) {
+            throw new ErrorException(0011, __('Some parameter is missing or has a wrong value.', 'system'), array(
+                'key' => $key,
+                'value' => $value,
+                'filter' => $filter,
+                'param' => $param
+            ));
         }
+        return $value;
     }
 
     /**
@@ -104,9 +109,9 @@ abstract class Controller {
     }
 
     /**
-     * Redirects to another Command Controller. Must be used before sending or 
-     * displaying any data.
-     * 
+     * Redirects to another Controller. Must be used before sending or displaying
+     * any data.
+     *
      * @param string $to  The controller path.
      */
     public function redirect ($to) {
