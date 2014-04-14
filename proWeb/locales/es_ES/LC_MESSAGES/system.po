@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PHProWeb\n"
-"POT-Creation-Date: 2014-03-29 00:08+0100\n"
-"PO-Revision-Date: 2014-03-29 00:08+0100\n"
+"POT-Creation-Date: 2014-04-13 13:48+0100\n"
+"PO-Revision-Date: 2014-04-13 13:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -20,7 +20,11 @@ msgstr ""
 msgid "The Data Validation class or the filter is not available."
 msgstr "La clase de validación de datos o el filtro no están disponibles."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:114
+#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:85
+msgid "Some parameter is missing or has a wrong value."
+msgstr "Falta algún parámetro o  tiene un valor incorrecto."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:119
 #, php-format
 msgid "Redirecting to Controller \"%s\"."
 msgstr "Redireccionando al controlador \"%s\"."
@@ -56,13 +60,17 @@ msgstr "La plantilla HTML no existe."
 msgid "Encoding JSON View."
 msgstr "Codificando la vista en JSON."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:44
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:55
 msgid "The connection to the persistence has failed."
 msgstr "La conexión contra la persistencia ha fallado."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:104
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:115
 msgid "The query to the persistence has failed."
 msgstr "La query contra la persistencia ha fallado."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:153
+msgid "The repository has not a source table."
+msgstr "El repositorio no tiene una tabla origen asociada."
 
 #: D:\Moh\Docs\Projects\PHPro/run.php:43
 msgid "There is no application configuration file."
