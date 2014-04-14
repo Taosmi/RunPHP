@@ -67,12 +67,6 @@ try {
     doError($exception);
 }
 
-// Shows the console and flushes the log.
-if (!empty($appCfg) && !empty($request)) {
-    if ($appCfg['LOGS']['console'] && array_key_exists('console', $request['data'])) {
-        require(SYSTEM.'/html/console.php');
-    }
-    Logger::flush($appCfg);
-}
-
+// Flushes the log.
+Logger::flush($appCfg);
 exit();

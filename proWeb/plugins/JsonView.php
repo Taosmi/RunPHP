@@ -37,7 +37,11 @@ class JsonView {
      * @param array $data  The data structure to show as JSON (optional).
      */
     public function __construct ($data = array()) {
-        $this->data = $data;
+        if (is_object($data)) {
+            $this->data = get_object_vars($data);
+        } else {
+            $this->data = $data;
+        }
     }
 
 
@@ -57,6 +61,11 @@ class JsonView {
      */
     public function render () {
         Logger::sys(__('Encoding JSON View.', 'system'));
+        // Gets the console data.
+        if (SHOW_CONSOLE) {
+            $this->data['console'] = Logger::getLog();
+        }
+        // Shows the JSON encoded data.
         echo json_encode($this->data);
     }
 }

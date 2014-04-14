@@ -99,6 +99,12 @@ namespace proWeb {
         if (!file_exists($cfgFile)) {
             return array();
         }
+        // Updates the show console flag.
+        if ($cfgFile['LOGS']['console'] && array_key_exists('console', $request['data'])) {
+            define('SHOW_CONSOLE', true);
+        } else {
+            define('SHOW_CONSOLE', false);
+        }
         // Returns the configuration properties.
         return parse_ini_file($cfgFile, true);
     }
@@ -142,7 +148,6 @@ namespace proWeb {
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
             'controller' => $_REQUEST['controller'],
-            'resource' => '',
             'data' => $_REQUEST
         );
         unset($request['data']['controller']);

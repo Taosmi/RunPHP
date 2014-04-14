@@ -73,6 +73,10 @@ class HtmlView {
         // Extracts the data and includes the view file.
         extract($this->varsPage);
         require($this->file);
+        // Shows the HTML console.
+        if (SHOW_CONSOLE) {
+            require(SYSTEM.'/html/console.php');
+        }
     }
 
     /**
