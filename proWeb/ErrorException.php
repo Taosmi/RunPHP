@@ -43,7 +43,7 @@ class ErrorException extends \Exception {
      * specific type of error. This type helps to choose which view will be used
      * to show the error to the final user.
      *
-     * @param int    $code  An error code.
+     * @param string $code  An error code.
      * @param string $msg   A description of the error.
      * @param array  $data  Additional error information (optional).
      * @param string $type  An error exception type (optional).

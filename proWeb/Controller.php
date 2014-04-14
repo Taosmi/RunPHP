@@ -71,7 +71,7 @@ abstract class Controller {
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new ErrorException(0010, __('The Data Validation class or the filter is not available.', 'system'), array(
+            throw new ErrorException('PPW-010', __('The Data Validation class or the filter is not available.', 'system'), array(
                 'DataVal' => self::$DATAVAL_CLASS,
                 'filter' => $filter
             ), 'system');
@@ -82,7 +82,7 @@ abstract class Controller {
         // Calls the function and returns the result.
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
-            throw new ErrorException(0011, __('Some parameter is missing or has a wrong value.', 'system'), array(
+            throw new ErrorException('PPW-011', __('Some parameter is missing or has a wrong value.', 'system'), array(
                 'key' => $key,
                 'value' => $value,
                 'filter' => $filter,

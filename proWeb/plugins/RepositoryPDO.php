@@ -8,17 +8,17 @@ use PDO, PDOException;
  * This class implements the repository interface with PDO technology.
  *
  * @author Miguel Angel Garcia
- *
+*
  * Copyright 2014 TAOSMI Technology
- *
+*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+*
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+* distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -52,7 +52,7 @@ class RepositoryPDO implements IRepository {
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
         } catch (PDOException $e) {
-            throw new ErrorException(0110, __('The connection to the persistence has failed.', 'system'), array(
+            throw new ErrorException('RPDO-01', __('The connection to the persistence has failed.', 'system'), array(
                 'error' => $e->getMessage(),
                 'resource' => $resource
             ), 'system');
@@ -112,7 +112,7 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new ErrorException(0111, __('The query to the persistence has failed.', 'system'), array(
+            throw new ErrorException(RPDO-02, __('The query to the persistence has failed.', 'system'), array(
                 'error' => $e->getMessage(),
                 'query' => $query
             ), 'system');
@@ -150,7 +150,7 @@ class RepositoryPDO implements IRepository {
     public function backup ($fileName = null) {
         // Checks if the the table is set.
         if (!$this->table) {
-            throw new ErrorException(0112, __('The repository has not a source table.', 'system'), null, 'system');
+            throw new ErrorException('RPDO-03', __('The repository has not a source table.', 'system'), null, 'system');
         }
         // Checks the file name.
         if (!$fileName) {

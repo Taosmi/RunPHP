@@ -47,7 +47,7 @@ class HtmlView {
         $this->file = APP.$this->name.'.php';
         Logger::sys(__('Loading HTML View "%s".', 'system'), $name);
         if (!file_exists($this->file)) {
-            throw new ErrorException(0100, __('The view does not exist.', 'system'), array(
+            throw new ErrorException('HVW-01', __('The view does not exist.', 'system'), array(
                 'view' => $this->name,
                 'file' => $this->file
             ), 'system');
@@ -86,7 +86,7 @@ class HtmlView {
         // Checks if the template content exists.
         $templateFile = APP.$template.'.php';
         if (!file_exists($templateFile)) {
-            throw new ErrorException(0101, __('The HTML template does not exist.', 'system'), array(
+            throw new ErrorException('HVW-02', __('The HTML template does not exist.', 'system'), array(
                 'template' => $template,
                 'file' => $templateFile
             ), 'system');
