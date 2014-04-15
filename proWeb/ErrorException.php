@@ -27,6 +27,11 @@ namespace proWeb;
 class ErrorException extends \Exception {
 
     /**
+     * A string with the error code.
+     */
+    public $code;
+
+    /**
      * An array with the additional error information.
      */
     public $data;
@@ -49,7 +54,8 @@ class ErrorException extends \Exception {
      * @param string $type  An error exception type (optional).
      */
     public function __construct ($code, $msg, $data = array(), $type = null) {
-        parent::__construct($msg, $code);
+        parent::__construct($msg);
+        $this->code = $code;
         $this->data = $data;
         $this->type = $type;
     }
