@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PHProWeb\n"
-"POT-Creation-Date: 2014-04-13 13:48+0100\n"
-"PO-Revision-Date: 2014-04-13 13:50+0100\n"
+"POT-Creation-Date: 2014-04-17 13:07+0100\n"
+"PO-Revision-Date: 2014-04-17 13:10+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -43,6 +43,42 @@ msgstr "La locale actual es ahora \"%s\"."
 msgid "No locale has been set."
 msgstr "No se ha establecido ninguna locale."
 
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:4
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:4
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:10
+msgid "Page not found"
+msgstr "Página no encontrada"
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:10
+msgid "Error"
+msgstr "Error"
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:12
+msgid "There was an error that prevents normal operation of the website."
+msgstr "Se produjo un error que impide el funcionamiento normal de la web."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:14
+msgid "Please try again later or contact the administrator."
+msgstr ""
+"Por favor, vuelve a intentarlo más tarde o contacta con el administrador."
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:16
+msgid "Details"
+msgstr "Detalles"
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:22
+msgid "Extra data: "
+msgstr "Extra datos:"
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:25
+msgid "Program: "
+msgstr "Programa:"
+
+#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:11
+msgid "Check the web address for errors or go back to the homepage."
+msgstr ""
+"Comprueba que la dirección web es correcta o vuelve a la página principal."
+
 #: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:48
 #, php-format
 msgid "Loading HTML View \"%s\"."
@@ -52,11 +88,11 @@ msgstr "Cargando vista HTML \"%s\"."
 msgid "The view does not exist."
 msgstr "La vista no existe."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:89
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:93
 msgid "The HTML template does not exist."
 msgstr "La plantilla HTML no existe."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/JsonView.php:59
+#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/JsonView.php:63
 msgid "Encoding JSON View."
 msgstr "Codificando la vista en JSON."
 
