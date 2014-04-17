@@ -99,14 +99,15 @@ namespace proWeb {
         if (!file_exists($cfgFile)) {
             return array();
         }
+        $cfg = parse_ini_file($cfgFile, true);
         // Updates the show console flag.
-        if ($cfgFile['LOGS']['console'] && array_key_exists('console', $request['data'])) {
+        if ($cfg['LOGS']['console'] && array_key_exists('console', $request['data'])) {
             define('SHOW_CONSOLE', true);
         } else {
             define('SHOW_CONSOLE', false);
         }
         // Returns the configuration properties.
-        return parse_ini_file($cfgFile, true);
+        return $cfg;
     }
 
     /**
