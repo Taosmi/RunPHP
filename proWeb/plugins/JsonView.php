@@ -26,13 +26,13 @@ use proWeb\Logger;
 class JsonView {
 
     /**
-     * The internal Json data holder.
+     * The internal JSON data holder.
      */
     private $data;
 
 
     /**
-     * Initializes the Json data.
+     * Initializes the JSON data.
      *
      * @param array $data  The data structure to show as JSON (optional).
      */

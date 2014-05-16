@@ -40,7 +40,7 @@ try {
     I18n::loadDomain('system', SYS_LOCALES);
     // Checks request and configuration.
     if (empty($appCfg)) {
-        throw new ErrorException('PPW-000', __('There is no application configuration file.', 'system'), $request, 'system');
+        throw new SystemException('PPW-000', __('There is no application configuration file.', 'system'), $request);
     }
     // Defines the Application path, the Resources path and the base HTTP URL.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['appName']);
@@ -59,11 +59,14 @@ try {
     $controller = getController($appCfg, $request);
     // No controller found for the HTTP request.
     if (!$controller) {
-        throw new ErrorException('PPW-404', null, $request, 'notFound');
+        throw new SystemException('PPW-404', null, $request);
     }
     $controller->main();
+} catch (SystemException $exception) {
+    // Handles a system error as properly as possible.
+    doSystemError($exception);
 } catch (ErrorException $exception) {
-    // Handles the error as properly as possible.
+    // Handles an error as properly as possible.
     doError($exception);
 }
 
