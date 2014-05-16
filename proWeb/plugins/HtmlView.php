@@ -1,7 +1,7 @@
 <?php
 
 namespace proWeb\plugins;
-use proWeb\ErrorException, proWeb\Logger;
+use proWeb\SystemException, proWeb\Logger;
 
 /**
  * This class implements the functionality to load an HTML file as a View. This
@@ -37,8 +37,8 @@ class HtmlView {
     /**
      * Checks if the view file exists.
      *
-     * @param string $name     The name of the view.
-     * @throws ErrorException()  If the view does not exist.
+     * @param string $name  The name of the view.
+     * @throws              SystemException if the view does not exist.
      */
     public function __construct ($name) {
         // Stores private data.
@@ -47,10 +47,10 @@ class HtmlView {
         $this->file = APP.$this->name.'.php';
         Logger::sys(__('Loading HTML View "%s".', 'system'), $name);
         if (!file_exists($this->file)) {
-            throw new ErrorException('HVW-01', __('The view does not exist.', 'system'), array(
+            throw new SystemException('HVW-01', __('The view does not exist.', 'system'), array(
                 'view' => $this->name,
                 'file' => $this->file
-            ), 'system');
+            ));
         }
     }
 
@@ -84,16 +84,16 @@ class HtmlView {
      * visual segments (headers, footer, etc.) into independent files.
      *
      * @param string $template  The name of the template.
-     * @throws                  ErrorException() if the template does not exist.
+     * @throws                  SystemException if the template does not exist.
      */
     public function renderTemplate ($template) {
         // Checks if the template content exists.
         $templateFile = APP.$template.'.php';
         if (!file_exists($templateFile)) {
-            throw new ErrorException('HVW-02', __('The HTML template does not exist.', 'system'), array(
+            throw new SystemException('HVW-02', __('The HTML template does not exist.', 'system'), array(
                 'template' => $template,
                 'file' => $templateFile
-            ), 'system');
+            ));
         }
         // Includes the template file.
         require($templateFile);

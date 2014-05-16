@@ -31,6 +31,7 @@ interface IRepository {
      * Initializes a repository with a connection string.
      *
      * @param string $connection  The repository connection parameters.
+     * @throws                    SystemException if the initialization fails.
      */
     public function __construct ($connection);
 
@@ -75,7 +76,7 @@ interface IRepository {
      * @param string $query   A query.
      * @param array  $data    The placeholders data if placeholders are used (optional).
      * @return \PDOStatement  The query statement.
-     * @throws                ErrorException if the query fails.
+     * @throws                SystemException if the query fails.
      */
     public function query ($query, $data = null);
 

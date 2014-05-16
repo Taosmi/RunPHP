@@ -1,7 +1,7 @@
 <?php
 
 namespace proWeb\plugins;
-use proWeb\IRepository, proWeb\ErrorException, proWeb\Logger;
+use proWeb\IRepository, proWeb\SystemException, proWeb\Logger;
 use PDO, PDOException;
 
 /**
@@ -40,7 +40,7 @@ class RepositoryPDO implements IRepository {
      *      mysql:host=db18.1and1.es;dbname=db355827412,guest,12345
      *
      * @param string $connection  A connection string.
-     * @throws                    ErrorException if the connection fails.
+     * @throws                    SystemException if the connection fails.
      */
     public function __construct ($connection) {
         // Gets the DB resource.
@@ -52,10 +52,10 @@ class RepositoryPDO implements IRepository {
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
         } catch (PDOException $e) {
-            throw new ErrorException('RPDO-01', __('The connection to the persistence has failed.', 'system'), array(
+            throw new SystemException('RPDO-01', __('The connection to the persistence has failed.', 'system'), array(
                 'error' => $e->getMessage(),
                 'resource' => $resource
-            ), 'system');
+            ));
         }
     }
 
@@ -112,10 +112,10 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new ErrorException(RPDO-02, __('The query to the persistence has failed.', 'system'), array(
+            throw new SystemException('RPDO-02', __('The query to the persistence has failed.', 'system'), array(
                 'error' => $e->getMessage(),
                 'query' => $query
-            ), 'system');
+            ));
         }
     }
 
@@ -150,7 +150,7 @@ class RepositoryPDO implements IRepository {
     public function backup ($fileName = null) {
         // Checks if the the table is set.
         if (!$this->table) {
-            throw new ErrorException('RPDO-03', __('The repository has not a source table.', 'system'), null, 'system');
+            throw new SystemException('RPDO-03', __('The repository has not a source table.', 'system'));
         }
         // Checks the file name.
         if (!$fileName) {

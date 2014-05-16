@@ -3,10 +3,11 @@
 namespace proWeb;
 
 /**
- * This class is an abstract class and must be extended to implement a Controller.
- * A controller runs when its path (relative to the webApp) matches the HTTP
- * request URL. The controller decides what to do next. By default, it provides
- * the functionality to manage the input data and to redirect to another Controller.
+ * This class is an abstract class and must be extended to implement a
+ * Controller. A controller runs when its path (relative to the webApp) matches
+ * the HTTP request URL. The controller decides what to do next. By default, it
+ * provides the functionality to manage the input data and to redirect to
+ * another Controller.
  *
  * @author Miguel Angel Garcia
  *
@@ -66,15 +67,16 @@ abstract class Controller {
      * @param string   $filter  A filter or function to apply.
      * @param string   $param   A parameter used by the filter (optional).
      * @return boolean          True if the value pass the test. Otherwise false.
-     * @throws                  ErrorException if the filter is not available.
+     * @throws                  SystemException if the validation class or the filter is not available.
+     * @throws                  ErrorException if the value does not pass the validation.
      */
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new ErrorException('PPW-010', __('The Data Validation class or the filter is not available.', 'system'), array(
+            throw new SystemException('PPW-010', __('The Data Validation class or the filter is not available.', 'system'), array(
                 'DataVal' => self::$DATAVAL_CLASS,
                 'filter' => $filter
-            ), 'system');
+            ));
         }
         // Gets the value and the function name.
         $value = $this->get($key);
@@ -82,11 +84,10 @@ abstract class Controller {
         // Calls the function and returns the result.
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
-            throw new ErrorException('PPW-011', __('Some parameter is missing or has a wrong value.', 'system'), array(
-                'key' => $key,
+            throw new ErrorException('PPW-011', sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
+                'param' => $key,
                 'value' => $value,
-                'filter' => $filter,
-                'param' => $param
+                'filter' => $filter
             ));
         }
         return $value;
@@ -109,8 +110,8 @@ abstract class Controller {
     }
 
     /**
-     * Redirects to another Controller. Must be used before sending or displaying
-     * any data.
+     * Redirects to another Controller. Must be used before sending or
+     * displaying any data.
      *
      * @param string $to  The controller path.
      */

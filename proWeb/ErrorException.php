@@ -4,9 +4,7 @@ namespace proWeb;
 
 /**
  * This class implements an extended version of an Exception with additional
- * data as an array so it will be available when handling the error. It also
- * includes a type that helps to choose which view will be used to show the
- * error.
+ * data as an array so it will be available when handling the error.
  *
  * @author Miguel Angel Garcia
  *
@@ -27,36 +25,28 @@ namespace proWeb;
 class ErrorException extends \Exception {
 
     /**
-     * A string with the error code.
+     * A string with the error code and the error message.
      */
-    public $code;
+    public $code, $msg;
 
     /**
      * An array with the additional error information.
      */
     public $data;
 
-    /**
-     * A string with the error exception type that will be bound to a specific view.
-     */
-    public $type;
-
 
     /**
-     * Initializes a new error exception.
-     * The error exception may have some additional information and may be of a
-     * specific type of error. This type helps to choose which view will be used
-     * to show the error to the final user.
+     * Initializes a new error exception. The error exception may have some
+     * additional information.
      *
      * @param string $code  An error code.
      * @param string $msg   A description of the error.
      * @param array  $data  Additional error information (optional).
-     * @param string $type  An error exception type (optional).
      */
-    public function __construct ($code, $msg, $data = array(), $type = null) {
+    public function __construct ($code, $msg, $data = array()) {
         parent::__construct($msg);
         $this->code = $code;
+        $this->msg = $msg;
         $this->data = $data;
-        $this->type = $type;
     }
 }
