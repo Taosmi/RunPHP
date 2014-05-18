@@ -4,7 +4,8 @@ namespace proWeb;
 
 /**
  * This class implements an extended version of an Exception with additional
- * data as an array so it will be available when handling the error.
+ * data as an array that will be available when handling the error. It is also
+ * possible to assign an HTTP status code to be used at the response.
  *
  * @author Miguel Angel Garcia
  *
@@ -25,28 +26,33 @@ namespace proWeb;
 class ErrorException extends \Exception {
 
     /**
-     * A string with the error code and the error message.
+     * A string with the error message.
      */
-    public $code, $msg;
+    public $msg;
 
     /**
      * An array with the additional error information.
      */
     public $data;
 
+    /**
+     * The HTTP status code to use at the response.
+     */
+    public $httpStatus;
 
     /**
      * Initializes a new error exception. The error exception may have some
-     * additional information.
+     * additional information and a HTTP status code to use at the response
+     * with 500 as default value.
      *
-     * @param string $code  An error code.
-     * @param string $msg   A description of the error.
-     * @param array  $data  Additional error information (optional).
+     * @param string $msg         A description of the error.
+     * @param array  $data        Additional error information (optional).
+     * @param int    $httpStatus  The HTTP status code (optional).
      */
-    public function __construct ($code, $msg, $data = array()) {
+    public function __construct ($msg, $data = array(), $httpStatus = 500) {
         parent::__construct($msg);
-        $this->code = $code;
         $this->msg = $msg;
         $this->data = $data;
+        $this->httpStatus = $httpStatus;
     }
 }

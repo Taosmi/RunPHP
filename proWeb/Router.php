@@ -86,9 +86,11 @@ namespace proWeb {
         Logger::error($exception);
         // Sets the error page default path.
         $appPath = APP.'/views/errors/';
-        $errorPage = 'systemError.php';
-        if ($exception->code == 'PPW-404') {
+        // Sets the error page filename.
+        if ($exception->httpStatus == 404) {
             $errorPage = 'notFoundError.php';
+        } else {
+            $errorPage = 'systemError.php';
         }
         // Shows the application specific system error page or the default framework page.
         if (file_exists($appPath.$errorPage)) {

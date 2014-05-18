@@ -52,7 +52,8 @@ class RepositoryPDO implements IRepository {
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
         } catch (PDOException $e) {
-            throw new SystemException('RPDO-01', __('The connection to the persistence has failed.', 'system'), array(
+            throw new SystemException(__('The connection to the persistence has failed.', 'system'), array(
+                'code' => 'RPDO-01',
                 'error' => $e->getMessage(),
                 'resource' => $resource
             ));
@@ -112,7 +113,8 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new SystemException('RPDO-02', __('The query to the persistence has failed.', 'system'), array(
+            throw new SystemException(__('The query to the persistence has failed.', 'system'), array(
+                'code' => 'RPDO-02',
                 'error' => $e->getMessage(),
                 'query' => $query
             ));
