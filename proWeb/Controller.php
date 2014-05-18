@@ -42,6 +42,8 @@ abstract class Controller {
     /**
      * Abstract method to implement on any Controller. This method will be
      * executed by the framework just after the Controller is loaded.
+     *
+     * @return Response  A Response with the response data.
      */
     abstract public function main ();
 
@@ -73,7 +75,8 @@ abstract class Controller {
     public function check ($key, $filter, $param = null) {
         // Checks if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new SystemException('PPW-010', __('The Data Validation class or the filter is not available.', 'system'), array(
+            throw new SystemException(__('The Data Validation class or the filter is not available.', 'system'), array(
+                'code' => 'PPW-010',
                 'DataVal' => self::$DATAVAL_CLASS,
                 'filter' => $filter
             ));
@@ -84,11 +87,12 @@ abstract class Controller {
         // Calls the function and returns the result.
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
-            throw new ErrorException('PPW-011', sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
+            throw new ErrorException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
+                'code' => 'PPW-011',
                 'param' => $key,
                 'value' => $value,
                 'filter' => $filter
-            ));
+            ), 400);
         }
         return $value;
     }

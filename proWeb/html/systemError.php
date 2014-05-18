@@ -8,6 +8,7 @@
 <body>
     <div class="error">
         <h1><?php _e('Error', 'system') ?></h1>
+        <h2><?php echo $exception->getMessage() ?></h2>
         <p>
             <?php _e('There was an error that prevents normal operation of the website.', 'system') ?>
             <br/>
@@ -15,18 +16,11 @@
         </p>
         <h2><?php _e('Details', 'system') ?></h2>
         <p>
-            #<?php echo $exception->code ?>:
-            <?php echo $exception->getMessage() ?>
-        </p>
-        <p>
             <?php
-                _e('Extra data:', 'system');
-                echo '<br/>';
                 foreach ($exception->data as $key => $value) {
                     echo $key.': '.$value.'<br/>';
                 }
-                _e('Program: ', 'system');
-                echo $exception->getFile();
+                echo __('Program', 'system').': '.$exception->getFile();
             ?>
         </p>
     </div>
