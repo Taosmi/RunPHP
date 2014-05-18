@@ -62,11 +62,7 @@ try {
         throw new SystemException(__('Page not found.', 'system'), $request, 404);
     }
     $controller->main();
-} catch (SystemException $exception) {
-    // Handles a system error as properly as possible.
-    doSystemError($exception);
 } catch (ErrorException $exception) {
-    // Handles an error as properly as possible.
     doError($exception);
 }
 

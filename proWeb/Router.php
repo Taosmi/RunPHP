@@ -64,35 +64,16 @@ namespace proWeb {
     function doError ($exception) {
         // Logs the error.
         Logger::error($exception);
-        // Sets the error page default path.
+        // Sets the error page.
         $appPath = APP.'/views/errors/';
-        $errorPage = 'error.php';
-        // Shows the application specific error page or the default framework page.
-        if (file_exists($appPath.$errorPage)) {
-            include($appPath.$errorPage);
-        } else {
-            include(SYSTEM.'/html/systemError.php');
-        }
-    }
-
-    /**
-     * Shows an error page. If the application has not a system error page,
-     * shows the framework default system error page.
-     *
-     * @param SystemException $exception  A system exception.
-     */
-    function doSystemError ($exception) {
-        // Logs the error.
-        Logger::error($exception);
-        // Sets the error page default path.
-        $appPath = APP.'/views/errors/';
-        // Sets the error page filename.
         if ($exception->httpStatus == 404) {
             $errorPage = 'notFoundError.php';
         } else {
-            $errorPage = 'systemError.php';
+            $errorPage = 'error.php';
         }
-        // Shows the application specific system error page or the default framework page.
+        // Sets the HTTP status header.
+        header('HTTP/1.1 '.$exception->httpStatus.' Internal Server Error');
+        // Shows the application specific error page or the framework page.
         if (file_exists($appPath.$errorPage)) {
             include($appPath.$errorPage);
         } else {
