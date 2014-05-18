@@ -166,10 +166,10 @@ namespace proWeb {
             'appName' => $_SERVER['SERVER_NAME'],
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
-            'controller' => $_REQUEST['controller'],
+            'controller' => $_REQUEST['_controller'],
+            'format' => $_REQUEST['_format'],
             'data' => $_REQUEST
         );
-        unset($request['data']['controller']);
         // If the server name is an IP address, uses the Computer Name instead.
         if (filter_var($request['appName'], FILTER_VALIDATE_IP)) {
             $request['appName'] = $_SERVER['COMPUTERNAME'];

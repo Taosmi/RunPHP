@@ -7,6 +7,6 @@ LimitRequestBody 1024000
 
 #Main rules.
 RewriteEngine On
-RewriteRule ^$ /run.php?controller=index [QSA,L]
-RewriteRule ^([\w\d-/@]+)/$ /run.php?controller=$1 [QSA,L]
-RewriteRule ^([\w\d-/@]+)$ /run.php?controller=$1 [QSA,L]
+RewriteRule ^$ /run.php?_controller=index [L,QSA]
+RewriteRule ^([\w\d-/@]+)$ /run.php?_controller=$1 [L,NC,QSA]
+RewriteRule ^([\w\d-/@]+)\.(json|xml)$ /run.php?_controller=$1&_format=$2 [L,NC,QSA]
