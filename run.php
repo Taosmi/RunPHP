@@ -38,7 +38,7 @@ try {
     $request = getRequest();
     $appCfg = getAppConfig($request);
     I18n::loadDomain('system', SYS_LOCALES);
-    // Checks request and configuration.
+    // Checks configuration file.
     if (empty($appCfg)) {
         throw new SystemException(__('There is no application configuration file.', 'system'), $request);
     }
@@ -56,12 +56,13 @@ try {
     I18n::setLocale();
     // Loads and runs the Controller.
     Logger::sys(__('Request from %s to "%s/%s".', 'system'), $request['from'], $request['appName'], $request['controller']);
-    $controller = getController($appCfg, $request);
-    // No controller found for the HTTP request.
-    if (!$controller) {
+    $controllerName = getController($appCfg, $request);
+    $request['controller'] = $controllerName;
+    // Check if no controller was found for the HTTP request.
+    if (!$controllerName) {
         throw new SystemException(__('Page not found.', 'system'), $request, 404);
     }
-    $controller->main();
+    $controller = new $controllerName($appCfg, $request);
 } catch (ErrorException $exception) {
     doError($exception);
 }

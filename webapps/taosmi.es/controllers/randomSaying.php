@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use proWeb\Controller, proWeb\plugins\JsonView;
+use proWeb\Controller, proWeb\Response;
 use domain\SayingRepository;
 
 /**
@@ -17,7 +17,6 @@ class randomSaying extends Controller {
         $sayingRepo = new SayingRepository($this->cfg['REPOS']['taosmi']);
         $saying = $sayingRepo->findRandom();
         // Render the page.
-        $template = new JsonView($saying);
-        $template->render();
+        return new Response($saying);
     }
 }

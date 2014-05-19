@@ -110,27 +110,26 @@ namespace proWeb {
     }
 
     /**
-     * Gets the controller file involved and returns a new instance of it. If no
-     * controller is available, returns null.
+     * Gets the controller name involved with the request. If no controller is
+     * available, returns null.
      *
-     * @param array $cfg       An application configuration.
-     * @param array $request   A request information.
-     * @return Controller      A controller object or null.
+     * @param array $cfg      An application configuration.
+     * @param array $request  A request information.
+     * @return string         The controller name or null.
      */
     function getController ($cfg, $request) {
-        // The controller root and the controller name.
-        $root = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR;
+        // The controller path and the controller name.
+        $path = $cfg['PATHS']['controllers'].DIRECTORY_SEPARATOR;
         $controller = $request['controller'];
         // If it is a folder, tries the default index controller.
-        if (is_dir(APP.$root.$controller)) {
-            $controller.= DIRECTORY_SEPARATOR.'index';
+        if (is_dir(APP.$path.$controller)) {
+            $controller.= 'index';
         }
         // Tries to find a controller.
-        if (file_exists(APP.$root.$controller.'.php')) {
-            $request['controller'] = $controller;
+        if (file_exists(APP.$path.$controller.'.php')) {
             // Converts the controller name to a name-space class.
-            $controllerName = str_replace('/', '\\', substr($root.$controller, 1));
-            return new $controllerName($cfg, $request);
+            $controllerName = str_replace('/', '\\', substr($path.$controller, 1));
+            return $controllerName;
         }
         return null;
     }

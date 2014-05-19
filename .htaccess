@@ -1,12 +1,11 @@
 #It is not allowed to show the directory list.
-Options All -Indexes
-Options +FollowSymLinks
+# Options All -Indexes
+# Options +FollowSymLinks
 
 #The HTTP requests body has a 1 MB maximum size.
 LimitRequestBody 1024000
 
 #Main rules.
 RewriteEngine On
-RewriteRule ^$ /run.php?_controller=index [L,QSA]
-RewriteRule ^([\w\d-/@]+)$ /run.php?_controller=$1 [L,NC,QSA]
+RewriteRule ^([\w\d-/@]*)$ /run.php?_controller=$1 [L,NC,QSA]
 RewriteRule ^([\w\d-/@]+)\.(json|xml)$ /run.php?_controller=$1&_format=$2 [L,NC,QSA]

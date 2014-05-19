@@ -56,8 +56,13 @@ abstract class Controller {
      * @param array $request  The request information.
      */
     public function __construct ($cfg, $request) {
+        // Set the configuration and request data.
         $this->cfg = $cfg;
         $this->request = $request;
+        // Execute the main function of the controller.
+        $response = $this->main();
+        // Renders the response.
+        $response->render($request['format']);
     }
 
 
