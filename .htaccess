@@ -1,11 +1,17 @@
-#It is not allowed to show the directory list.
-# Options All -Indexes
-# Options +FollowSymLinks
+# Directory listing is not allowed.
+Options -Indexes
 
-#The HTTP requests body has a 1 MB maximum size.
-LimitRequestBody 1024000
-
-#Main rules.
+# Rewrite engine is a must.
+Options +FollowSymLinks
 RewriteEngine On
-RewriteRule ^([\w\d-/@]*)$ /run.php?_controller=$1 [L,NC,QSA]
-RewriteRule ^([\w\d-/@]+)\.(json|xml)$ /run.php?_controller=$1&_format=$2 [L,NC,QSA]
+RewriteBase /
+
+# Let the apps static content pass through.
+RewriteCond %{REQUEST_URI} ^/webapps/.*/static/
+RewriteRule ^ - [L]
+
+# Dodge trailing slashes.
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Everything else is handled by the front controller.
+RewriteRule ^ run.php [L]

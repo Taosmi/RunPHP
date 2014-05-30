@@ -1,6 +1,6 @@
 <?php
 
-namespace proWeb;
+namespace runPHP;
 
 /**
  * This class implements a system exception.

@@ -1,10 +1,10 @@
 <?php
 
-namespace proWeb;
+namespace runPHP;
 
 /**
- * All the requests will hit this script, the Front Controller.
- * This script initializes the framework resources needed to run the PHProWeb.
+ * All the requests will hit this script, the Front Controller. This script
+ * initializes the RunPHP framework resources.
  *
  * @author Miguel Angel Garcia
  *
@@ -23,50 +23,49 @@ namespace proWeb;
  * limitations under the License.
  */
 
-// Framework path and Web applications path.
-define('SYSTEM', 'proWeb');
-define('WEBAPPS', 'webapps');
-// Framework locales.
-define('SYS_LOCALES', SYSTEM.'/locales');
-// Sets the time zone to UTC.
+// Set the time zone to UTC.
 date_default_timezone_set('UTC');
 
+// Shortcuts to the RunPHP folder, the RunPHP locales folder and the Web applications folder.
+define('SYSTEM', 'runPHP');
+define('SYS_LOCALES', SYSTEM.'/locales');
+define('WEBAPPS', 'webapps');
+
+// Loader for undefined classes and load the I18N framework texts.
+require(SYSTEM.'/Loader.php');
+I18n::loadDomain('system', SYS_LOCALES);
+
 try {
-    // Loads the PHProWeb Route functions.
-    require(SYSTEM.'/Router.php');
-    // Gets the request info, the application configuration and the system domain.
-    $request = getRequest();
-    $appCfg = getAppConfig($request);
-    I18n::loadDomain('system', SYS_LOCALES);
-    // Checks configuration file.
-    if (empty($appCfg)) {
-        throw new SystemException(__('There is no application configuration file.', 'system'), $request);
-    }
-    // Defines the Application path, the Resources path and the base HTTP URL.
-    define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['appName']);
-    define('RESOURCES', APP.$appCfg['PATHS']['resources']);
-    define('BASE_URL', 'http://'.$request['appName']);
+
+    // Get the request info.
+    $request = Router::getRequest();
+
+    // Shortcuts to the Web application folder and the static folder.
+    define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
+    define('STATIC', APP.$request['cfg']['PATHS']['static']);
+
     // Log and I18n configuration.
-    Logger::setLevel($appCfg['LOGS']['logLevel']);
-    I18n::setAutoLocale($appCfg['I18N']['autolocale']);
-    I18n::setDefaultLocale($appCfg['I18N']['default']);
-    // Loads the application domain and sets the locale.
-    I18n::loadDomain($appCfg['I18N']['domain'], APP.$appCfg['I18N']['path']);
-    I18n::setDomain($appCfg['I18N']['domain']);
+    Logger::setLevel($request['cfg']['LOGS']['logLevel']);
+    I18n::setAutoLocale($request['cfg']['I18N']['autolocale']);
+    I18n::setDefaultLocale($request['cfg']['I18N']['default']);
+    I18n::loadDomain($request['cfg']['I18N']['domain'], APP.$request['cfg']['I18N']['path']);
+    I18n::setDomain($request['cfg']['I18N']['domain']);
     I18n::setLocale();
-    // Loads and runs the Controller.
-    Logger::sys(__('Request from %s to "%s/%s".', 'system'), $request['from'], $request['appName'], $request['controller']);
-    $controllerName = getController($appCfg, $request);
-    $request['controller'] = $controllerName;
-    // Check if no controller was found for the HTTP request.
-    if (!$controllerName) {
-        throw new SystemException(__('Page not found.', 'system'), $request, 404);
-    }
-    $controller = new $controllerName($appCfg, $request);
+
+    // Load and run the controller.
+    Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
+    $controllerName = Router::getController($request);
+    $controller = new $controllerName($request);
+    $response = $controller->main();
+    $response->render($request['format']);
+
 } catch (ErrorException $exception) {
-    doError($exception);
+
+    // Work In Progress.
+    Router::doError($exception);
+
 }
 
 // Flushes the log.
-Logger::flush($appCfg);
+Logger::flush($request['cfg']['LOGS']['path']);
 exit();

@@ -1,24 +1,24 @@
 <?php
 
-namespace proWeb\plugins;
-use proWeb\IRepository, proWeb\SystemException, proWeb\Logger;
+namespace runPHP\plugins;
+use runPHP\IRepository, runPHP\SystemException, runPHP\Logger;
 use PDO, PDOException;
 
 /**
  * This class implements the repository interface with PDO technology.
  *
  * @author Miguel Angel Garcia
-*
+ *
  * Copyright 2014 TAOSMI Technology
-*
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
-*
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -26,14 +26,32 @@ use PDO, PDOException;
 class RepositoryPDO implements IRepository {
 
     /**
-     * A DB resource, a DB table and the query fields to retrieve.
+     * The PDO object.
+     * @var string
      */
-    private $pdo, $table, $fields, $objectName;
+    private $pdo;
+
+    /**
+     * The DB table.
+     * @var string
+     */
+    private $table;
+
+    /**
+     * The fields to retrieve when querying.
+     * @var string
+     */
+    private $fields;
+
+    /**
+     * The full class name to cast from the DB results.
+     * @var string
+     */
+    private $objectName;
 
 
     /**
-     * Initiates the repository connection. The connection string must be
-     * formatted as:
+     * Initiate the repository connection. The connection string must be formatted as:
      *      tech:host=hostname;dbname=dbname,user,password
      * The available technologies are the same that the PHP PDO drivers.
      * This is an example of MySQL connection string:
@@ -43,7 +61,7 @@ class RepositoryPDO implements IRepository {
      * @throws                    SystemException if the connection fails.
      */
     public function __construct ($connection) {
-        // Gets the DB resource.
+        // Get the DB resource.
         try {
             list($resource, $user, $pwd) = explode(',', $connection);
             $start = microtime(true);
@@ -62,7 +80,7 @@ class RepositoryPDO implements IRepository {
 
 
     public function add ($item) {
-        // Gets the object keys.
+        // Get the object keys.
         $objData = get_object_vars($item);
         $keys = array_keys($objData);
         // Query time.
@@ -72,12 +90,12 @@ class RepositoryPDO implements IRepository {
     }
 
     public function find ($options = null) {
-        // Gets the fields to retrieve.
+        // Get the fields to retrieve.
         $fields = $this->fields ? $this->fields : '*';
         // Query time.
         $sql = 'SELECT '.$fields.' FROM '.$this->table.$this->parseOptions($options);
         $statement = $this->query($sql);
-        // Fetches the result.
+        // Fetch the result.
         if ($this->objectName) {
             $statement->setFetchMode(PDO::FETCH_CLASS, $this->objectName);
         } else {
@@ -94,7 +112,7 @@ class RepositoryPDO implements IRepository {
         // Update query.
         $sql = 'UPDATE '.$this->table.' SET '.$this->toQuery($item).' '.$this->parseOptions($options);
         $statement = $this->query($sql);
-        // Returns the number of items updated.
+        // Return the number of items updated.
         return $statement->rowCount();
     }
 
@@ -125,7 +143,7 @@ class RepositoryPDO implements IRepository {
         // Delete query.
         $sql = 'DELETE FROM '.$this->table.$this->parseOptions($options);
         $statement = $this->query($sql);
-        // Returns the number of items deleted.
+        // Return the number of items deleted.
         return $statement->rowCount();
     }
 
@@ -150,34 +168,34 @@ class RepositoryPDO implements IRepository {
     }
 
     public function backup ($fileName = null) {
-        // Checks if the the table is set.
+        // Check if the the table is set.
         if (!$this->table) {
             throw new SystemException('RPDO-03', __('The repository has not a source table.', 'system'));
         }
-        // Checks the file name.
+        // Check the file name.
         if (!$fileName) {
             $fileName = 'repo_'.$this->table;
         }
         $script = '-- Table creation'."\r\n";
-        // Gets the table creation script.
+        // Get the table creation script.
         $script.= "\n".'DROP TABLE IF EXISTS '.$this->table.';'."\n";
         $stmtTable = $this->pdo->query('SHOW CREATE TABLE '.$this->table.';');
         $stmtTable ->setFetchMode(PDO::FETCH_ASSOC);
         $script.= $stmtTable->fetchColumn(1).";\n";
-        // Gets the data script.
+        // Get the data script.
         $script.= '-- Data'."\r\n";
         $stmtData = $this->pdo->query('SELECT * FROM '.$this->table.';');
         $stmtData->setFetchMode(PDO::FETCH_ASSOC);
         while ($item = $stmtData->fetch()) {
             $script.= 'INSERT INTO '.$this->table.' VALUES(';
-            // Cleans the parameters.
+            // Clean the parameters.
             foreach ($item as &$value) {
                 $value = addslashes(str_replace("\r\n", "\\r\\n", $value));
             }
             $script.= '"'.implode('","', $item).'"';
             $script.= ');'."\n";
         }
-        // Writes the file.
+        // Write the file.
         $file = fopen(RESOURCES.'/'.$fileName.'.'.date('Ymd.His').'.sql', 'w+');
         fwrite($file, $script);
         fclose($file);
@@ -185,11 +203,11 @@ class RepositoryPDO implements IRepository {
 
 
     /**
-     * Transforms the options array into a string that can be delivered to the DB.
-     * If no options, returns an empty string.
+     * Transform the options array into a string that can be delivered to the DB.
+     * If no options, return an empty string.
      *
-     * @param array $options  The options (optional).
-     * @return string         The options condition.
+     * @param  array   $options  The options (optional).
+     * @return string            The options condition.
      */
     private function parseOptions ($options = null) {
         $sql = '';
@@ -214,15 +232,15 @@ class RepositoryPDO implements IRepository {
     }
 
     /**
-     * Transforms an associative array into a separated by comma key - value
+     * Transform an associative array into a separated by comma key - value
      * pairs string. By default, the pair of values will be joined by comma.
      * Example:
-     * Source: array(key => value, key => value);
-     * Result: key='value',key='value'
+     *      Source: array(key => value, key => value);
+     *      Result: key='value',key='value'
      *
-     * @param object  $item  A item with public data.
-     * @param string  $join  The character in between pair of values (optional).
-     * @return string       A separated by comma key - value pairs string.
+     * @param  object  $item  A item with public data.
+     * @param  string  $join  The character in between pair of values (optional).
+     * @return string         A separated by comma key - value pairs string.
      */
     private function toQuery ($item, $join = ',') {
         $query = '';

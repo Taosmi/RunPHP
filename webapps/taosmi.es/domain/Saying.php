@@ -7,11 +7,21 @@ namespace domain;
  */
 class Saying {
 
-    // A unique id.
+    /**
+     * A unique id.
+     * @var string
+     */
     public $id;
-    // The saying itself.
-    public $quote;
-    // The author.
-    public $author;
 
+    /**
+     * The saying itself.
+     * @var string
+     */
+    public $quote;
+
+    /**
+     * The author.
+     * @var string
+     */
+    public $author;
 }

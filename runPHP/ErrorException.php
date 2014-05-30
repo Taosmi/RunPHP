@@ -1,6 +1,6 @@
 <?php
 
-namespace proWeb;
+namespace runPHP;
 
 /**
  * This class implements an extended version of an Exception with additional
@@ -26,28 +26,31 @@ namespace proWeb;
 class ErrorException extends \Exception {
 
     /**
-     * A string with the error message.
+     * An error message.
+     * @var string
      */
     public $msg;
 
     /**
-     * An array with the additional error information.
+     * Additional error information.
+     * @var array
      */
     public $data;
 
     /**
-     * The HTTP status code to use at the response.
+     * An HTTP status code.
+     * @var int
      */
     public $httpStatus;
 
     /**
-     * Initializes a new error exception. The error exception may have some
+     * Initialize a new error exception. The error exception may have some
      * additional information and a HTTP status code to use at the response
-     * with 500 as default value.
+     * (default value 500).
      *
-     * @param string $msg         A description of the error.
-     * @param array  $data        Additional error information (optional).
-     * @param int    $httpStatus  The HTTP status code (optional).
+     * @param string  $msg         A description of the error.
+     * @param array   $data        Additional error information (optional).
+     * @param int     $httpStatus  The HTTP status code (optional).
      */
     public function __construct ($msg, $data = array(), $httpStatus = 500) {
         parent::__construct($msg);

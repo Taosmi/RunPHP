@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use proWeb\Controller, proWeb\Response;
+use runPHP\Controller, runPHP\Response;
 use domain\SayingRepository;
 
 /**
@@ -13,8 +13,8 @@ class randomSaying extends Controller {
      * Main function.
      */
     public function main () {
-        // Gets a random saying.
-        $sayingRepo = new SayingRepository($this->cfg['REPOS']['taosmi']);
+        // Get a random saying.
+        $sayingRepo = new SayingRepository($this->request['cfg']['REPOS']['taosmi']);
         $saying = $sayingRepo->findRandom();
         // Render the page.
         return new Response($saying);

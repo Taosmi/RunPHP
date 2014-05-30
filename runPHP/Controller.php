@@ -1,13 +1,13 @@
 <?php
 
-namespace proWeb;
+namespace runPHP;
 
 /**
  * This class is an abstract class and must be extended to implement a
  * Controller. A controller runs when its path (relative to the webApp) matches
  * the HTTP request URL. The controller decides what to do next. By default, it
  * provides the functionality to manage the input data and to redirect to
- * another Controller.
+ * another controller.
  *
  * @author Miguel Angel Garcia
  *
@@ -28,15 +28,22 @@ namespace proWeb;
 abstract class Controller {
 
     /**
-     * The application configuration and the request info.
+     * The data validation class name to be used.
+     * @var string
      */
-    public $cfg, $request;
+    private static $DATAVAL_CLASS = 'runPHP\plugins\DataVal';
 
-    // The data validation class name to be used.
-    private static $DATAVAL_CLASS = 'proWeb\plugins\DataVal';
-
-    // The list of allowed HTML tags.
+    /**
+     * The list of allowed HTML tags.
+     * @var string
+     */
     private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
+
+    /**
+     * The request info.
+     * @var array
+     */
+    public $request;
 
 
     /**
@@ -49,36 +56,28 @@ abstract class Controller {
 
 
     /**
-     * Loads the extensions involved. All the controllers get a reference to the
-     * application configuration and to the request information.
+     * The controller get a reference to the request information.
      *
-     * @param array $cfg      An application configuration.
-     * @param array $request  The request information.
+     * @param array  $request  The request information.
      */
-    public function __construct ($cfg, $request) {
-        // Set the configuration and request data.
-        $this->cfg = $cfg;
+    public function __construct ($request) {
         $this->request = $request;
-        // Execute the main function of the controller.
-        $response = $this->main();
-        // Renders the response.
-        $response->render($request['format']);
     }
 
 
     /**
-     * Tests a key and his value against a filter validation. If the value does
+     * Test a key and his value against a filter validation. If the value does
      * not pass the validation, returns false. Otherwise returns true.
      *
-     * @param string   $key     The key name that holds a request value.
-     * @param string   $filter  A filter or function to apply.
-     * @param string   $param   A parameter used by the filter (optional).
-     * @return boolean          True if the value pass the test. Otherwise false.
-     * @throws                  SystemException if the validation class or the filter is not available.
-     * @throws                  ErrorException if the value does not pass the validation.
+     * @param  string   $key     The key name that holds a request value.
+     * @param  string   $filter  A filter or function to apply.
+     * @param  string   $param   A parameter used by the filter (optional).
+     * @return boolean           True if the value pass the test. Otherwise false.
+     * @throws                   SystemException if the validation class or the filter is not available.
+     * @throws                   ErrorException if the value does not pass the validation.
      */
     public function check ($key, $filter, $param = null) {
-        // Checks if the method exists.
+        // Check if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
             throw new SystemException(__('The Data Validation class or the filter is not available.', 'system'), array(
                 'code' => 'PPW-010',
@@ -86,10 +85,10 @@ abstract class Controller {
                 'filter' => $filter
             ));
         }
-        // Gets the value and the function name.
+        // Get the value and the function name.
         $value = $this->get($key);
         $filterFunction = self::$DATAVAL_CLASS.'::'.$filter;
-        // Calls the function and returns the result.
+        // Call the function and return the result.
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
             throw new ErrorException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
@@ -103,32 +102,32 @@ abstract class Controller {
     }
 
     /**
-     * Gets the value corresponding to the key from the input data. If the key
-     * does not exists, returns null.
+     * Get the value corresponding to the key from the input data. If the key
+     * does not exists, return null.
      *
-     * @param string $key  The input data key name.
-     * @return string      The corresponding value or null.
+     * @param  string  $key  The input data key name.
+     * @return string        The corresponding value or null.
      */
     public function get ($key) {
-        // If no input data, returns null.
+        // If no input data, return null.
         if (!array_key_exists($key, $this->request['data'])) {
             return null;
         }
-        // Parses the input data to avoid XSS attacks.
+        // Parse the input data to avoid XSS attacks.
         return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
     }
 
     /**
-     * Redirects to another Controller. Must be used before sending or
-     * displaying any data.
+     * Redirect to another Controller. Must be used before sending or displaying
+     * any data.
      *
-     * @param string $to  The controller path.
+     * @param string  $to  The controller path.
      */
     public function redirect ($to) {
-        // Updates the log.
+        // Update the log.
         Logger::debug(__('Redirecting to Controller "%s".', 'system'), $to);
         Logger::flush($this->cfg);
-        // Redirects the flow.
+        // Redirect the flow.
         header('Location: '.BASE_URL.$to);
         exit();
     }

@@ -1,12 +1,12 @@
 <?php
 
-namespace proWeb {
+namespace runPHP {
 
     /**
      * This class provides all the methods needed to manage i18n.
      *
      * It is based on 'gettext' so you will need an external tool to provide the
-     * text files translations.
+     * text files translations like poedit.
      *
      * @author Miguel Angel Garcia
      *
@@ -27,24 +27,24 @@ namespace proWeb {
     class I18n {
 
         /**
-         * The auto-locale mode. By default false.
+         * Auto-locale mode. By default false.
+         * @var boolean
          */
         private static $autolocale = false;
 
         /**
-         * The default locale.
+         * Default locale.
+         * @var string
          */
         private static $defaultLocale = 'es_US';
 
 
         /**
-         * Sets a locale as the current one.
+         * Set a locale as the current one. If the locale is not available
+         * returns false, otherwise returns the current one.
          *
-         * If the locale is not available returns false, otherwise returns the
-         * current one.
-         *
-         * @param string $locale  A locale.
-         * @return string         The current locale or an empty string.
+         * @param  string  $locale  A locale.
+         * @return string           The current locale or an empty string.
          */
         private static function set ($locale) {
             $newLocale = setlocale(LC_MESSAGES, $locale);
@@ -57,10 +57,9 @@ namespace proWeb {
         }
 
         /**
-         * Gets and sets the locale from the language cookie.
-         *
-         * If the locale is not available or the cookie does not exist returns
-         * an empty string, otherwise returns the current locale.
+         * Get and set the locale from the language cookie. If the locale is not
+         * available or the cookie does not exist returns an empty string,
+         * otherwise returns the current locale.
          *
          * @return string  The current locale or an empty string.
          */
@@ -72,19 +71,17 @@ namespace proWeb {
         }
 
         /**
-         * Gets and sets the client browser main locale as the current one.
-         *
-         * If the locale is not available or the browser information is not
-         * recognized returns an empty string, otherwise returns the current
-         * locale.
+         * Get and set the client browser main locale as the current one. If the
+         * locale is not available or the browser information is not recognized
+         * returns an empty string, otherwise returns the current locale.
          *
          * @return string  The current locale or an empty string.
          */
         private static function setLocaleFromHTTP () {
-            // Parses the HTTP ACCEPT LANGUAGE header.
+            // Parse the HTTP ACCEPT LANGUAGE header.
             $format = '/([^;,]+)[^,]*/';
             $result = preg_match_all($format, $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang);
-            // Sets the main locale.
+            // Set the main locale.
             if ($result) {
                 $locale = explode('-', current($lang[1]));
                 $locale = $locale[0].'_'.strtoupper($locale[1]);
@@ -95,7 +92,7 @@ namespace proWeb {
 
 
         /**
-         * Returns the current locale.
+         * Return the current locale.
          *
          * @return string  The current locale.
          */
@@ -104,89 +101,87 @@ namespace proWeb {
         }
 
         /**
-         * Loads a domain resource.
+         * Load a domain resource.
          *
-         * @param string $domain  A domain name.
-         * @param string $path    A domain folder path.
+         * @param string  $domain  A domain name.
+         * @param string  $path    A domain folder path.
          */
         public static function loadDomain ($domain, $path) {
             bindtextdomain($domain, $path);
         }
 
         /**
-         * Sets the auto-locale mode enabled or disabled.
+         * Set the auto-locale mode enabled or disabled.
          *
-         * @param boolean $auto  The auto-locale mode.
+         * @param boolean  $auto  The auto-locale mode.
          */
         public static function setAutoLocale ($auto) {
             self::$autolocale = $auto;
         }
 
         /**
-         * Sets the default locale.
+         * Set the default locale.
          *
-         * @param string $locale  A locale to use as default.
+         * @param string  $locale  A locale to use as default.
          */
         public static function setDefaultLocale ($locale) {
             self::$defaultLocale = $locale;
         }
 
         /**
-         * Sets a domain as the current one.
+         * Set a domain as the current one.
          *
-         * @param string $domain  A domain name.
+         * @param string  $domain  A domain name.
          */
         public static function setDomain ($domain) {
             textdomain($domain);
         }
 
         /**
-         * Sets a locale as the current one.
+         * Set a locale as the current one. If no locale is specified, try to
+         * get a locale either from the cookie, either from the browser, or
+         * either the default one, by this order. If no locale could be set
+         * returns false.
          *
-         * If no locale is specified, tries to get a locale either from the
-         * cookie, either from the browser, or either the default one, by this
-         * order. If no locale could be set returns false.
-         *
-         * @param string $locale  A locale.
-         * @return string         The current locale or an empty string.
+         * @param  string  $locale  A locale.
+         * @return string           The current locale or an empty string.
          */
         public static function setLocale ($locale = null) {
-            // Sets the locale from the argument.
+            // Set the locale from the argument.
             if ($locale) {
                 return self::set($locale);
             }
-            // If no argument and the auto-locale is set, tries to get it.
-            // Gets the locale from the cookie.
+            // If no argument and the auto-locale is set, try to get it.
+            // Get the locale from the cookie.
             if (self::$autolocale) {
                 $locale = self::setLocaleFromCookie();
             }
-            // Gets the locale from the HTTP request.
+            // Get the locale from the HTTP request.
             if (self::$autolocale && !$locale) {
                 $locale = self::setLocaleFromHTTP();
             }
-            // Gets the locale from the default configuration.
+            // Get the locale from the default configuration.
             if (self::$defaultLocale && !$locale) {
                 $locale = self::set(self::$defaultLocale);
             }
             if (!$locale) {
                 Logger::sys(__('No locale has been set.', 'system'));
             }
-            // Returns the current locale.
+            // Return the current locale.
             return $locale;
         }
     }
 }
 
-
 namespace {
 
     /**
-     * Gets the text that matches the key provided. If a domain is provided, it
+     * Get the text that matches the key provided. If a domain is provided, it
      * will override the current one.
      *
-     * @param string $key     A key.
-     * @param string $domain  A domain name (optional).
-     * @return string         The text for the key and domain.
+     * @param  string  $key     A key.
+     * @param  string  $domain  A domain name (optional).
+     * @return string           The text for the key and domain.
      */
     function __($key, $domain = null) {
         if ($domain) {
@@ -196,11 +191,11 @@ namespace {
     }
 
     /**
-     * Prints the value that matches the key provided. If a domain is provided,
+     * Print the value that matches the key provided. If a domain is provided,
      * it will override the current one.
      *
-     * @param string $key     A key.
-     * @param string $domain  A domain name (optional).
+     * @param string  $key     A key.
+     * @param string  $domain  A domain name (optional).
      */
     function _e($key, $domain = null) {
         echo __($key, $domain);

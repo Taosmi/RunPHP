@@ -1,6 +1,6 @@
 <?php
 
-namespace proWeb\plugins;
+namespace runPHP\plugins;
 
 /**
  * This class implements functionality to send emails easier.
@@ -24,56 +24,54 @@ namespace proWeb\plugins;
 class Email {
 
     /**
-     * Sends an email. This is the most basic method where the content must be
+     * Send an email. This is the most basic method where the content must be
      * provided as a string. The HTML flag is false by default.
      *
-     * @param string  $from     The email source.
-     * @param string  $to       The destination email.
-     * @param string  $subject  The email subject.
-     * @param string  $content  The email content.
-     * @param boolean $html     If the email content is on HTML format.
-     *
-     * @return boolean          True if the email was sent without error, otherwise false.
+     * @param  string   $from     The email source.
+     * @param  string   $to       The destination email.
+     * @param  string   $subject  The email subject.
+     * @param  string   $content  The email content.
+     * @param  boolean  $html     If the email content is on HTML format.
+     * @return boolean            True if the email was sent without error, otherwise false.
      */
     public static function send ($from, $to, $subject, $content, $html = false) {
         $headers = '';
-        // Sets HTML headers.
+        // Set HTML headers.
         if ($html) {
             $headers = "MIME-Version: 1.0\r\n";
             $headers.= "Content-type: text/html; charset=UTF-8\r\n";
         }
-        // Sets the from email direction.
+        // Set the from email direction.
         $headers.= "From: $from\r\n";
-        // Sends the email.
+        // Send the email.
         return mail($to, $subject, $content, $headers);
     }
 
     /**
-     * Sends an email. The content is on a HTML file. The from and to email
+     * Send an email. The content is on a HTML file. The from and to email
      * directions must be provided as keys of the dynData parameter. The subject
      * of the email is retrieved of the HTML title tag.
      *
-     * @param string $file     The file with the HTML content.
-     * @param array  $dynData  The keys that will be replaced by their values.
-     *
-     * @return                 True if the email was sent without error, otherwise false.
+     * @param  string  $file     The file with the HTML content.
+     * @param  array   $dynData  The keys that will be replaced by their values.
+     * @return boolean           True if the email was sent without error, otherwise false.
      */
     public static function fromFile ($file, $dynData = array()) {
-        // Checks if the file exists.
+        // Check if the file exists.
         if (!file_exists($file)) {
             return false;
         }
-        // Loads the email content.
+        // Load the email content.
         $content = file_get_contents($file);
-        // Gets the subject.
+        // Get the subject.
         $start = strpos($content, '<title>') + 7;
         $end = strpos($content, '</title>') - $start;
         $subject = substr($content, $start, $end);
-        // Parses the dynamic data of the content.
+        // Parse the dynamic data of the content.
         $content = preg_replace_callback('/\\$(\w+)/', function ($match) use ($dynData) {
             return $dynData[$match[1]];
         }, $content);
-        // Sends the email.
+        // Send the email.
         return self::send($dynData['from'], $dynData['to'], $subject, $content, true);
     }
 }

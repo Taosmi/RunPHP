@@ -1,17 +1,17 @@
 <?php
 
 namespace domain;
-use proWeb\plugins\RepositoryPDO;
+use runPHP\plugins\RepositoryPDO;
 
 /**
- * The saying repository.
+ * The sayings repository.
  */
 class SayingRepository extends RepositoryPDO {
 
     /**
-     * Initiates the repository.
+     * Initiate the repository.
      *
-     * @param string $connection  A connection string.
+     * @param string  $connection  A connection string.
      */
     public function __construct($connection) {
         parent::__construct($connection);
@@ -21,11 +21,11 @@ class SayingRepository extends RepositoryPDO {
 
 
     /**
-     * Adds a new saying to the repository and returns the saying with the
+     * Add a new saying to the repository and return the saying with the
      * auto-generated id.
      *
-     * @param object $saying  The new saying to add.
-     * @return object         The added saying with the auto-generated id.
+     * @param  object  $saying  The new saying to add.
+     * @return object           The added saying with the auto-generated id.
      */
     public function add ($saying) {
         $saying->id = parent::add($saying);
@@ -33,18 +33,17 @@ class SayingRepository extends RepositoryPDO {
     }
 
     /**
-     * Finds and gets a random saying from the repository.
+     * Find and get a random saying from the repository.
      *
-     * @return object  The random saying.
+     * @return  object  The random saying.
      */
     public function findRandom () {
-        // Gets the total.
+        // Get the total number of sayings.
         parent::select('COUNT(*) as total');
         parent::to(null);
         $total = parent::find()[0]['total'];
-        // Gets the random.
+        // Get a random saying.
         $randomId = mt_rand(1, $total);
-        // Gets a random saying.
         parent::select(null);
         parent::to('domain\Saying');
         $result = parent::find(array(

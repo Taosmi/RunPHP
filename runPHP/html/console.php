@@ -1,5 +1,5 @@
-<?php $console = \ProWeb\Logger::getLog(); ?>
-<div id="PHProConsole" style="background-color:#000000; border-radius:30px 30px 0px 0px; bottom:0px; color:#fff; font-family:Arial; left:10%; position:fixed; width:80%;">
+<?php $console = \runPHP\Logger::getLog(); ?>
+<div id="runPHPConsole" style="background-color:#000000; border-radius:30px 30px 0px 0px; bottom:0px; color:#fff; font-family:Arial; left:10%; position:fixed; width:80%;">
     <div style="clear:both; margin-left:8%;">
         <div style="float:left; padding:10px; text-align:center; width:22%;">
             <span style="color:#3769A0; display:block; font-size:28px; font-weight:bold;"><?php echo $console['time'] ?></span>
@@ -52,5 +52,5 @@
         <?php } ?>
         </table>
     </div>
-    <div style="clear:both; font-size:11px; padding:5px 5%; text-align:right;">PHProWeb Console</div>
+    <div style="clear:both; font-size:11px; padding:5px 5%; text-align:right;">runPHP Console</div>
 </div>

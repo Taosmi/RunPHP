@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use proWeb\Controller, proWeb\Response;
+use runPHP\Controller, runPHP\Response;
 
 /**
  * The controller for /index.
