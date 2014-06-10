@@ -76,7 +76,7 @@ class Router {
         if (file_exists(APP.$controller.'.php')) {
             return str_replace('/', '\\', substr($controller, 1));
         }
-        throw new SystemException(__('Page not found.', 'system'), $request, 404);
+        throw new SystemException(__('Page not found', 'system'), $request, 404);
     }
 
     /**

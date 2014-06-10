@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php _e('Page not found', 'system') ?></title>
+    <title><?php _e('Error', 'system') ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link type="text/css" rel="stylesheet" href="/runPHP/html/error.css"/>
 </head>

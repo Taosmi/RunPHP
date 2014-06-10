@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PHProWeb\n"
-"POT-Creation-Date: 2014-04-17 13:07+0100\n"
-"PO-Revision-Date: 2014-04-17 13:10+0100\n"
+"POT-Creation-Date: 2014-06-10 20:44+0100\n"
+"PO-Revision-Date: 2014-06-10 20:44+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -12,110 +12,117 @@ msgstr ""
 "X-Generator: Poedit 1.6.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __;_e\n"
-"X-Poedit-Basepath: D:\\Moh\\Docs\\Projects\\PHPro\\ProWeb\\locales\n"
+"X-Poedit-Basepath: D:\\Moh\\Docs\\Projects\\PHPro\\runPHP\\locales\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: D:\\Moh\\Docs\\Projects\\PHPro\n"
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:74
+#: D:\Moh\Docs\Projects\PHPro/run.php:56
+#, php-format
+msgid "Request from %s to \"%s%s\"."
+msgstr "Petición desde %s contra \"%s%s\"."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:82
 msgid "The Data Validation class or the filter is not available."
 msgstr "La clase de validación de datos o el filtro no están disponibles."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:85
-msgid "Some parameter is missing or has a wrong value."
-msgstr "Falta algún parámetro o  tiene un valor incorrecto."
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:94
+#, php-format
+msgid "The parameter \"%s\" has a wrong value."
+msgstr "El parámetro \"%s\" tiene un valor incorrecto."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/Controller.php:119
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:128
 #, php-format
 msgid "Redirecting to Controller \"%s\"."
 msgstr "Redireccionando al controlador \"%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/I18n.php:52
+#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:52
 #, php-format
 msgid "ATTENTION! The locale \"%s\" is not available on the system."
 msgstr "¡Atención! La locale \"%s\" no está disponible en el sistema."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/I18n.php:55
+#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:55
 #, php-format
 msgid "The current locale is set to \"%s\"."
 msgstr "La locale actual es ahora \"%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/I18n.php:172
+#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:168
 msgid "No locale has been set."
 msgstr "No se ha establecido ninguna locale."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:4
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:4
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:10
-msgid "Page not found"
-msgstr "Página no encontrada"
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:10
-msgid "Error"
-msgstr "Error"
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:12
-msgid "There was an error that prevents normal operation of the website."
-msgstr "Se produjo un error que impide el funcionamiento normal de la web."
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:14
-msgid "Please try again later or contact the administrator."
-msgstr ""
-"Por favor, vuelve a intentarlo más tarde o contacta con el administrador."
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:16
-msgid "Details"
-msgstr "Detalles"
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:22
-msgid "Extra data: "
-msgstr "Extra datos:"
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/error.php:25
-msgid "Program: "
-msgstr "Programa:"
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/html/notFoundError.php:11
-msgid "Check the web address for errors or go back to the homepage."
-msgstr ""
-"Comprueba que la dirección web es correcta o vuelve a la página principal."
-
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:48
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:85
 #, php-format
 msgid "Loading HTML View \"%s\"."
 msgstr "Cargando vista HTML \"%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:50
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:96
+msgid "Rendering XML view."
+msgstr "Codificando la vista XML."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:102
+msgid "Rendering JSON view."
+msgstr "Codificando la vista JSON."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:118
 msgid "The view does not exist."
 msgstr "La vista no existe."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/HtmlView.php:93
-msgid "The HTML template does not exist."
-msgstr "La plantilla HTML no existe."
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Router.php:79
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:4
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:42
+msgid "Page not found"
+msgstr "Página no encontrada"
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/JsonView.php:63
-msgid "Encoding JSON View."
-msgstr "Codificando la vista en JSON."
+#: D:\Moh\Docs\Projects\PHPro/runPHP/Router.php:92
+msgid "There is no application configuration file available."
+msgstr "No existe el fichero de configuración de la aplicación."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:55
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:4
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:10
+msgid "Error"
+msgstr "Error"
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:13
+msgid "There was an error that prevents normal operation of the website."
+msgstr "Se produjo un error que impide el funcionamiento normal de la web."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:15
+msgid "Please try again later or contact the administrator."
+msgstr ""
+"Por favor, vuelve a intentarlo más tarde o contacta con el administrador."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:17
+msgid "Details"
+msgstr "Detalles"
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:23
+msgid "Program"
+msgstr "Programa"
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:43
+msgid "Check the web address for errors or go back to the homepage."
+msgstr ""
+"Comprueba que la dirección web es correcta o vuelve a la página principal."
+
+#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:73
 msgid "The connection to the persistence has failed."
 msgstr "La conexión contra la persistencia ha fallado."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:115
+#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:134
 msgid "The query to the persistence has failed."
 msgstr "La query contra la persistencia ha fallado."
 
-#: D:\Moh\Docs\Projects\PHPro/proWeb/plugins/RepositoryPDO.php:153
+#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:173
 msgid "The repository has not a source table."
 msgstr "El repositorio no tiene una tabla origen asociada."
 
-#: D:\Moh\Docs\Projects\PHPro/run.php:43
-msgid "There is no application configuration file."
-msgstr "No existe el fichero de configuración de la aplicación."
+#~ msgid "Page not found."
+#~ msgstr "Página no encontrada"
 
-#: D:\Moh\Docs\Projects\PHPro/run.php:58
-#, php-format
-msgid "Request from %s to \"%s/%s\"."
-msgstr "Petición desde %s para \"%s/%s\"."
+#~ msgid "Extra data: "
+#~ msgstr "Extra datos:"
+
+#~ msgid "The HTML template does not exist."
+#~ msgstr "La plantilla HTML no existe."
 
 #~ msgid "Initializing the Controller \"%s\"."
 #~ msgstr "Iniciando el controlador \"%s\"."
