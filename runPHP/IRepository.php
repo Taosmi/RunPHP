@@ -31,7 +31,7 @@ interface IRepository {
      * Initialize a repository with a connection string.
      *
      * @param string  $connection  The repository connection parameters.
-     * @throws                     SystemException if the initialization fails.
+     * @throws                     ErrorException if the initialization fails.
      */
     public function __construct ($connection);
 
@@ -76,7 +76,7 @@ interface IRepository {
      * @param   string  $query   A query.
      * @param   array   $data    The placeholders data if placeholders are used (optional).
      * @return \PDOStatement     The query statement.
-     * @throws                   SystemException if the query fails.
+     * @throws                   ErrorException if the query fails.
      */
     public function query ($query, $data = null);
 
@@ -129,6 +129,7 @@ interface IRepository {
      * resources folder of the webApp with the provided name.
      *
      * @param string  $fileName  The file to save the script (optional).
+     * @throws                   ErrorException if there is no table selected.
      */
     public function backup ($fileName = null);
 }

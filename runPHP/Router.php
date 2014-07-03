@@ -25,23 +25,18 @@ namespace runPHP;
 class Router {
 
     /**
-     * Show an error page. If the application has not an error page, show the
-     * framework error page.
+     * Show the system error as HTML. If the application has not an HTML error
+     * page, show the default HTML framework error page.
      *
-     * @param ErrorException  $exception  An error exception.
+     * @param SystemException  $exception  An error exception.
      */
-    public static function doError ($exception) {
+    public static function doSystemError ($exception) {
         // Log the error.
         Logger::error($exception);
         // Set the error page.
+        header('HTTP/1.1 '.$exception->httpStatus);
         $appPath = APP.'/views/errors/';
-        if ($exception->httpStatus == 404) {
-            $errorPage = 'notFoundError.php';
-            header('HTTP/1.1 404 Page not found');
-        } else {
-            $errorPage = 'error.php';
-            header('HTTP/1.1 '.$exception->httpStatus.' Internal Server Error');
-        }
+        $errorPage = ($exception->httpStatus == 404) ? 'notFoundError.php' : 'error.php';
         // Show the application specific error page or the framework page.
         if (file_exists($appPath.$errorPage)) {
             include($appPath.$errorPage);
@@ -51,12 +46,42 @@ class Router {
     }
 
     /**
+     * Show the error as HTML, JSON or XML. If the application has not an HTML
+     * error page, show the default framework HTML error page.
+     *
+     * @param array           $request    The request information.
+     * @param ErrorException  $exception  An error exception.
+     */
+    public static function doError ($request, $exception) {
+        // Log the error.
+        Logger::error($exception);
+        // Set the error page.
+        header('HTTP/1.1 '.$exception->httpStatus);
+        if (!$request['controller']['format'] || $request['controller']['format'] === 'html') {
+            $appError = '/views/errors/';
+            $errorPage = ($exception->httpStatus == 404) ? 'notFoundError' : 'error';
+            // Set the application specific error page or show the framework page.
+            if (file_exists(APP.$appError.$errorPage.'.php')) {
+                $source = $appError.$errorPage;
+            } else {
+                include(SYSTEM.'/html/'.$errorPage.'.php');
+                return;
+            }
+        } else {
+            $source = $exception;
+        }
+        // Render the error response.
+        $errorResponse = new Response($source);
+        $errorResponse->render($request['controller']['format']);
+    }
+
+    /**
      * Get the controller name involved with the request. If no controller is
      * available, returns null.
      *
      * @param  array   $request  A request information.
      * @return string            The controller name or null.
-     * @throws                   SystemException if no controller is found.
+     * @throws                   ErrorException if no controller is found.
      */
     public static function getController ($request) {
         // Build the controller full class name.
@@ -76,7 +101,7 @@ class Router {
         if (file_exists(APP.$controller.'.php')) {
             return str_replace('/', '\\', substr($controller, 1));
         }
-        throw new SystemException(__('Page not found', 'system'), $request, 404);
+        throw new ErrorException(__('Page not found', 'system'), null, 404);
     }
 
     /**
@@ -89,7 +114,11 @@ class Router {
         // Load the application configuration file path.
         $cfg = parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true);
         if (!$cfg) {
-            throw new SystemException(__('There is no application configuration file available.', 'system'));
+            throw new SystemException(__('The configuration file is not available.', 'system'), array(
+                'code' => 'PPW-001',
+                'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
+                'helpLink' => 'http://runphp.taosmi.es/faq/ppw001'
+            ));
         }
         // Remove the queryString from the URI and parse the URI.
         $url = pathinfo(str_replace('?'.$_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']));

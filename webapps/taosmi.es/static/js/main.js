@@ -1,10 +1,14 @@
 // Loads and shows a random saying.
 $.ajax({
     type: "POST",
-    url: "/randomSaying",
+    url: "/randomSaying.json",
     dataType: "json"
 }).done(function(saying) {
     $('#quote').text('"' + saying.quote + '"');
     $('#author').text(saying.author);
+    $('.saying').fadeIn(1500);
+}).fail(function() {
+    $('#quote').text('Las citas célebres no están disponibles temporalmente');
+    $('#author').text("Disculpen las molestias");
     $('.saying').fadeIn(1500);
 });

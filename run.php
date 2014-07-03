@@ -31,8 +31,9 @@ define('SYSTEM', 'runPHP');
 define('SYS_LOCALES', SYSTEM.'/locales');
 define('WEBAPPS', 'webapps');
 
-// Loader for undefined classes and load the I18N framework texts.
+// Loader for undefined classes.
 require(SYSTEM.'/Loader.php');
+//  Load the I18N framework texts.
 I18n::loadDomain('system', SYS_LOCALES);
 
 try {
@@ -44,8 +45,9 @@ try {
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
     define('STATIC', APP.$request['cfg']['PATHS']['static']);
 
-    // Log and I18n configuration.
+    // Log configuration.
     Logger::setLevel($request['cfg']['LOGS']['logLevel']);
+    // I18n configuration.
     I18n::setAutoLocale($request['cfg']['I18N']['autolocale']);
     I18n::setDefaultLocale($request['cfg']['I18N']['default']);
     I18n::loadDomain($request['cfg']['I18N']['domain'], APP.$request['cfg']['I18N']['path']);
@@ -57,12 +59,17 @@ try {
     $controllerName = Router::getController($request);
     $controller = new $controllerName($request);
     $response = $controller->main();
-    $response->render($request['format']);
+    $response->render($request['controller']['format']);
+
+} catch (SystemException $exception) {
+
+    // Handle a system error.
+    Router::doSystemError($exception);
 
 } catch (ErrorException $exception) {
 
-    // Work In Progress.
-    Router::doError($exception);
+    // Handle an application error.
+    Router::doError($request, $exception);
 
 }
 

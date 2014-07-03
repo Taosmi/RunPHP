@@ -1,7 +1,7 @@
 <?php
 
 namespace runPHP\plugins;
-use runPHP\IRepository, runPHP\SystemException, runPHP\Logger;
+use runPHP\IRepository, runPHP\ErrorException, runPHP\Logger;
 use PDO, PDOException;
 
 /**
@@ -51,14 +51,15 @@ class RepositoryPDO implements IRepository {
 
 
     /**
-     * Initiate the repository connection. The connection string must be formatted as:
+     * Initiate the repository connection. The connection string must be
+     * formatted as:
      *      tech:host=hostname;dbname=dbname,user,password
-     * The available technologies are the same that the PHP PDO drivers.
+     * The available technologies are the same as PHP PDO drivers.
      * This is an example of MySQL connection string:
      *      mysql:host=db18.1and1.es;dbname=db355827412,guest,12345
      *
-     * @param string $connection  A connection string.
-     * @throws                    SystemException if the connection fails.
+     * @param string  $connection  A connection string.
+     * @throws                     ErrorException if the connection fails.
      */
     public function __construct ($connection) {
         // Get the DB resource.
@@ -70,10 +71,11 @@ class RepositoryPDO implements IRepository {
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
         } catch (PDOException $e) {
-            throw new SystemException(__('The connection to the persistence has failed.', 'system'), array(
+            throw new ErrorException(__('The connection to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-01',
                 'error' => $e->getMessage(),
-                'resource' => $resource
+                'resource' => $resource,
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo01'
             ));
         }
     }
@@ -131,10 +133,11 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new SystemException(__('The query to the persistence has failed.', 'system'), array(
+            throw new ErrorException(__('The query to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-02',
                 'error' => $e->getMessage(),
-                'query' => $query
+                'query' => $query,
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo02'
             ));
         }
     }
@@ -170,7 +173,10 @@ class RepositoryPDO implements IRepository {
     public function backup ($fileName = null) {
         // Check if the the table is set.
         if (!$this->table) {
-            throw new SystemException('RPDO-03', __('The repository has not a source table.', 'system'));
+            throw new ErrorException(__('The repository has not a source table.', 'system'), array(
+                'code' => 'RPDO-03',
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo03'
+            ));
         }
         // Check the file name.
         if (!$fileName) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace proWeb;
+namespace runPHP;
 
 /**
- * This class implements the functionality to render a response as HTML, JSON
- * data structure or XML data structure.
+ * This class implements the functionality to render a response as HTML or as
+ * JSON or as XML.
  *
  * @author Miguel Angel Garcia
  *
@@ -25,22 +25,30 @@ namespace proWeb;
 class Response {
 
     /**
-     * The internal html view name and the data holder.
+     * The internal html view name.
+     * @var string
      */
-    private $html, $data;
+    private $html;
+
+    /**
+     * The data holder.
+     * @var mixed
+     */
+    private $data;
 
     /**
      * The HTTP status code.
+     * @var int
      */
     private $status = 200;
 
 
     /**
-     * Initializes the response. The source should be a HTML view filename or a
-     * data structure.
+     * Initialize the response. The source should be an HTML view or a data
+     * structure.
      *
-     * @param mixed $source  A view name or a data structure.
-     * @param array $vars    A collection of variables to be accessible from the view.
+     * @param mixed  $source  A view name or a data structure.
+     * @param array  $vars    A collection of variables to be accessible from the view (optional).
      */
     public function __construct ($source, $vars = null) {
         if (is_string($source)) {
@@ -55,50 +63,55 @@ class Response {
 
 
     /**
-     * Sets a key - value pair to the data store.
+     * Set a key - value pair to the data store.
      *
-     * @param string $key    The key name.
-     * @param string $value  The key value.
+     * @param string  $key    The key name.
+     * @param string  $value  The key value.
      */
     public function setData ($key, $value) {
         $this->data[$key] = $value;
     }
 
     /**
-     * Renders the response with an specific format. If no format is available,
-     * renders the response as HTML.
+     * Render the response with an specific format. If no format is available,
+     * render the response as HTML.
      *
-     * @param string $format  The format to render the response (optional).
-     * @throws                SystemException if the HTML view does not exist.
+     * @param string  $format  The format to render the response (optional).
      */
-    public function render ($format) {
-        // Render a HTML view.
+    public function render ($format = 'html') {
+        // Check if the response can be rendered as requested.
         if ($this->html) {
-            Logger::sys(__('Loading HTML View "%s".', 'system'), $this->html);
+            $format = 'html';
+        } else if ($format === 'html') {
+            $format = 'json';
+        }
+        // Set the console information for JSON and XML.
+        if (CONSOLE && $format !== 'html') {
+            $this->data['_console'] = Logger::getLog();
+        }
+        // Render the response.
+        switch ($format) {
+        case 'html':
+            // Render the response as HTML.
+            Logger::sys(__('Rendering HTML view.', 'system'));
             $this->renderHTML();
-        } else {
-            // Set the console information.
-            if (SHOW_CONSOLE) {
-                $this->data['_console'] = Logger::getLog();
-            }
-            // Renders a data structure.
-            switch ($format) {
-            case 'xml':
-                // Render the data structure as XML.
-                Logger::sys(__('Rendering XML view.', 'system'));
-                echo 'XML view not available.';
-                break;
-            case 'json':
-            default:
-                // Render the data structure as JSON.
-                Logger::sys(__('Rendering JSON view.', 'system'));
-                echo json_encode($this->data);
-            }
+            break;
+        case 'json':
+            // Render the data structure as JSON.
+            Logger::sys(__('Rendering JSON view.', 'system'));
+            echo json_encode($this->data);
+            break;
+        case 'xml':
+            // Render the data structure as XML.
+            Logger::sys(__('Rendering XML view.', 'system'));
+            echo 'WIP: XML view not available.';
+            break;
         }
     }
 
+
     /**
-     * Renders the HTML view to the output.
+     * Render the HTML view to the system output.
      *
      * @throws  SystemException if the view does not exist.
      */
@@ -109,14 +122,15 @@ class Response {
             throw new SystemException(__('The view does not exist.', 'system'), array(
                 'code' => 'PPW-020',
                 'view' => $this->html,
-                'file' => $file
+                'file' => $file,
+                'helpLink' => 'http://runphp.taosmi.es/faq/ppw020'
             ));
         }
-        // Extracts the data and includes the view file.
+        // Extract the data and includes the view file.
         extract($this->data);
         require($file);
-        // Shows the HTML console.
-        if (SHOW_CONSOLE) {
+        // Show the HTML console.
+        if (CONSOLE) {
             require(SYSTEM.'/html/console.php');
         }
     }
