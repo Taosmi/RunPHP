@@ -59,7 +59,9 @@ try {
     $controllerName = Router::getController($request);
     $controller = new $controllerName($request);
     $response = $controller->main();
-    $response->render($request['controller']['format']);
+    if ($response) {
+        $response->render($request['controller']['format']);
+    }
 
 } catch (SystemException $exception) {
 
