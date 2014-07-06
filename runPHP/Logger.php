@@ -83,12 +83,12 @@ class Logger {
         // Check the log configuration.
         if (self::$level != Logger::$LOG_OFF) {
             // Log the error entries.
-            self::log('error', 'Code '.$exception->getCode().': '.$exception->getMessage());
+            self::log('error', $exception->msg);
             self::log('error', 'Program: '.basename($exception->getFile()). ' ('.$exception->getLine().')');
             if (!empty($exception->data)) {
                 $logTxt = '';
                 foreach (array_keys($exception->data) as $key) {
-                    $logTxt.= $key.': '.$exception->data[$key].', ';
+                    $logTxt.= $key.': "'.$exception->data[$key].'", ';
                 }
                 self::log('error', $logTxt);
             }
