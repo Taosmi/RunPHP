@@ -73,8 +73,7 @@ class Response {
     }
 
     /**
-     * Render the response with an specific format. If no format is available,
-     * render the response as HTML.
+     * Render the response with an specific format (HTML as default).
      *
      * @param string  $format  The format to render the response (optional).
      */
