@@ -35,13 +35,12 @@ class Router {
         Logger::error($exception);
         // Set the error page.
         header('HTTP/1.1 '.$exception->httpStatus);
-        $appPath = APP.'/views/errors/';
-        $errorPage = ($exception->httpStatus == 404) ? 'notFoundError.php' : 'error.php';
+        $appPage = APP.'/views/errors/error.php';
         // Show the application specific error page or the framework page.
-        if (file_exists($appPath.$errorPage)) {
-            include($appPath.$errorPage);
+        if (file_exists($appPage)) {
+            include($appPage);
         } else {
-            include(SYSTEM.'/html/'.$errorPage);
+            include(SYSTEM.'/html/error.php');
         }
     }
 
