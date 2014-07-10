@@ -111,12 +111,12 @@ abstract class Controller {
      * @return string        The corresponding value or null.
      */
     public function get ($key) {
-        // If no input data, return null.
-        if (!array_key_exists($key, $this->request['data'])) {
-            return null;
-        }
         // Parse the input data to avoid XSS attacks.
-        return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
+        if (array_key_exists($key, $_REQUEST)) {
+            return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
+        }
+        // If no input data, return null.
+        return null;
     }
 
     /**
