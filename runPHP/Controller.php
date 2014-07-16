@@ -45,6 +45,11 @@ abstract class Controller {
      */
     public $request;
 
+    /**
+     * A shortcut to the repositories available from the app.cfg.
+     * @var array
+     */
+    public $repos;
 
     /**
      * Abstract method to implement on any Controller. This method will be
@@ -62,6 +67,7 @@ abstract class Controller {
      */
     public function __construct ($request) {
         $this->request = $request;
+        $this->repos = $this->request['cfg']['REPOS'];
     }
 
 
