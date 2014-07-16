@@ -28,22 +28,22 @@ namespace runPHP;
 class Logger {
 
     /**
-     * This value represents no log at all.
-     * @var string
+     * Log levels available.
+     * @var int
      */
-    public static $LOG_OFF = '0';
+    const NONE = 0, ERROR = 1, WARNING = 3, DEBUG = 7, ALL = 127;
 
     /**
-     * This value represents a enabled log.
-     * @var string
+     * Specific log messages.
+     * @var int
      */
-    public static $LOG_ON = '1';
+    const SYS = 8, MEMO = 16, TIME = 32, REPO = 64;
 
     /**
-     * The current log level. By default 2 (only errors).
+     * The current log level. By default show only the errors.
      * @var string
      */
-    private static $level = '2';
+    private static $level = self::ERROR;
 
     /**
      * Log data buffer.
@@ -60,13 +60,13 @@ class Logger {
 
     /**
      * Log a debug message. The extra parameters will be interpolated with the
-     * message. Logged only when LOG_ON.
+     * message. Logged only when DEBUG level is set.
      *
      * @param string  $msg  A message.
      */
     public static function debug ($msg) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 4) {
             // Get the message interpolated with the context.
             $msg = self::interpolate(func_get_args());
             // Log the new debug entry.
@@ -75,13 +75,14 @@ class Logger {
     }
 
     /**
-     * Log an exception error. Logged only when LOG_ERRORS.
+     * Log an exception error. Logged only when ERROR, WARNING or DEBUG level
+     * are set.
      *
      * @param ErrorException  $exception  An error exception object.
      */
     public static function error ($exception = null) {
         // Check the log configuration.
-        if (self::$level != Logger::$LOG_OFF) {
+        if (self::$level & 1) {
             // Log the error entries.
             self::log('error', $exception->msg);
             self::log('error', 'Program: '.basename($exception->getFile()). ' ('.$exception->getLine().')');
@@ -135,14 +136,14 @@ class Logger {
 
     /**
      * Log the memory usage of an object. If no object, log the memory usage of
-     * the current script at this very moment. Logged only when LOG_ON.
+     * the current script at this very moment. Logged only when MEMO level is set.
      *
      * @param string  $msg     A message.
      * @param object  $object  A variable to measure (optional).
      */
     public static function memory ($msg, $object = null) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 16) {
             // Calculate the memory usage.
             $memory = ($object !== null) ? strlen(serialize($object)) : memory_get_usage();
             $msg.= ' ('.self::getReadableSize($memory).')';
@@ -153,14 +154,14 @@ class Logger {
 
     /**
      * Log a repository access. If a start time is provided, calculate the gap
-     * between now and the start time. Logged only when LOG_ON.
+     * between now and the start time. Logged only when REPO level is set.
      *
      * @param string  $msg        A repository query.
      * @param float   $startTime  The start UNIX time-stamp of the query (optional).
      */
     public static function repo ($msg, $startTime = null) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 64) {
             // Get the gap between the start time and the end time.
             if ($startTime) {
                 $duration = microtime(true) - $startTime;
@@ -173,24 +174,28 @@ class Logger {
     }
 
     /**
-     * Set a new log level. The log level should be 0 (off), 1 (on) or 2 (only
-     * errors).
+     * Set a new log level. The log values should be a comma separated list of
+     * one of each of this values: NONE, ERROR, WARNING and DEBUG. Optionally it
+     * is possible to add one or more of this values: SYS, MEMO, TIME and REPO.
      *
-     * @param string  $level  A new log level.
+     * @param string  $levels  A comma separated list of levels.
      */
-    public static function setLevel ($level) {
-        self::$level = $level;
+    public static function setLevel ($levels) {
+        self::$level = 0;
+        foreach (explode(',', $levels) as $level) {
+            self::$level += constant('self::'.trim($level));
+        }
     }
 
     /**
      * Log a message to the system log. The extra parameters will be
-     * interpolated with the message. Logged only when LOG_ON.
+     * interpolated with the message. Logged only when SYS level is set.
      *
      * @param string  $msg  A message.
      */
     public static function sys ($msg) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 8) {
             // Get the message interpolated with the context.
             $msg = self::interpolate(func_get_args());
             // Log the new error entry.
@@ -201,13 +206,13 @@ class Logger {
     /**
      * Log a message with the amount of seconds passed since the request arrived
      * at the server until this very moment. The extra parameters will be
-     * interpolated with the message. Logged only when LOG_ON.
+     * interpolated with the message. Logged only when TIME level is set.
      *
      * @param string  $msg  A message.
      */
     public static function time ($msg) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 32) {
             // Get the message interpolated with the context.
             $msg = self::interpolate(func_get_args());
             // Calculate the time gap.
@@ -220,13 +225,13 @@ class Logger {
 
     /**
      * Log a warning message. The extra parameters will be interpolated with the
-     * message. Logged only when LOG_ON.
+     * message. Logged only when ERROR or WARNING level are set.
      *
      * @param string  $msg  A warning message.
      */
     public static function warning ($msg) {
         // Check the log configuration.
-        if (self::$level === Logger::$LOG_ON) {
+        if (self::$level & 2) {
             // Get the message interpolated with the context.
             $msg = self::interpolate(func_get_args());
             // Log the new warning entry.
