@@ -17,6 +17,8 @@ class randomSaying extends Controller {
         $sayingRepo = new SayingRepository($this->repos['taosmi']);
         $saying = $sayingRepo->findRandom();
         // Render the page.
-        return new Response($saying);
+        return new Response(array(
+            'saying' => $saying
+        ));
     }
 }
