@@ -47,15 +47,13 @@ class Response {
      * Initialize the response. The source should be an HTML view or a data
      * structure.
      *
-     * @param mixed  $source  A view name or a data structure.
+     * @param mixed  $source  A view name or a data structure or nothing.
      * @param array  $vars    A collection of variables to be accessible from the view (optional).
      */
-    public function __construct ($source, $vars = null) {
+    public function __construct ($source = array(), $vars = null) {
         if (is_string($source)) {
             $this->html = $source;
             $this->data = $vars;
-        } else if (is_object($source)) {
-            $this->data = get_object_vars($source);
         } else {
             $this->data = $source;
         }
@@ -66,7 +64,7 @@ class Response {
      * Set a key - value pair to the data store.
      *
      * @param string  $key    The key name.
-     * @param string  $value  The key value.
+     * @param mixed   $value  The key value.
      */
     public function setData ($key, $value) {
         $this->data[$key] = $value;
@@ -75,13 +73,13 @@ class Response {
     /**
      * Render the response with an specific format (HTML as default).
      *
-     * @param string  $format  The format to render the response (optional).
+     * @param string  $format  The format to render the response.
      */
-    public function render ($format = 'html') {
+    public function render ($format) {
         // Check if the response can be rendered as requested.
         if ($this->html) {
             $format = 'html';
-        } else if ($format === 'html') {
+        } else if (!$format || $format === 'html') {
             $format = 'json';
         }
         // Set the console information for JSON and XML.
@@ -103,7 +101,7 @@ class Response {
         case 'xml':
             // Render the data structure as XML.
             Logger::sys(__('Rendering XML view.', 'system'));
-            echo 'WIP: XML view not available.';
+            $this->renderXML();
             break;
         }
     }
@@ -132,5 +130,12 @@ class Response {
         if (CONSOLE) {
             require(SYSTEM.'/html/console.php');
         }
+    }
+
+    /**
+     * Render the response as XML. (WIP)
+     */
+    private function renderXML() {
+        echo 'WIP: XML view not available.';
     }
 }
