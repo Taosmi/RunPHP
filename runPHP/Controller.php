@@ -86,10 +86,10 @@ abstract class Controller {
         // Check if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
             throw new SystemException(__('The Data Validation class or the filter is not available.', 'system'), array(
-                'code' => 'PPW-010',
+                'code' => 'RPP-010',
                 'dataValClass' => self::$DATAVAL_CLASS,
                 'filter' => $filter,
-                'helpLink' => 'http://runphp.taosmi.es/faq/ppw010'
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp010'
             ));
         }
         // Get the value and the function name.
@@ -99,11 +99,11 @@ abstract class Controller {
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
             throw new ErrorException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
-                'code' => 'PPW-011',
+                'code' => 'RPP-011',
                 'parameter' => $key,
                 'value' => $value,
                 'filter' => $filter,
-                'helpLink' => 'http://runphp.taosmi.es/faq/ppw011'
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp011'
             ), 400);
         }
         return $value;

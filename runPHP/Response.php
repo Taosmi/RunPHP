@@ -117,10 +117,10 @@ class Response {
         $file = APP.$this->html.'.php';
         if (!file_exists($file)) {
             throw new SystemException(__('The view does not exist.', 'system'), array(
-                'code' => 'PPW-020',
+                'code' => 'RPP-020',
                 'view' => $this->html,
                 'file' => $file,
-                'helpLink' => 'http://runphp.taosmi.es/faq/ppw020'
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
             ));
         }
         // Extract the data and includes the view file.

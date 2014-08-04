@@ -114,9 +114,9 @@ class Router {
         $cfg = parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true);
         if (!$cfg) {
             throw new SystemException(__('The configuration file is not available.', 'system'), array(
-                'code' => 'PPW-001',
+                'code' => 'RPP-001',
                 'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
-                'helpLink' => 'http://runphp.taosmi.es/faq/ppw001'
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp001'
             ));
         }
         // Remove the queryString from the URI and parse the URI.
