@@ -24,7 +24,7 @@
             margin-left: 33%;
             margin-top: 5%;
             min-height: 326px;
-            padding-left: 300px;
+            padding-left: 150px;
         }
         .error h1 {
             color: #666;
@@ -40,14 +40,13 @@
 </head>
 <body>
     <div class="error">
-        <h1><?php _e('Error', 'system') ?></h1>
-        <h2><?php echo $exception->getMessage() ?></h2>
-        <p>
+        <h1>
             <?php _e('There was an error that prevents normal operation of the website.', 'system') ?>
             <br/>
             <?php _e('Please try again later or contact the administrator.', 'system') ?>
-        </p>
+        </h1>
         <h2><?php _e('Details', 'system') ?></h2>
+        <p><?php echo $exception->getMessage() ?></p>
         <p>
             <?php foreach ($exception->data as $key => $value) { ?>
                 <?php echo $key ?>: <?php echo $value ?><br/>
