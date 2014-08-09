@@ -79,13 +79,13 @@ abstract class Controller {
      * @param  string   $filter  A filter or function to apply.
      * @param  string   $param   A parameter used by the filter (optional).
      * @return boolean           True if the value pass the test. Otherwise false.
-     * @throws                   SystemException if the validation class or the filter is not available.
+     * @throws                   ErrorException if the validation class or the filter is not available.
      * @throws                   ErrorException if the value does not pass the validation.
      */
     public function check ($key, $filter, $param = null) {
         // Check if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new SystemException(__('The Data Validation class or the filter is not available.', 'system'), array(
+            throw new ErrorException(__('The Data Validation class or the filter is not available.', 'system'), array(
                 'code' => 'RPP-010',
                 'dataValClass' => self::$DATAVAL_CLASS,
                 'filter' => $filter,

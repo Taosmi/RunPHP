@@ -25,53 +25,31 @@ namespace runPHP;
 class Router {
 
     /**
-     * Show the system error as HTML. If the application has not an HTML error
-     * page, show the default HTML framework error page.
-     *
-     * @param SystemException  $exception  An error exception.
-     */
-    public static function doSystemError ($exception) {
-        // Log the error.
-        Logger::error($exception);
-        // Set the error page.
-        header('HTTP/1.1 '.$exception->httpStatus);
-        $appPage = APP.'/views/errors/error.php';
-        // Show the application specific error page or the framework page.
-        if (file_exists($appPage)) {
-            include($appPage);
-        } else {
-            include(SYSTEM.'/html/error.php');
-        }
-    }
-
-    /**
-     * Show the error as HTML, JSON or XML. If the application has not an HTML
-     * error page, show the default framework HTML error page.
+     * Show the error with HTML, JSON or XML format. If the application has not
+     * an HTML error page, show the default framework HTML error page.
      *
      * @param array           $request    The request information.
      * @param ErrorException  $exception  An error exception.
+     * @return Response                   The error response.
      */
     public static function doError ($request, $exception) {
-        // Log the error.
         Logger::error($exception);
-        // Set the error page.
-        header('HTTP/1.1 '.$exception->httpStatus);
-        if (!$request['controller']['format'] || $request['controller']['format'] === 'html') {
+        if ($request['controller']['format'] === 'html') {
+            // Set the application specific HTML error or the framework HTML error.
             $appError = '/views/errors/';
             $errorPage = ($exception->httpStatus == 404) ? 'notFoundError' : 'error';
-            // Set the application specific error page or show the framework page.
             if (file_exists(APP.$appError.$errorPage.'.php')) {
-                $source = $appError.$errorPage;
+                return new Response($appError.$errorPage, array(
+                    'exception' => $exception
+                ));
             } else {
                 include(SYSTEM.'/html/'.$errorPage.'.php');
-                return;
             }
         } else {
-            $source = $exception;
+            return new Response(array(
+                'error' => $exception
+            ), $exception->httpStatus);
         }
-        // Render the error response.
-        $errorResponse = new Response($source);
-        $errorResponse->render($request['controller']['format']);
     }
 
     /**
@@ -107,33 +85,20 @@ class Router {
      * Analyze the HTTP request and retrieve the relevant request information.
      *
      * @return array  The request information.
-     * @throws        SystemException if no application configuration is available.
      */
     public static function getRequest () {
-        // Load the application configuration file path.
-        $cfg = parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true);
-        if (!$cfg) {
-            throw new SystemException(__('The configuration file is not available.', 'system'), array(
-                'code' => 'RPP-001',
-                'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp001'
-            ));
-        }
-        // Remove the queryString from the URI and parse the URI.
+        // Get the relevant request data.
         $url = pathinfo(str_replace('?'.$_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']));
-        // Console flag.
-        define('CONSOLE', $cfg['LOGS']['console'] && array_key_exists('console', $_REQUEST));
-        // Return the relevant request data.
         return array(
             'app' => $_SERVER['SERVER_NAME'],
-            'cfg' => $cfg,
+            'cfg' => parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true),
             'from' => $_SERVER['REMOTE_ADDR'],
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
             'controller' => array(
                 'path' => $url['dirname'],
                 'name' => $url['filename'],
-                'format' => $url['extension']
+                'format' => $url['extension'] ? $url['extension'] : 'html'
             )
         );
     }

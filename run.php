@@ -38,12 +38,20 @@ I18n::loadDomain('system', SYS_LOCALES);
 
 try {
 
-    // Get the request info.
+    // Get the request info and check the cfg file.
     $request = Router::getRequest();
+    if (!$request['cfg']) {
+        throw new ErrorException(__('The configuration file is not available.', 'system'), array(
+            'code' => 'RPP-001',
+            'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
+            'helpLink' => 'http://runphp.taosmi.es/faq/rpp001'
+        ));
+    }
 
-    // Shortcuts to the Web application folder and the static folder.
+    // Shortcuts to the Web application folder, the static folder and the console flag.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
     define('STATIC', APP.$request['cfg']['PATHS']['static']);
+    define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
 
     // Log configuration.
     Logger::setLevel($request['cfg']['LOGS']['logLevel']);
@@ -59,22 +67,19 @@ try {
     $controllerName = Router::getController($request);
     $controller = new $controllerName($request);
     $response = $controller->main();
-    if ($response) {
-        $response->render($request['controller']['format']);
-    }
-
-} catch (SystemException $exception) {
-
-    // Handle a system error.
-    Router::doSystemError($exception);
 
 } catch (ErrorException $exception) {
 
-    // Handle an application error.
-    Router::doError($request, $exception);
+    // Handle an error.
+    $response = Router::doError($request, $exception);
 
 }
 
-// Flushes the log.
+// Flush the log.
 Logger::flush($request['cfg']['LOGS']['path']);
+// Render the response.
+if ($response) {
+    $response->render($request['controller']['format']);
+}
+// End the script.
 exit();

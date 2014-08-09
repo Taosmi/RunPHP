@@ -40,7 +40,7 @@ class Response {
      * The HTTP status code.
      * @var int
      */
-    private $status = 200;
+    private $statusCode;
 
 
     /**
@@ -48,7 +48,7 @@ class Response {
      * structure.
      *
      * @param mixed  $source  A view name or a data structure or nothing.
-     * @param array  $vars    A collection of variables to be accessible from the view (optional).
+     * @param mixed  $vars    A collection of variables or the HTTP status code (optional).
      */
     public function __construct ($source = array(), $vars = null) {
         if (is_string($source)) {
@@ -56,6 +56,7 @@ class Response {
             $this->data = $vars;
         } else {
             $this->data = $source;
+            $this->statusCode = $vars ? $vars : 200;
         }
     }
 
@@ -76,10 +77,12 @@ class Response {
      * @param string  $format  The format to render the response.
      */
     public function render ($format) {
+        // Set the HTTP status code.
+        header('HTTP/1.1 '.$this->statusCode);
         // Check if the response can be rendered as requested.
         if ($this->html) {
             $format = 'html';
-        } else if (!$format || $format === 'html') {
+        } else if ($format === 'html') {
             $format = 'json';
         }
         // Set the console information for JSON and XML.
@@ -132,13 +135,13 @@ class Response {
     /**
      * Render the HTML view to the system output.
      *
-     * @throws  SystemException if the view does not exist.
+     * @throws  ErrorException if the view does not exist.
      */
     private function renderHTML () {
         // Set the HTML file.
         $file = APP.$this->html.'.php';
         if (!file_exists($file)) {
-            throw new SystemException(__('The view does not exist.', 'system'), array(
+            throw new ErrorException(__('The view does not exist.', 'system'), array(
                 'code' => 'RPP-021',
                 'view' => $this->html,
                 'file' => $file,
