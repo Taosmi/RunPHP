@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: PHProWeb\n"
-"POT-Creation-Date: 2014-07-06 20:37+0100\n"
-"PO-Revision-Date: 2014-07-06 20:37+0100\n"
+"Project-Id-Version: runPHP\n"
+"POT-Creation-Date: 2014-10-24 20:49+0100\n"
+"PO-Revision-Date: 2014-10-24 20:49+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -12,124 +12,103 @@ msgstr ""
 "X-Generator: Poedit 1.6.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __;_e\n"
-"X-Poedit-Basepath: D:\\Moh\\Docs\\Projects\\PHPro\\runPHP\\locales\n"
+"X-Poedit-Basepath: D:\\Moh\\Docs\\Projects\\runPHP\\runPHP\\locales\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-SearchPath-0: D:\\Moh\\Docs\\Projects\\PHPro\n"
+"X-Poedit-SearchPath-0: D:\\Moh\\Docs\\Projects\\runPHP\n"
 
-#: D:\Moh\Docs\Projects\PHPro/run.php:58
+#: D:\Moh\Docs\Projects\runPHP/run.php:44
+msgid "The configuration file is not available."
+msgstr "No existe el fichero de configuración de la aplicación. "
+
+#: D:\Moh\Docs\Projects\runPHP/run.php:66
 #, php-format
 msgid "Request from %s to \"%s%s\"."
 msgstr "Petición desde %s contra \"%s%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:82
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Controller.php:82
 msgid "The Data Validation class or the filter is not available."
 msgstr "La clase de validación de datos o el filtro no están disponibles."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:95
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Controller.php:95
 #, php-format
 msgid "The parameter \"%s\" has a wrong value."
 msgstr "El parámetro \"%s\" tiene un valor incorrecto."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Controller.php:130
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Controller.php:130
 #, php-format
 msgid "Redirecting to Controller \"%s\"."
 msgstr "Redireccionando al controlador \"%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:52
+#: D:\Moh\Docs\Projects\runPHP/runPHP/I18n.php:52
 #, php-format
 msgid "ATTENTION! The locale \"%s\" is not available on the system."
 msgstr "¡Atención! La locale \"%s\" no está disponible en el sistema."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:55
+#: D:\Moh\Docs\Projects\runPHP/runPHP/I18n.php:55
 #, php-format
 msgid "The current locale is set to \"%s\"."
 msgstr "La locale actual es ahora \"%s\"."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/I18n.php:168
+#: D:\Moh\Docs\Projects\runPHP/runPHP/I18n.php:168
 msgid "No locale has been set."
 msgstr "No se ha establecido ninguna locale."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:95
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Response.php:96
 msgid "Rendering HTML view."
 msgstr "Codificando la vista HTML."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:100
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Response.php:101
 msgid "Rendering JSON view."
 msgstr "Codificando la vista JSON."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:105
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Response.php:106
 msgid "Rendering XML view."
 msgstr "Codificando la vista XML."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Response.php:121
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Response.php:124
+msgid "The HTML template does not exist."
+msgstr "La vista HTML no existe."
+
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Response.php:146
 msgid "The view does not exist."
 msgstr "La vista no existe."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Router.php:103
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:4
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:42
+#: D:\Moh\Docs\Projects\runPHP/runPHP/Router.php:81
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/notFoundError.php:4
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/notFoundError.php:42
 msgid "Page not found"
 msgstr "Página no encontrada"
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/Router.php:116
-msgid "The configuration file is not available."
-msgstr "No existe el fichero de configuración de la aplicación. "
-
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:4
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:43
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/error.php:4
 msgid "Error"
 msgstr "Error"
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:46
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/error.php:44
 msgid "There was an error that prevents normal operation of the website."
 msgstr "Se produjo un error que impide el funcionamiento normal de la web."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:48
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/error.php:46
 msgid "Please try again later or contact the administrator."
 msgstr ""
 "Por favor, vuelve a intentarlo más tarde o contacta con el administrador."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/error.php:50
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/error.php:48
 msgid "Details"
 msgstr "Detalles"
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/html/notFoundError.php:43
+#: D:\Moh\Docs\Projects\runPHP/runPHP/html/notFoundError.php:43
 msgid "Check the web address for errors or go back to the homepage."
 msgstr ""
 "Comprueba que la dirección web es correcta o vuelve a la página principal."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:74
+#: D:\Moh\Docs\Projects\runPHP/runPHP/plugins/RepositoryPDO.php:81
 msgid "The connection to the persistence has failed."
 msgstr "La conexión contra la persistencia ha fallado."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:136
+#: D:\Moh\Docs\Projects\runPHP/runPHP/plugins/RepositoryPDO.php:150
 msgid "The query to the persistence has failed."
 msgstr "La query contra la persistencia ha fallado."
 
-#: D:\Moh\Docs\Projects\PHPro/runPHP/plugins/RepositoryPDO.php:176
+#: D:\Moh\Docs\Projects\runPHP/runPHP/plugins/RepositoryPDO.php:197
 msgid "The repository has not a source table."
 msgstr "El repositorio no tiene una tabla origen asociada."
-
-#~ msgid "Loading HTML View \"%s\"."
-#~ msgstr "Cargando vista HTML \"%s\"."
-
-#~ msgid "Program"
-#~ msgstr "Programa"
-
-#~ msgid "Page not found."
-#~ msgstr "Página no encontrada"
-
-#~ msgid "Extra data: "
-#~ msgstr "Extra datos:"
-
-#~ msgid "The HTML template does not exist."
-#~ msgstr "La plantilla HTML no existe."
-
-#~ msgid "Initializing the Controller \"%s\"."
-#~ msgstr "Iniciando el controlador \"%s\"."
-
-#~ msgid "The extension name is already in use."
-#~ msgstr "Ya existe una extensión con ese nombre."
-
-#~ msgid "The extension class is missing."
-#~ msgstr "La clase de la extensión no existe."
