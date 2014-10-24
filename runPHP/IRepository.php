@@ -81,20 +81,20 @@ interface IRepository {
     public function query ($query, $data = null);
 
     /**
-     * Remove the item that matches the options provided. If no options, remove
-     * all of them.
+     * Remove the item.
      *
-     * @param  array  $options  A filter criteria (optional).
-     * @return int              The number of removed items.
+     * @param  object  $item  The item to remove.
+     * @return int            The number of removed items.
      */
-    public function remove ($options = null);
+    public function remove ($item);
 
     /**
      * Set the fields that will be retrieved by the find method for each item.
      * If no data is specified, the find method will retrieve a default set of
      * data.
      *
-     * @param string  $fields  A separated by comma list of fields.
+     * @param  string  $fields  A separated by comma list of fields.
+     * @return IRepository      The repository to chain methods.
      */
     public function select ($fields);
 
@@ -103,8 +103,9 @@ interface IRepository {
      * will be useful when casting the query results.
      *
      * @param string  $objectName  The full class name of the object.
+     * @param string  $pk          The entity primary key.
      */
-    public function to ($objectName);
+    public function to ($objectName, $pk);
 
     /**
      * Start a new block of operations. This method is not mandatory when only
