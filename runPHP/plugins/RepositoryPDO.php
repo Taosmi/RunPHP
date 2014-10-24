@@ -38,6 +38,12 @@ class RepositoryPDO implements IRepository {
     private $table;
 
     /**
+     * The table primary key.
+     * @var string
+     */
+    private $pk;
+
+    /**
      * The fields to retrieve when querying.
      * @var string
      */
@@ -62,12 +68,13 @@ class RepositoryPDO implements IRepository {
      * @throws                     ErrorException if the connection fails.
      */
     public function __construct ($connection) {
-        // Get the DB resource.
         try {
+            // Get the DB parameters.
             list($resource, $user, $pwd) = explode(',', $connection);
+            // Get the PDO resource.
             $start = microtime(true);
             $this->pdo = new PDO($resource, $user, $pwd);
-            $this->pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
         } catch (PDOException $e) {
@@ -88,7 +95,10 @@ class RepositoryPDO implements IRepository {
         // Query time.
         $sql = 'INSERT INTO '.$this->table.' ('.implode(',', $keys).') VALUES (:'.implode(',:', $keys).')';
         $this->query($sql, $objData);
-        return $this->pdo->lastInsertId();
+        // Return the item with the primary key.
+        $pk = $this->pk;
+        $item->$pk = $this->pdo->lastInsertId();
+        return $item;
     }
 
     public function find ($options = null) {
@@ -99,7 +109,7 @@ class RepositoryPDO implements IRepository {
         $statement = $this->query($sql);
         // Fetch the result.
         if ($this->objectName) {
-            $statement->setFetchMode(PDO::FETCH_CLASS, $this->objectName);
+            $statement->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $this->objectName);
         } else {
             $statement->setFetchMode(PDO::FETCH_ASSOC);
         }
@@ -111,8 +121,12 @@ class RepositoryPDO implements IRepository {
     }
 
     public function modify ($item, $options = null) {
+        // Set the primary key as option.
+        $pk = $this->pk;
+        $pkRule = $pk.' = '.$item->$pk;
+        $options['condition'].= $options['condition'] ? ' and '.$pkRule : $pkRule;
         // Update query.
-        $sql = 'UPDATE '.$this->table.' SET '.$this->toQuery($item).' '.$this->parseOptions($options);
+        $sql = 'UPDATE '.$this->table.' SET '.$this->toQuery($item, $this->fields).' '.$this->parseOptions($options);
         $statement = $this->query($sql);
         // Return the number of items updated.
         return $statement->rowCount();
@@ -142,7 +156,12 @@ class RepositoryPDO implements IRepository {
         }
     }
 
-    public function remove ($options = null) {
+    public function remove ($item) {
+        // Set the primary key option.
+        $pk = $this->pk;
+        $options = array(
+            'condition' => $pk.' = '.$item->$pk
+        );
         // Delete query.
         $sql = 'DELETE FROM '.$this->table.$this->parseOptions($options);
         $statement = $this->query($sql);
@@ -152,10 +171,12 @@ class RepositoryPDO implements IRepository {
 
     public function select ($fields) {
         $this->fields = $fields;
+        return $this;
     }
 
-    public function to ($objectName) {
+    public function to ($objectName, $pk) {
         $this->objectName = $objectName;
+        $this->pk = $pk;
     }
 
     public function beginTransaction () {
@@ -238,20 +259,28 @@ class RepositoryPDO implements IRepository {
     }
 
     /**
-     * Transform an associative array into a separated by comma key - value
-     * pairs string. By default, the pair of values will be joined by comma.
+     * Transform an object or an associative array into a separated by comma
+     * key - value pairs string. By default, the pair of values will be joined
+     * by comma. It is also possible to specify the fields of the would be
+     * affected by the process.
      * Example:
      *      Source: array(key => value, key => value);
      *      Result: key='value',key='value'
      *
-     * @param  object  $item  A item with public data.
-     * @param  string  $join  The character in between pair of values (optional).
-     * @return string         A separated by comma key - value pairs string.
+     * @param  object  $item    A item with public data.
+     * @param  string  $fields  The affected fields separated by comma (optional).
+     * @param  string  $join    The character in between pair of values (optional).
+     * @return string           A separated by comma key - value pairs string.
      */
-    private function toQuery ($item, $join = ',') {
+    private function toQuery ($item, $fields = null, $join = ',') {
         $query = '';
-        foreach(get_object_vars($item) as $key => $value) {
-            $query .= $key.'=\''.$value.'\''.$join;
+        // Apply the filter criteria if specified.
+        $keys = $fields
+                ? array_intersect(explode(',', $fields), array_keys(get_object_vars($item)))
+                : array_keys(get_object_vars($item));
+        // Create the key - value pair string.
+        foreach ($keys as $key) {
+            $query.= $key.'=\''.$item->$key.'\''.$join;
         }
         return rtrim($query, $join);
     }
