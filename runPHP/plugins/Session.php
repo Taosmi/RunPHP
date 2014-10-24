@@ -1,6 +1,7 @@
 <?php
 
 namespace runPHP\plugins;
+session_start();
 
 /**
  * This class implements the functionality to manage user authentication and
