@@ -110,14 +110,15 @@ class Response {
     }
 
     /**
-     * Displays a template from inside a view. Very useful to separate common
+     * Display a template from inside a view. Very useful to separate common
      * visual segments (headers, footer, etc.) into independent files.
      *
      * @param string $template  The name of the template.
+     * @param array  $data      Data that can be used inside the template.
      * @throws                  ErrorException if the template does not exist.
      */
-    public function template ($template) {
-        // Checks if the template content exists.
+    public function template ($template, $data = null) {
+        // Check if the template content exists.
         $templateFile = APP.$template.'.php';
         if (!file_exists($templateFile)) {
             throw new ErrorException(__('The HTML template does not exist.', 'system'), array(
@@ -127,7 +128,8 @@ class Response {
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
             ));
         }
-        // Includes the template file.
+        // Include the template file.
+        extract($data);
         require($templateFile);
     }
 
