@@ -13,5 +13,5 @@ RewriteRule ^ - [L]
 # Dodge trailing slashes.
 RewriteRule ^(.*)/$ /$1 [L,R=301]
 
-# Everything else is handled by the front controller.
+# Anything else is handled by the front controller.
 RewriteRule ^ run.php [L]
