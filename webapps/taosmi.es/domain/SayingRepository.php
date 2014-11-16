@@ -21,18 +21,6 @@ class SayingRepository extends RepositoryPDO {
 
 
     /**
-     * Add a new saying to the repository and return the saying with the
-     * auto-generated id.
-     *
-     * @param  object  $saying  The new saying to add.
-     * @return object           The added saying with the auto-generated id.
-     */
-    public function add ($saying) {
-        $saying->id = parent::add($saying);
-        return $saying;
-    }
-
-    /**
      * Find and get a random saying from the repository.
      *
      * @return  object  The random saying.

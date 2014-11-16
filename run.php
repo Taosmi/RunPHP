@@ -67,19 +67,22 @@ try {
     $controllerName = Router::getController($request);
     $controller = new $controllerName($request);
     $response = $controller->main();
+    // Render the response.
+    if ($response) {
+        $response->render($request['controller']['format']);
+    }
 
 } catch (ErrorException $exception) {
 
     // Handle an error.
     $response = Router::doError($request, $exception);
+    if ($response) {
+        $response->render($request['controller']['format']);
+    }
 
 }
 
 // Flush the log.
 Logger::flush($request['cfg']['LOGS']['path']);
-// Render the response.
-if ($response) {
-    $response->render($request['controller']['format']);
-}
 // End the script.
 exit();
