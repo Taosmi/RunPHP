@@ -14,10 +14,10 @@ class randomSaying extends Controller {
      */
     public function main () {
         // Get a random saying.
-        $sayingRepo = new SayingRepository($this->repos['taosmi']);
+        $sayingRepo = $this->repository('domain\Saying');
         $saying = $sayingRepo->findRandom();
         // Render the page.
-        return new Response(array(
+        return new Response('data', array(
             'saying' => $saying
         ));
     }
