@@ -146,12 +146,18 @@ abstract class Controller {
         $table = substr($className, strrpos($className, '\\') + 1);
         // Get the connection string.
         if (!isset($this->request['cfg']['REPOS']['connection'])) {
-            throw new ErrorException('No connection string defined');
+            throw new ErrorException(__('No connection string defined', 'system'), array(
+                'code' => 'RPP-012',
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp012'
+            ));
         }
         $connectString = $this->request['cfg']['REPOS']['connection'];
         // Get the object primary key.
         if (!isset($this->request['cfg']['REPOS'][$className])) {
-            throw new ErrorException('No pk defined for '.$className);
+            throw new ErrorException(__('No pk defined for ').$className, array(
+                'code' => 'RPP-013',
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp013'
+            ));
         }
         $pk = $this->request['cfg']['REPOS'][$className];
         // Get the repository.
