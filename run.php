@@ -48,9 +48,11 @@ try {
         ));
     }
 
-    // Shortcuts to the Web application folder, the static folder and the console flag.
+    // Shortcuts to the Web application folders and the console flag.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
     define('STATIC', APP.$request['cfg']['PATHS']['static']);
+    define('VIEWS', APP.$request['cfg']['PATHS']['views']);
+    define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
     define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
 
     // Log configuration.
@@ -62,26 +64,29 @@ try {
     I18n::setDomain($request['cfg']['I18N']['domain']);
     I18n::setLocale();
 
-    // Load and run the controller.
+    // Load the controller.
     Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
     $controllerName = Router::getController($request);
-    $controller = new $controllerName($request);
-    $response = $controller->main();
-    // Render the response.
-    if ($response) {
-        $response->render($request['controller']['format']);
+    if ($controllerName) {
+        // Get a specific controller.
+        $controller = new $controllerName($request);
+    } else {
+        // Get a default controller.
+        require(SYSTEM.'/default/defaultController.php');
+        $controller = new defaultController($request);
     }
+    // Run the controller.
+    $response = $controller->main();
 
 } catch (ErrorException $exception) {
 
     // Handle an error.
     $response = Router::doError($request, $exception);
-    if ($response) {
-        $response->render($request['controller']['format']);
-    }
 
 }
 
+// Render the response.
+$response->render($request['controller']);
 // Flush the log.
 Logger::flush($request['cfg']['LOGS']['path']);
 // End the script.

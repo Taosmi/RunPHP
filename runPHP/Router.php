@@ -34,21 +34,19 @@ class Router {
      */
     public static function doError ($request, $exception) {
         Logger::error($exception);
-        if ($request['controller']['format'] === 'html') {
-            // Set the application specific HTML error or the framework HTML error.
-            $appError = '/views/errors/';
-            $errorPage = ($exception->httpStatus == 404) ? 'notFoundError' : 'error';
-            if (file_exists(APP.$appError.$errorPage.'.php')) {
-                return new Response($appError.$errorPage, array(
-                    'exception' => $exception
-                ));
-            } else {
-                include(SYSTEM.'/html/'.$errorPage.'.php');
-            }
-        } else {
-            return new Response(array(
-                'error' => $exception
+        switch ($request['controller']['format']) {
+        case 'xml':
+        case 'json':
+            return new Response('data', array(
+                'error' => array(
+                    'code' => $exception->data['code'],
+                    'msg' => $exception->msg,
+                    'helpLink' => $exception->data['helpLink']
+                )
             ), $exception->httpStatus);
+            break;
+        default:
+            return new Response('html', array('exception' => $exception), $exception->httpStatus);
         }
     }
 
@@ -58,7 +56,6 @@ class Router {
      *
      * @param  array   $request  A request information.
      * @return string            The controller name or null.
-     * @throws                   ErrorException if no controller is found.
      */
     public static function getController ($request) {
         // Build the controller full class name.
@@ -66,11 +63,7 @@ class Router {
         if ($request['controller']['path'] != '/') {
             $controller.= $request['controller']['path'];
         }
-        if (empty($request['controller']['name'])) {
-            $controller.= '/index';
-        } else {
-            $controller.= '/'.$request['controller']['name'];
-        }
+        $controller.= '/'.$request['controller']['name'];
         if (is_dir(APP.$controller)) {
             $controller.= '/index';
         }
@@ -78,7 +71,7 @@ class Router {
         if (file_exists(APP.$controller.'.php')) {
             return str_replace('/', '\\', substr($controller, 1));
         }
-        throw new ErrorException(__('Page not found', 'system'), null, 404);
+        return null;
     }
 
     /**
@@ -97,8 +90,8 @@ class Router {
             'url' => $_SERVER['REQUEST_URI'],
             'controller' => array(
                 'path' => $url['dirname'],
-                'name' => $url['filename'],
-                'format' => $url['extension'] ? $url['extension'] : 'html'
+                'name' => $url['filename'] ? $url['filename'] : 'index',
+                'format' => $url['extension']
             )
         );
     }
