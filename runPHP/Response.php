@@ -25,10 +25,10 @@ namespace runPHP;
 class Response {
 
     /**
-     * The internal html view name.
+     * The render style (html or data).
      * @var string
      */
-    private $html;
+    private $style;
 
     /**
      * The data holder.
@@ -44,22 +44,27 @@ class Response {
 
 
     /**
-     * Initialize the response. The source should be an HTML view or a data
-     * structure.
+     * Initialize the response. The response style should be 'html' to render
+     * a view with the same name as the controller or 'data' to render a JSON or
+     * XML data structure.
      *
-     * @param mixed  $source  A view name or a data structure or nothing.
-     * @param mixed  $vars    A collection of variables or the HTTP status code (optional).
+     * @param string  $style     The response style should be 'html' or 'data'.
+     * @param array   $vars      A collection of variables (optional).
+     * @param integer $httpCode  The http response code (default value 200).
      */
-    public function __construct ($source = array(), $vars = null) {
-        if (is_string($source)) {
-            $this->html = $source;
-            $this->data = $vars;
-        } else {
-            $this->data = $source;
-            $this->statusCode = $vars ? $vars : 200;
-        }
+    public function __construct ($style, $vars = null, $httpCode = 200) {
+        $this->style = $style;
+        $this->data = $vars;
+        $this->statusCode = $httpCode;
     }
 
+
+    /**
+     * @return bool
+     */
+    public function isError () {
+        return ($this->statusCode > 399 and $this->statusCode < 600);
+    }
 
     /**
      * Set a key - value pair to the data store.
@@ -74,37 +79,31 @@ class Response {
     /**
      * Render the response with an specific format (HTML as default).
      *
-     * @param string  $format  The format to render the response.
+     * @param array  $controller  The controller information.
      */
-    public function render ($format) {
+    public function render ($controller) {
         // Set the HTTP status code.
         header('HTTP/1.1 '.$this->statusCode);
-        // Check if the response can be rendered as requested.
-        if ($this->html) {
-            $format = 'html';
-        } else if ($format === 'html') {
-            $format = 'json';
-        }
-        // Set the console information for JSON and XML.
-        if (CONSOLE && $format !== 'html') {
-            $this->data['_console'] = Logger::getLog();
-        }
         // Render the response.
-        switch ($format) {
+        switch ($this->style) {
+        case 'data':
+            // Set the console information for JSON and XML.
+            $this->data['_console'] = Logger::getLog();
+            if ($controller['format'] === 'xml') {
+                // Render the data structure as XML.
+                Logger::sys(__('Rendering XML view.', 'system'));
+                $this->renderXML();
+            } else {
+                // Render the data structure as JSON by default.
+                Logger::sys(__('Rendering JSON view.', 'system'));
+                echo json_encode($this->data);
+            }
+            break;
         case 'html':
+        default:
             // Render the response as HTML.
             Logger::sys(__('Rendering HTML view.', 'system'));
-            $this->renderHTML();
-            break;
-        case 'json':
-            // Render the data structure as JSON.
-            Logger::sys(__('Rendering JSON view.', 'system'));
-            echo json_encode($this->data);
-            break;
-        case 'xml':
-            // Render the data structure as XML.
-            Logger::sys(__('Rendering XML view.', 'system'));
-            $this->renderXML();
+            $this->renderHTML($controller);
             break;
         }
     }
@@ -119,7 +118,7 @@ class Response {
      */
     public function template ($template, $data = null) {
         // Check if the template content exists.
-        $templateFile = APP.$template.'.php';
+        $templateFile = VIEWS.$template.'.php';
         if (!file_exists($templateFile)) {
             throw new ErrorException(__('The HTML template does not exist.', 'system'), array(
                 'code' => 'RPP-020',
@@ -137,25 +136,43 @@ class Response {
     /**
      * Render the HTML view to the system output.
      *
+     * @param  array $controller
      * @throws  ErrorException if the view does not exist.
      */
-    private function renderHTML () {
+    private function renderHTML ($controller) {
         // Set the HTML file.
-        $file = APP.$this->html.'.php';
+        $file = VIEWS.$controller['path'].$controller['name'].'.php';
+        // Check if the file exists.
         if (!file_exists($file)) {
-            throw new ErrorException(__('The view does not exist.', 'system'), array(
+            $this->statusCode = 404;
+            $exception = new ErrorException(__('The view does not exist.', 'system'), array(
                 'code' => 'RPP-021',
                 'view' => $this->html,
                 'file' => $file,
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
             ));
+            Logger::error($exception);
         }
-        // Extract the data and includes the view file.
-        extract($this->data);
-        require($file);
-        // Show the HTML console.
-        if (CONSOLE) {
-            require(SYSTEM.'/html/console.php');
+        // If there is an error show the error HTML.
+        if ($this->isError()) {
+            // Set the application specific HTML error or the framework HTML error.
+            $errorPage = ($this->statusCode == 404) ? '/notFoundError' : '/error';
+            $errorView = VIEWS_ERRORS.$errorPage.'.php';
+            // Extract the data and includes the view file.
+            extract($this->data);
+            if (file_exists($errorView)) {
+                include($errorView);
+            } else {
+                include(SYSTEM.'/html'.$errorPage.'.php');
+            }
+        } else {
+            // Extract the data and includes the view file.
+            extract($this->data);
+            include($file);
+            // Show the HTML console.
+            if (CONSOLE) {
+                require(SYSTEM.'/html/console.php');
+            }
         }
     }
 
