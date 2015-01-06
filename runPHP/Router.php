@@ -57,19 +57,18 @@ class Router {
      * @param  array   $request  A request information.
      * @return string            The controller name or null.
      */
-    public static function getController ($request) {
+    public static function getController (&$request) {
         // Build the controller full class name.
-        $controller = $request['cfg']['PATHS']['controllers'];
-        if ($request['controller']['path'] != '/') {
-            $controller.= $request['controller']['path'];
-        }
-        $controller.= '/'.$request['controller']['name'];
-        if (is_dir(APP.$controller)) {
-            $controller.= '/index';
-        }
+        $controller = $request['cfg']['PATHS']['controllers'].$request['controller']['path'].'/'.$request['controller']['name'];
         // Check the controller and get the class namespace.
         if (file_exists(APP.$controller.'.php')) {
             return str_replace('/', '\\', substr($controller, 1));
+        }
+        // Check if the controller is a folder to try the default 'index'.
+        if (is_dir(APP.$controller) && file_exists(APP.$controller.'/index.php')) {
+            $request['controller']['path'].= '/'.$request['controller']['name'];
+            $request['controller']['name'] = 'index';
+            return str_replace('/', '\\', substr($controller.'/index', 1));
         }
         return null;
     }
@@ -89,7 +88,7 @@ class Router {
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
             'controller' => array(
-                'path' => $url['dirname'],
+                'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
                 'name' => $url['filename'] ? $url['filename'] : 'index',
                 'format' => $url['extension']
             )
