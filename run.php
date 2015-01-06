@@ -50,9 +50,10 @@ try {
 
     // Shortcuts to the Web application folders and the console flag.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
-    define('STATIC', APP.$request['cfg']['PATHS']['static']);
+    define('STATICS', APP.$request['cfg']['PATHS']['statics']);
     define('VIEWS', APP.$request['cfg']['PATHS']['views']);
     define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
+    define('VIEWS_TEMPLATES', APP.$request['cfg']['PATHS']['viewsTemplates']);
     define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
 
     // Log configuration.
@@ -77,6 +78,9 @@ try {
     }
     // Run the controller.
     $response = $controller->main();
+    if (!$response) {
+        throw new ErrorException(__('No response is available from the server.'), null, 500);
+    }
 
 } catch (ErrorException $exception) {
 
