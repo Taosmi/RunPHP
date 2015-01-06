@@ -9,18 +9,6 @@ use runPHP\plugins\RepositoryPDO;
 class SayingRepository extends RepositoryPDO {
 
     /**
-     * Initiate the repository.
-     *
-     * @param string  $connection  A connection string.
-     */
-    public function __construct($connection) {
-        parent::__construct($connection);
-        parent::from('regalos_saying');
-        parent::to('domain\Saying');
-    }
-
-
-    /**
      * Find and get a random saying from the repository.
      *
      * @return  object  The random saying.
