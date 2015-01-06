@@ -13,6 +13,9 @@
     padding-top: 250px;
     text-align: center;
 }
+.logo img {
+    width: 74%;
+}
 
 .saying {
     display: none;
