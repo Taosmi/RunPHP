@@ -88,7 +88,9 @@ class Response {
         switch ($this->style) {
         case 'data':
             // Set the console information for JSON and XML.
-            $this->data['_console'] = Logger::getLog();
+            if (CONSOLE) {
+                $this->data['_console'] = Logger::getLog();
+            }
             if ($controller['format'] === 'xml') {
                 // Render the data structure as XML.
                 Logger::sys(__('Rendering XML view.', 'system'));
@@ -103,8 +105,11 @@ class Response {
         default:
             // Render the response as HTML.
             Logger::sys(__('Rendering HTML view.', 'system'));
-            $this->renderHTML($controller);
-            break;
+            if ($this->isError()) {
+                $this->renderHTMLError($this->data['exception']);
+            } else {
+                $this->renderHTML($controller);
+            }
         }
     }
 
@@ -118,18 +123,19 @@ class Response {
      */
     public function template ($template, $data = null) {
         // Check if the template content exists.
-        $templateFile = VIEWS.$template.'.php';
+        $templateFile = VIEWS_TEMPLATES.$template.'.php';
         if (!file_exists($templateFile)) {
-            throw new ErrorException(__('The HTML template does not exist.', 'system'), array(
+            $exception = new ErrorException(__('The HTML template does not exist.', 'system'), array(
                 'code' => 'RPP-020',
-                'template' => $template,
                 'file' => $templateFile,
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
             ));
+            $this->renderHTMLError($exception);
+        } else {
+            // Include the template file.
+            extract($data);
+            require($templateFile);
         }
-        // Include the template file.
-        extract($data);
-        require($templateFile);
     }
 
 
@@ -141,45 +147,45 @@ class Response {
      */
     private function renderHTML ($controller) {
         // Set the HTML file.
-        $file = VIEWS.$controller['path'].$controller['name'].'.php';
-        // Check if the file exists.
-        if (!file_exists($file)) {
-            $this->statusCode = 404;
-            $exception = new ErrorException(__('The view does not exist.', 'system'), array(
-                'code' => 'RPP-021',
-                'view' => $this->html,
-                'file' => $file,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
-            ));
-            Logger::error($exception);
-        }
-        // If there is an error show the error HTML.
-        if ($this->isError()) {
-            // Set the application specific HTML error or the framework HTML error.
-            $errorPage = ($this->statusCode == 404) ? '/notFoundError' : '/error';
-            $errorView = VIEWS_ERRORS.$errorPage.'.php';
+        $file = VIEWS.$controller['path'].'/'.$controller['name'];
+        // Render the HTML if the file exists.
+        if (file_exists($file.'.php')) {
             // Extract the data and includes the view file.
             extract($this->data);
-            if (file_exists($errorView)) {
-                include($errorView);
-            } else {
-                include(SYSTEM.'/html'.$errorPage.'.php');
-            }
-        } else {
-            // Extract the data and includes the view file.
-            extract($this->data);
-            include($file);
+            include($file.'.php');
             // Show the HTML console.
             if (CONSOLE) {
                 require(SYSTEM.'/html/console.php');
             }
+        } else {
+            // Render the Html error view (404 not found).
+            $this->statusCode = 404;
+            $exception = new ErrorException(__('The view does not exist.', 'system'), array(
+                'code' => 'RPP-021',
+                'file' => $file,
+                'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
+            ));
+            Logger::error($exception);
+            $this->renderHtmlError($exception);
+        }
+    }
+
+    private function renderHTMLError ($exception) {
+        // Set the application specific HTML error or the framework HTML error.
+        $errorPage = ($this->statusCode == 404) ? '/notFoundError' : '/error';
+        $errorView = VIEWS_ERRORS.$errorPage.'.php';
+        // Extract the data and includes the view file.
+        if (file_exists($errorView)) {
+            include($errorView);
+        } else {
+            include(SYSTEM.'/html'.$errorPage.'.php');
         }
     }
 
     /**
      * Render the response as XML. (WIP)
      */
-    private function renderXML() {
+    private function renderXML () {
         echo 'WIP: XML view not available.';
     }
 }
