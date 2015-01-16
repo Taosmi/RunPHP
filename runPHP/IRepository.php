@@ -64,11 +64,12 @@ interface IRepository {
      * Modify the items that matches the options provided with the new data. If
      * no options, modify all of them.
      *
-     * @param  object  $item     An item with the new data.
-     * @param  array   $options  A filter criteria (optional).
-     * @return int               The number of modified items.
+     * @param  object   $item      An item with the new data.
+     * @param  array    $options   A filter criteria (optional).
+     * @param  boolean  $pkFilter  Adds the pk condition to the where clause.
+     * @return int                 The number of modified items.
      */
-    public function modify ($item, $options = null);
+    public function modify ($item, $options = null, $pkFilter = true);
 
     /**
      * Execute a custom query directly to the persistence resource.
@@ -105,7 +106,7 @@ interface IRepository {
      * @param string  $objectName  The full class name of the object.
      * @param string  $pk          The entity primary key.
      */
-    public function to ($objectName, $pk);
+    public function to ($objectName, $pk = null);
 
     /**
      * Start a new block of operations. This method is not mandatory when only
@@ -124,13 +125,4 @@ interface IRepository {
      * not mandatory when only querying the repository.
      */
     public function rollback ();
-
-    /**
-     * Make a script as backup of the repository. The script is saved to the
-     * resources folder of the webApp with the provided name.
-     *
-     * @param string  $fileName  The file to save the script (optional).
-     * @throws                   ErrorException if there is no table selected.
-     */
-    public function backup ($fileName = null);
 }
