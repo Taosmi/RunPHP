@@ -142,8 +142,6 @@ abstract class Controller {
      * @throws                ErrorException if errors.
      */
     public function repository ($className) {
-        // Get the table.
-        $table = substr($className, strrpos($className, '\\') + 1);
         // Get the connection string.
         if (!isset($this->request['cfg']['REPOS']['connection'])) {
             throw new ErrorException(__('No connection string defined', 'system'), array(
@@ -151,27 +149,18 @@ abstract class Controller {
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp012'
             ));
         }
+        // Get the repository parameters from the app.cfg configuration.
         $connectString = $this->request['cfg']['REPOS']['connection'];
-        // Get the object primary key.
-        if (!isset($this->request['cfg']['REPOS'][$className])) {
-            throw new ErrorException(__('No pk defined for ').$className, array(
-                'code' => 'RPP-013',
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp013'
-            ));
-        }
-        $pk = $this->request['cfg']['REPOS'][$className];
+        $pks = $this->request['cfg']['REPOS'][$className];
         // Get the repository.
         if (class_exists($className.'Repository')) {
             // Get the specific repository.
             $repoClassName = $className.'Repository';
-            $repo = new $repoClassName($connectString);
+            $repo = new $repoClassName($connectString, $className, $pks);
         } else {
             // Get the generic repository.
-            $repo = new RepositoryPDO($connectString);
+            $repo = new RepositoryPDO($connectString, $className, $pks);
         }
-        // Configure the repository.
-        $repo->from(strtolower($table));
-        $repo->to($className, $pk);
         return $repo;
     }
 }
