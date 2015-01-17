@@ -31,9 +31,11 @@ interface IRepository {
      * Initialize a repository with a connection string.
      *
      * @param string  $connection  The repository connection parameters.
+     * @param string  $objectName  The full class name of the repository object.
+     * @param string  $pks         A separated by comma list of primary keys (optional).
      * @throws                     ErrorException if the initialization fails.
      */
-    public function __construct ($connection);
+    public function __construct ($connection, $objectName, $pks = null);
 
 
     /**
@@ -66,7 +68,7 @@ interface IRepository {
      *
      * @param  object   $item      An item with the new data.
      * @param  array    $options   A filter criteria (optional).
-     * @param  boolean  $pkFilter  Adds the pk condition to the where clause.
+     * @param  boolean  $pkFilter  Adds the primary keys to the query condition.
      * @return int                 The number of modified items.
      */
     public function modify ($item, $options = null, $pkFilter = true);
@@ -104,9 +106,9 @@ interface IRepository {
      * will be useful when casting the query results.
      *
      * @param string  $objectName  The full class name of the object.
-     * @param string  $pk          The entity primary key.
+     * @param string  $pks         A separated by comma list of primary keys (optional).
      */
-    public function to ($objectName, $pk = null);
+    public function to ($objectName, $pks = null);
 
     /**
      * Start a new block of operations. This method is not mandatory when only

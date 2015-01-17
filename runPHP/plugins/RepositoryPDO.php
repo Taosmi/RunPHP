@@ -38,10 +38,10 @@ class RepositoryPDO implements IRepository {
     private $table;
 
     /**
-     * The table primary key.
-     * @var string
+     * The table primary keys.
+     * @var array
      */
-    private $pk;
+    private $keys;
 
     /**
      * The fields to retrieve when querying.
@@ -56,18 +56,7 @@ class RepositoryPDO implements IRepository {
     private $objectName;
 
 
-    /**
-     * Initiate the repository connection. The connection string must be
-     * formatted as:
-     *      tech:host=hostname;dbname=dbname,user,password
-     * The available technologies are the same as PHP PDO drivers.
-     * This is an example of MySQL connection string:
-     *      mysql:host=db18.1and1.es;dbname=db355827412,guest,12345
-     *
-     * @param string  $connection  A connection string.
-     * @throws                     ErrorException if the connection fails.
-     */
-    public function __construct ($connection) {
+    public function __construct ($connection, $objectName, $pks = null) {
         try {
             // Get the DB parameters.
             list($resource, $user, $pwd) = explode(',', $connection);
@@ -77,11 +66,26 @@ class RepositoryPDO implements IRepository {
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
             $this->query('SET NAMES utf8');
+            // Set the repository configuration.
+            $this->objectName = $objectName;
+            $this->table = substr($objectName, strrpos($objectName, '\\') + 1);
+            // Set the primary keys.
+            if ($pks) {
+                // Get primary keys from argument.
+                $this->keys = explode(',', $pks);
+            } else {
+                // Get primary keys querying the DB.
+                $pksResult = $this->query('SHOW KEYS FROM '.$this->table);
+                $pksResult->setFetchMode(PDO::FETCH_COLUMN, 4);
+                $this->keys = $pksResult->fetchAll();
+            }
         } catch (PDOException $e) {
             throw new ErrorException(__('The connection to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-01',
                 'error' => $e->getMessage(),
                 'resource' => $resource,
+                'table' => $this->table,
+                'keys' => $this->keys,
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpdo01'
             ));
         }
@@ -95,9 +99,11 @@ class RepositoryPDO implements IRepository {
         // Query time.
         $sql = 'INSERT INTO '.$this->table.' ('.implode(',', $keys).') VALUES (:'.implode(',:', $keys).')';
         $this->query($sql, $objData);
-        // Return the item with the primary key.
-        $pk = $this->pk;
-        $item->$pk = $this->pdo->lastInsertId();
+        // Return the item with the primary key if single.
+        if (count($this->keys) === 1) {
+            $pk = current($this->keys);
+            $item->$pk = $this->pdo->lastInsertId();
+        }
         return $item;
     }
 
@@ -120,11 +126,12 @@ class RepositoryPDO implements IRepository {
         $this->table = $resource;
     }
 
-    public function modify ($item, $options = null) {
-        // Set the primary key as option.
-        $pk = $this->pk;
-        $pkRule = $pk.' = '.$item->$pk;
-        $options['condition'].= $options['condition'] ? ' and '.$pkRule : $pkRule;
+    public function modify ($item, $options = null, $pkFilter = true) {
+        // Add the primary keys to the query condition.
+        if ($pkFilter) {
+            $pksRule = $this->getKeysCondition($item);
+            $options['condition'].= $options['condition'] ? ' and '.$pksRule : $pksRule;
+        }
         // Update query.
         $sql = 'UPDATE '.$this->table.' SET '.$this->toQuery($item, $this->fields).' '.$this->parseOptions($options);
         $statement = $this->query($sql);
@@ -158,9 +165,8 @@ class RepositoryPDO implements IRepository {
 
     public function remove ($item) {
         // Set the primary key option.
-        $pk = $this->pk;
         $options = array(
-            'condition' => $pk.' = '.$item->$pk
+            'condition' => $this->getKeysCondition($item)
         );
         // Delete query.
         $sql = 'DELETE FROM '.$this->table.$this->parseOptions($options);
@@ -174,9 +180,11 @@ class RepositoryPDO implements IRepository {
         return $this;
     }
 
-    public function to ($objectName, $pk) {
+    public function to ($objectName, $pks = null) {
         $this->objectName = $objectName;
-        $this->pk = $pk;
+        if ($pks) {
+            $this->keys = explode(',', $pks);
+        }
     }
 
     public function beginTransaction () {
@@ -191,43 +199,20 @@ class RepositoryPDO implements IRepository {
         $this->pdo->rollBack();
     }
 
-    public function backup ($fileName = null) {
-        // Check if the the table is set.
-        if (!$this->table) {
-            throw new ErrorException(__('The repository has not a source table.', 'system'), array(
-                'code' => 'RPDO-03',
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo03'
-            ));
-        }
-        // Check the file name.
-        if (!$fileName) {
-            $fileName = 'repo_'.$this->table;
-        }
-        $script = '-- Table creation'."\r\n";
-        // Get the table creation script.
-        $script.= "\n".'DROP TABLE IF EXISTS '.$this->table.';'."\n";
-        $stmtTable = $this->pdo->query('SHOW CREATE TABLE '.$this->table.';');
-        $stmtTable ->setFetchMode(PDO::FETCH_ASSOC);
-        $script.= $stmtTable->fetchColumn(1).";\n";
-        // Get the data script.
-        $script.= '-- Data'."\r\n";
-        $stmtData = $this->pdo->query('SELECT * FROM '.$this->table.';');
-        $stmtData->setFetchMode(PDO::FETCH_ASSOC);
-        while ($item = $stmtData->fetch()) {
-            $script.= 'INSERT INTO '.$this->table.' VALUES(';
-            // Clean the parameters.
-            foreach ($item as &$value) {
-                $value = addslashes(str_replace("\r\n", "\\r\\n", $value));
-            }
-            $script.= '"'.implode('","', $item).'"';
-            $script.= ');'."\n";
-        }
-        // Write the file.
-        $file = fopen(RESOURCES.'/'.$fileName.'.'.date('Ymd.His').'.sql', 'w+');
-        fwrite($file, $script);
-        fclose($file);
-    }
 
+    /**
+     * Get a query condition with the primary keys and values for an item.
+     *
+     * @param  object  $item  An item with the primary keys values.
+     * @return string         The primary keys condition for this item.
+     */
+    private function getKeysCondition ($item) {
+        $condition = [];
+        foreach ($this->keys as $key) {
+            $condition[] = $key.'='.$item->$key;
+        }
+        return implode(' and ', $condition);
+    }
 
     /**
      * Transform the options array into a string that can be delivered to the DB.
