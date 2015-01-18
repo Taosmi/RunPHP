@@ -209,7 +209,7 @@ class RepositoryPDO implements IRepository {
     private function getKeysCondition ($item) {
         $condition = [];
         foreach ($this->keys as $key) {
-            $condition[] = $key.'='.$item->$key;
+            $condition[] = $key.'="'.$item->$key.'"';
         }
         return implode(' and ', $condition);
     }
