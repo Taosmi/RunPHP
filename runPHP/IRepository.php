@@ -4,8 +4,8 @@ namespace runPHP;
 
 /**
  * This class defines the interaction with a persistence system by setting a
- * basic CRUD functionality (add, remove, modify and find), a transaction
- * control (init, commit and rollback) and a backup process to be implemented.
+ * basic CRUD functionality (add, remove, modify and find) and a transaction
+ * control (init, commit and rollback) to be implemented.
  * It is also defined a direct way to access the persistence system with custom
  * queries.
  *
