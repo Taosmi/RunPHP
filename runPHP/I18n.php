@@ -103,11 +103,13 @@ namespace runPHP {
         /**
          * Load a domain resource.
          *
-         * @param string  $domain  A domain name.
-         * @param string  $path    A domain folder path.
+         * @param string  $domain   A domain name.
+         * @param string  $path     A domain folder path.
+         * @param string  $charset  A charset encoding, UTF-8 by default (optional).
          */
-        public static function loadDomain ($domain, $path) {
+        public static function loadDomain ($domain, $path, $charset = 'UTF-8') {
             bindtextdomain($domain, $path);
+            bind_textdomain_codeset($domain, $charset);
         }
 
         /**
