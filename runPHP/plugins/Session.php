@@ -36,8 +36,8 @@ class Session {
         // Erase previous session data and regenerate the session ID.
         $_SESSION = array();
         session_regenerate_id(true);
-        // Set the user MD5 encrypted finger print.
-        $_SESSION['fingerprint'] = md5(self::getFingerPrint());
+        // Set the user SHA1 encrypted finger print.
+        $_SESSION['fingerprint'] = sha1(self::getFingerPrint());
         // Set the session user data.
         $_SESSION['user'] = $user;
         $_SESSION['data'] = $data;
@@ -63,7 +63,7 @@ class Session {
      * @return  boolean  True if the user is authorized, otherwise false.
      */
     public static function isAuthorized () {
-        return ($_SESSION['fingerprint'] === md5(self::getFingerPrint()));
+        return ($_SESSION['fingerprint'] === sha1(self::getFingerPrint()));
     }
 
     /**
