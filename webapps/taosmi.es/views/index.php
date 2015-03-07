@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="logo">
-        <img src="/webapps/taosmi.es/static/imgs/brainTaosmiLogo.gif" alt="TAOSMI Logo"/>
+        <img src="/webapps/taosmi.es/static/imgs/brainTaosmiLogo.png" alt="TAOSMI Logo"/>
     </div>
     <div class="saying">
         <p id="quote"></p>
