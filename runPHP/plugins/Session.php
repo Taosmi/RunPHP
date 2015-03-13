@@ -1,6 +1,8 @@
 <?php
 
 namespace runPHP\plugins;
+
+session_name('rid');
 session_start();
 
 /**
@@ -36,9 +38,8 @@ class Session {
         // Erase previous session data and regenerate the session ID.
         $_SESSION = array();
         session_regenerate_id(true);
-        // Set the user SHA1 encrypted finger print.
-        $_SESSION['fingerprint'] = sha1(self::getFingerPrint());
-        // Set the session user data.
+        // Set the user a finger print and session data.
+        $_SESSION['fingerprint'] = self::getFingerPrint();
         $_SESSION['user'] = $user;
         $_SESSION['data'] = $data;
     }
@@ -63,7 +64,8 @@ class Session {
      * @return  boolean  True if the user is authorized, otherwise false.
      */
     public static function isAuthorized () {
-        return ($_SESSION['fingerprint'] === sha1(self::getFingerPrint()));
+        session_regenerate_id(true);
+        return ($_SESSION['fingerprint'] === self::getFingerPrint());
     }
 
     /**
@@ -81,17 +83,15 @@ class Session {
      * method must be executed before any header is sent to the browser.
      */
     public static function unauthorized () {
-        // Erase the session data.
-        $_SESSION = array();
         // Erase the session cookie.
         if (isset($_COOKIE[session_name()])) {
             $ckData = session_get_cookie_params();
             setcookie(session_name(), '', -1, $ckData['path'], $ckData['domain'], $ckData['secure'], $ckData['httponly']);
         }
-        // Destroy the session.
+        // Erase the session and session data.
+        $_SESSION = array();
         session_destroy();
     }
-
 
     /**
      * Retrieve the finger print for the current user.
@@ -99,6 +99,6 @@ class Session {
      * @return string  The current finger print.
      */
     private static function getFingerPrint () {
-        return APP.$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].session_id();
+        return sha1(APP.$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
     }
 }
