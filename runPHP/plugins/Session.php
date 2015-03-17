@@ -28,20 +28,15 @@ session_start();
 class Session {
 
     /**
-     * Authorize the current session and store the authorization data. It will
+     * Authorize the current session and store authorization data. It will
      * replace the previous one if any and will regenerate the session Id.
-     *
-     * @param string  $user  An user Id.
-     * @param array   $data  An associative array with more data (optional).
      */
-    public static function authorize ($user, $data = null) {
+    public static function authorize () {
         // Erase previous session data and regenerate the session ID.
         $_SESSION = array();
         session_regenerate_id(true);
-        // Set the user a finger print and session data.
+        // Set the session finger print.
         $_SESSION['fingerprint'] = self::getFingerPrint();
-        $_SESSION['user'] = $user;
-        $_SESSION['data'] = $data;
     }
 
    /**
@@ -75,7 +70,7 @@ class Session {
      * @param object  $value  The corresponding value.
      */
     public static function set ($key, $value) {
-        $_SESSION['data'][$key] = $value;
+        $_SESSION[$key] = $value;
     }
 
     /**
