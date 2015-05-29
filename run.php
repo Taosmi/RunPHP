@@ -26,14 +26,14 @@ namespace runPHP;
 // Set the time zone to UTC.
 date_default_timezone_set('UTC');
 
-// Shortcuts to the RunPHP folder, the RunPHP locales folder and the Web applications folder.
+// Shortcuts to the RunPHP folders.
 define('SYSTEM', 'runPHP');
 define('SYS_LOCALES', SYSTEM.'/locales');
 define('WEBAPPS', 'webapps');
 
-// Loader for undefined classes.
+// Class loader.
 require(SYSTEM.'/Loader.php');
-//  Load the I18N framework texts.
+//  Load the framework I18N domain.
 I18n::loadDomain('system', SYS_LOCALES);
 
 try {
@@ -79,13 +79,23 @@ try {
     // Run the controller.
     $response = $controller->main();
     if (!$response) {
-        throw new ErrorException(__('No response is available from the server.'), null, 500);
+        throw new ErrorException(__('No response is available from the server.'), array(
+            'code' => 'RPP-00x',
+            'helpLink' => 'http://runphp.taosmi.es/faq/rpp00x'
+        ), 500);
     }
 
 } catch (ErrorException $exception) {
 
     // Handle an error.
-    $response = Router::doError($request, $exception);
+    Logger::error($exception);
+    // Handle an error.
+    $response = new Response('html', array(
+        'error' => array(
+            'msg' => $exception->msg,
+            'data' => $exception->data,
+        )
+    ), $exception->httpStatus);
 
 }
 

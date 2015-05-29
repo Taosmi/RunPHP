@@ -25,32 +25,6 @@ namespace runPHP;
 class Router {
 
     /**
-     * Show the error with HTML, JSON or XML format. If the application has not
-     * an HTML error page, show the default framework HTML error page.
-     *
-     * @param array           $request    The request information.
-     * @param ErrorException  $exception  An error exception.
-     * @return Response                   The error response.
-     */
-    public static function doError ($request, $exception) {
-        Logger::error($exception);
-        switch ($request['controller']['format']) {
-        case 'xml':
-        case 'json':
-            return new Response('data', array(
-                'error' => array(
-                    'code' => $exception->data['code'],
-                    'msg' => $exception->msg,
-                    'helpLink' => $exception->data['helpLink']
-                )
-            ), $exception->httpStatus);
-            break;
-        default:
-            return new Response('html', array('exception' => $exception), $exception->httpStatus);
-        }
-    }
-
-    /**
      * Get the controller name involved with the request. If no controller is
      * available, returns null.
      *
