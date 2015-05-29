@@ -6,6 +6,10 @@ Options +FollowSymLinks
 RewriteEngine On
 RewriteBase /
 
+# Let the runPHP static content pass through.
+RewriteCond %{REQUEST_URI} ^/runPHP/static/
+RewriteRule ^ - [L]
+
 # Let the apps static content pass through.
 RewriteCond %{REQUEST_URI} ^/webapps/.*/static/
 RewriteRule ^ - [L]
