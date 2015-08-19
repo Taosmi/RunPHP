@@ -135,9 +135,9 @@ abstract class Controller {
     }
 
     /**
-     * Get the repository for the object class specified.
+     * Get the repository for the class specified.
      *
-     * @param $className      The class name for the repository.
+     * @param  $className     Class name for the repository.
      * @return RepositoryPDO  The repository for the class.
      * @throws                ErrorException if errors.
      */

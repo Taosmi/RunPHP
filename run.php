@@ -87,9 +87,9 @@ try {
 
 } catch (ErrorException $exception) {
 
-    // Handle an error.
+    // Log the error exception.
     Logger::error($exception);
-    // Handle an error.
+    // Override the response with an error response.
     $response = new Response('html', array(
         'error' => array(
             'msg' => $exception->msg,

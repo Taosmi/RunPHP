@@ -25,7 +25,7 @@ namespace runPHP;
 class Response {
 
     /**
-     * The render style (html or data).
+     * The render style: html or data.
      * @var string
      */
     private $style;
