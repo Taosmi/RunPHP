@@ -1,7 +1,7 @@
 <?php
 
 namespace controllers;
-use runPHP\Controller, runPHP\Response;
+use runPHP\Response, runPHP\plugins\Controller;
 use domain\SayingRepository;
 
 /**
@@ -21,4 +21,5 @@ class randomSaying extends Controller {
             'saying' => $saying
         ));
     }
+
 }
