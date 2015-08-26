@@ -6,7 +6,7 @@
          url('/webapps/taosmi.es/static/fonts/segoe-ui-72888-webfont.woff') format('woff'),
          url('/webapps/taosmi.es/static/fonts/segoe-ui-72888-webfont.ttf') format('truetype'),
          url('/webapps/taosmi.es/static/fonts/segoe-ui-72888-webfont.svg#SegoeUINormal') format('svg');
-    font-weight: lighter;
+    font-weight: normal;
 }
 
 .logo {
@@ -19,12 +19,12 @@
 
 .saying {
     display: none;
-    font-family: SegoeUINormal;
+    font-family: SegoeUINormal, sans-serif;
     margin-top: 50px;
     text-align: center;
 }
 .saying p {
-    margin: 0px;
+    margin: 0;
 }
 .saying p#quote {
     font-style: italic;
