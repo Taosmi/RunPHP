@@ -78,7 +78,7 @@ class Logger {
      * Log an exception error. Logged only when ERROR, WARNING or DEBUG level
      * are set.
      *
-     * @param ErrorException  $exception  An error exception object.
+     * @param RunException  $exception  An error exception object.
      */
     public static function error ($exception = null) {
         // Check the log configuration.

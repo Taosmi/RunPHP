@@ -113,18 +113,17 @@ class Response {
      *
      * @param string $template  The name of the template.
      * @param array  $data      Data that can be used inside the template.
-     * @throws                  ErrorException if the template does not exist.
+     * @throws                  RunException if the template does not exist.
      */
     public function template ($template, $data = null) {
         // Check if the template content exists.
         $templateFile = VIEWS_TEMPLATES.$template.'.php';
         if (!file_exists($templateFile)) {
-            Logger::error(new ErrorException(__('The HTML template does not exist.', 'system'), array(
+            Logger::error(new RunException(__('The HTML template does not exist.', 'system'), array(
                 'code' => 'RPP-020',
                 'file' => $templateFile,
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
             )));
-            //$this->renderHTMLError($exception);
         } else {
             // Include the template file.
             extract($data);

@@ -1,7 +1,7 @@
 <?php
 
 namespace runPHP\plugins;
-use runPHP\IRepository, runPHP\ErrorException, runPHP\Logger;
+use runPHP\IRepository, runPHP\RunException, runPHP\Logger;
 use PDO, PDOException;
 
 /**
@@ -80,7 +80,7 @@ class RepositoryPDO implements IRepository {
                 $this->keys = $pksResult->fetchAll();
             }
         } catch (PDOException $e) {
-            throw new ErrorException(__('The connection to the persistence has failed.', 'system'), array(
+            throw new RunException(__('The connection to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-01',
                 'error' => $e->getMessage(),
                 'resource' => $resource,
@@ -154,7 +154,7 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new ErrorException(__('The query to the persistence has failed.', 'system'), array(
+            throw new RunException(__('The query to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-02',
                 'error' => $e->getMessage(),
                 'query' => $query,

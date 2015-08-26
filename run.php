@@ -41,7 +41,7 @@ try {
     // Get the request info and check the cfg file.
     $request = Router::getRequest();
     if (!$request['cfg']) {
-        throw new ErrorException(__('The configuration file is not available.', 'system'), array(
+        throw new RunException(__('The configuration file is not available.', 'system'), array(
             'code' => 'RPP-001',
             'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp001'
@@ -79,13 +79,13 @@ try {
     // Run the controller.
     $response = $controller->main();
     if (!$response) {
-        throw new ErrorException(__('No response is available from the server.'), array(
+        throw new RunException(__('No response is available from the server.'), array(
             'code' => 'RPP-00x',
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp00x'
         ), 500);
     }
 
-} catch (ErrorException $exception) {
+} catch (RunException $exception) {
 
     // Log the error exception.
     Logger::error($exception);

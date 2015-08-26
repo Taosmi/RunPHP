@@ -23,7 +23,7 @@ namespace runPHP;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class ErrorException extends \Exception {
+class RunException extends \Exception {
 
     /**
      * An error message.
