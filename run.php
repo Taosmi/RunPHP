@@ -79,8 +79,8 @@ try {
     $response = $controller->main();
     if (!$response) {
         throw new RunException(__('No response is available from the server.'), array(
-            'code' => 'RPP-00x',
-            'helpLink' => 'http://runphp.taosmi.es/faq/rpp00x'
+            'code' => 'RPP-002',
+            'helpLink' => 'http://runphp.taosmi.es/faq/rpp002'
         ), 500);
     }
 
