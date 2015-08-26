@@ -72,9 +72,8 @@ try {
         // Get a specific controller.
         $controller = new $controllerName($request);
     } else {
-        // Get a default controller.
-        require(SYSTEM.'/default/defaultController.php');
-        $controller = new defaultController($request);
+        // Get a basic controller.
+        $controller = new plugins\BasicController($request);
     }
     // Run the controller.
     $response = $controller->main();

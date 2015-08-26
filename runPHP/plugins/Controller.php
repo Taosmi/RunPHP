@@ -1,14 +1,12 @@
 <?php
 
-namespace runPHP;
-use runPHP\plugins\RepositoryPDO;
+namespace runPHP\plugins;
+use runPHP\IController, runPHP\Logger, runPHP\RunException, runPHP\Response;
 
 /**
- * This class is an abstract class and must be extended to implement a
- * Controller. A controller runs when its path (relative to the webApp) matches
- * the HTTP request URL. The controller decides what to do next. By default, it
- * provides the functionality to manage input data, repository access and
- * redirect to another controller.
+ * This class implements the controller interface. It provides the
+ * functionality to manage input data, repository access and redirect
+ * to another controller.
  *
  * @author Miguel Angel Garcia
  *
@@ -26,7 +24,7 @@ use runPHP\plugins\RepositoryPDO;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-abstract class Controller {
+abstract class Controller implements IController {
 
     /**
      * The data validation class name to be used.
@@ -73,13 +71,13 @@ abstract class Controller {
      * @param  string   $filter  A filter or function to apply.
      * @param  string   $param   A parameter used by the filter (optional).
      * @return boolean           True if the value pass the test. Otherwise false.
-     * @throws                   ErrorException if the validation class or the filter is not available.
-     * @throws                   ErrorException if the value does not pass the validation.
+     * @throws                   RunException if the validation class or the filter is not available.
+     * @throws                   RunException if the value does not pass the validation.
      */
     public function inputCheck ($key, $filter, $param = null) {
         // Check if the method exists.
         if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new ErrorException(__('The Data Validation class or the filter is not available.', 'system'), array(
+            throw new RunException(__('The Data Validation class or the filter is not available.', 'system'), array(
                 'code' => 'RPP-010',
                 'dataValClass' => self::$DATAVAL_CLASS,
                 'filter' => $filter,
@@ -92,7 +90,7 @@ abstract class Controller {
         // Call the function and return the result.
         $result = call_user_func($filterFunction, $value, $param);
         if (!$result) {
-            throw new ErrorException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
+            throw new RunException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
                 'code' => 'RPP-011',
                 'parameter' => $key,
                 'value' => $value,
@@ -137,14 +135,14 @@ abstract class Controller {
     /**
      * Get the repository for the class specified.
      *
-     * @param  $className     Class name for the repository.
-     * @return RepositoryPDO  The repository for the class.
-     * @throws                ErrorException if errors.
+     * @param  string  $className  Class name of the repository objects.
+     * @return RepositoryPDO       The object repository for the class name given.
+     * @throws                     RunException if errors.
      */
     public function repository ($className) {
         // Get the connection string.
         if (!isset($this->request['cfg']['REPOS']['connection'])) {
-            throw new ErrorException(__('No connection string defined', 'system'), array(
+            throw new RunException(__('No connection string defined', 'system'), array(
                 'code' => 'RPP-012',
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp012'
             ));
