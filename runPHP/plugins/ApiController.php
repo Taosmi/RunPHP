@@ -26,56 +26,72 @@ use runPHP\RunException, runPHP\Response;
 abstract class ApiController extends Controller {
 
     /**
-     * Requests with GET HTTP verb will run this function.
-     *
-     * @return Response  A Response with the output data.
-     */
-    abstract public function get();
-
-    /**
-     * Requests with POST HTTP verb will run this function.
-     *
-     * @return Response  A Response with the output data.
-     */
-    abstract public function post();
-
-    /**
-     * Requests with PUT HTTP verb will run this function.
-     *
-     * @return Response  A Response with the output data.
-     */
-    abstract public function put();
-
-    /**
-     * Requests with DELETE HTTP verb will run this function.
-     *
-     * @return Response  A Response with the output data.
-     */
-    abstract public function delete();
-
-
-    /**
      * This function is derived on four other functions, each one match one
      * of the four HTTP verbs available and must be implemented by the developer.
      *
      * @return Response  A Response with the output data.
-     * @throws           RunException when the HTTP method does not match.
+     * @throws           RunException when the HTTP verb is not available.
      */
     public function main () {
-        if ($this->request['method'] === 'GET') {
-            return $this->get();
-        } else if ($this->request['method'] === 'POST') {
-            return $this->post();
-        } else if ($this->request['method'] === 'PUT') {
-            return $this->put();
-        } else if ($this->request['method'] === 'DELETE') {
-            return $this->delete();
-        } else {
-            throw new RunException(__('The HTTP verb used is not available.'), array(
-                'code' => 'RPP-020',
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
-            ), 500);
+        switch ($this->request['method']) {
+            case 'GET':
+                return $this->get();
+             case 'PUT':
+                return $this->put();
+             case 'POST':
+                return $this->post();
+             case 'DELETE':
+                return $this->delete();
+             default:
+                throw new RunException(__('The HTTP verb used is not available.'), array(
+                    'code' => 'RPP-020',
+                    'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
+                ), 500);
         }
+    }
+
+    /**
+     * Requests with GET HTTP verb will run this method. Developer should
+     * override this method with some logic. By default, this method sends a
+     * HTTP error code 404 Page not found.
+     *
+     * @return Response  A Response with the output data.
+     */
+    public function get () {
+        return new Response('data', null, 404);
+    }
+
+    /**
+     * Requests with POST HTTP verb will run this method. Developer should
+     * override this method with some logic. By default, this method sends a
+     * HTTP error code 404 Page not found.
+     *
+     * @return Response  A Response with the output data.
+     */
+    public function post () {
+        return new Response('data', null, 404);
+    }
+
+    /**
+     * Requests with PUT HTTP verb will run this method. Developer should
+     * override this method with some logic. By default, this method sends a
+     * HTTP error code 404 Page not found.
+     *
+     * @return Response  A Response with the output data.
+     */
+    public function put () {
+        return new Response('data', null, 404);
+    }
+
+    /**
+     * Requests with DELETE HTTP verb will run this method. Developer should
+     * override this method with some logic. By default, this method sends a
+     * HTTP error code 404 Page not found.
+     *
+     * @return Response  A Response with the output data.
+     */
+    public function delete () {
+        return new Response('data', null, 404);
     }
 
 }
