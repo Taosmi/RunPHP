@@ -218,8 +218,8 @@ class RepositoryPDO implements IRepository {
      * Transform the options array into a string that can be delivered to the DB.
      * If no options, return an empty string.
      *
-     * @param  array   $options  The options (optional).
-     * @return string            The options condition.
+     * @param  array  $options  The options (optional).
+     * @return string           The options condition.
      */
     private function parseOptions ($options = null) {
         $sql = '';
@@ -246,7 +246,7 @@ class RepositoryPDO implements IRepository {
     /**
      * Transform an object or an associative array into a separated by comma
      * key - value pairs string. By default, the pair of values will be joined
-     * by comma. It is also possible to specify the fields of the would be
+     * by comma. It is also possible to specify the fields that would be
      * affected by the process.
      * Example:
      *      Source: array(key => value, key => value);
