@@ -48,9 +48,9 @@ class Response {
      * a view with the same name as the controller or 'data' to render a JSON or
      * XML data structure.
      *
-     * @param string  $style     The response style should be 'html' or 'data'.
-     * @param array   $vars      A collection of variables (optional).
-     * @param integer $httpCode  The http response code (default value 200).
+     * @param string   $style     The response style should be 'html' or 'data'.
+     * @param array    $vars      A collection of variables (optional).
+     * @param integer  $httpCode  The http response code (default value 200).
      */
     public function __construct ($style, $vars = null, $httpCode = 200) {
         $this->style = $style;
@@ -58,23 +58,6 @@ class Response {
         $this->statusCode = $httpCode;
     }
 
-
-    /**
-     * @return bool
-     */
-    public function isError () {
-        return ($this->statusCode > 399 and $this->statusCode < 600);
-    }
-
-    /**
-     * Set a key - value pair to the data store.
-     *
-     * @param string  $key    The key name.
-     * @param mixed   $value  The key value.
-     */
-    public function setData ($key, $value) {
-        $this->data[$key] = $value;
-    }
 
     /**
      * Render the response with an specific format (HTML as default).
@@ -108,29 +91,45 @@ class Response {
     }
 
     /**
-     * Display a template from inside a view. Very useful to separate common
+     * Set a key - value pair to the data store.
+     *
+     * @param string  $key    The key name.
+     * @param mixed   $value  The key value.
+     */
+    public function setData ($key, $value) {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * Display a pattern from inside a view. Very useful to separate common
      * visual segments (headers, footer, etc.) into independent files.
      *
-     * @param string $template  The name of the template.
-     * @param array  $data      Data that can be used inside the template.
-     * @throws                  RunException if the template does not exist.
+     * @param string  $pattern  The name of the pattern.
+     * @param array   $data     Data that can be used inside the pattern.
      */
-    public function template ($template, $data = null) {
+    public function pattern ($pattern, $data = null) {
         // Check if the template content exists.
-        $templateFile = VIEWS_TEMPLATES.$template.'.php';
-        if (!file_exists($templateFile)) {
-            Logger::error(new RunException(__('The HTML template does not exist.', 'system'), array(
-                'code' => 'RPP-020',
-                'file' => $templateFile,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
-            )));
+        $patternFile = VIEWS_PATTERNS.$pattern.'.php';
+        if (!file_exists($patternFile)) {
+            _e('The HTML pattern does not exist.', 'system');
+            echo '('.$pattern.')';
         } else {
             // Include the template file.
             extract($data);
-            require($templateFile);
+            require($patternFile);
         }
     }
 
+
+    /**
+     * If there is an HTTP error code, return true otherwise return false.
+     * The HTTP error codes are in the range from 400 to 600.
+     *
+     * @return bool  True if there is an HTTP error code. False otherwise.
+     */
+    private function isError () {
+        return ($this->statusCode > 399 and $this->statusCode < 600);
+    }
 
     /**
      * Render the HTML view to the output system. If the view does not exist,
@@ -190,7 +189,9 @@ class Response {
      */
     private function renderJSON () {
         header('HTTP/1.1 '.$this->statusCode);
-        echo json_encode($this->data);
+        if ($this->data) {
+            echo json_encode($this->data);
+        }
     }
 
     /**
