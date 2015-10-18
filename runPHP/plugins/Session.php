@@ -47,10 +47,7 @@ class Session {
      * @return array         The session data requested or null.
      */
     public static function get ($key) {
-        if (array_key_exists($key, $_SESSION['data'])) {
-            return $_SESSION['data'][$key];
-        }
-        return null;
+        return $_SESSION[$key];
     }
 
     /**
