@@ -1,22 +1,22 @@
 <?php
 
 namespace apis;
-use runPHP\Response, runPHP\plugins\Controller;
+use runPHP\plugins\ApiController, runPHP\Response;
 use domain\SayingRepository;
 
 /**
- * The controller for /randomSaying.
+ * The saying API.
  */
-class randomSaying extends Controller {
+class saying extends ApiController {
 
     /**
-     * Main function.
+     * Get a random saying from the repository.
      */
-    public function main () {
+    public function get () {
         // Get a random saying.
         $sayingRepo = $this->repository('domain\Saying');
         $saying = $sayingRepo->findRandom();
-        // Render the page.
+        // Return the info.
         return new Response('data', array(
             'saying' => $saying
         ));
