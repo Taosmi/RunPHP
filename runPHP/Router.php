@@ -38,11 +38,25 @@ class Router {
         if (file_exists(APP.$controller.'.php')) {
             return str_replace('/', '\\', substr($controller, 1));
         }
-        // Check if the controller is a folder to try the default 'index'.
-        if (is_dir(APP.$controller) && file_exists(APP.$controller.'/index.php')) {
-            $request['controller']['path'].= '/'.$request['controller']['name'];
-            $request['controller']['name'] = 'index';
-            return str_replace('/', '\\', substr($controller.'/index', 1));
+        // Check if there is a backwards controller.
+        if ($request['controller']['path']) {
+            $path = '';
+            $root = APP.$request['cfg']['PATHS']['controllers'];
+            $pathParts = explode('/', substr($request['controller']['path'], 1));
+            // Loop throw the URL path.
+            while ($pathParts) {
+                if (!file_exists($root.$path.'/'.$pathParts[0].'.php')) {
+                    break;
+                }
+                $path .= '/'.array_shift($pathParts);
+            }
+            // If a part of the path is valid, set the rest as parameters.
+            if ($path) {
+                $request['controller']['params'] = $pathParts;
+                $request['controller']['params'][] = $request['controller']['name'];
+                // Return the backwards controller.
+                return str_replace('/', '\\', $request['cfg']['PATHS']['controllers'].$path);
+            }
         }
         return null;
     }
@@ -64,7 +78,8 @@ class Router {
             'controller' => array(
                 'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
                 'name' => $url['filename'] ? $url['filename'] : 'index',
-                'format' => $url['extension']
+                'format' => $url['extension'],
+                'params' => array()
             )
         );
     }
