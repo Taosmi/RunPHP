@@ -1,7 +1,7 @@
 // Loads and shows a random saying.
 $.ajax({
-    type: "POST",
-    url: "/saying",
+    type: "GET",
+    url: "/v1/saying",
     dataType: "json"
 }).done(function(data) {
     $('#quote').text('"' + data.saying.quote + '"');

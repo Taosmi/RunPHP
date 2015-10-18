@@ -1,6 +1,6 @@
 <?php
 
-namespace apis;
+namespace apis\v1;
 use runPHP\plugins\ApiController, runPHP\Response;
 use domain\SayingRepository;
 
