@@ -53,7 +53,7 @@ try {
     define('STATICS', APP.$request['cfg']['PATHS']['statics']);
     define('VIEWS', APP.$request['cfg']['PATHS']['views']);
     define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
-    define('VIEWS_TEMPLATES', APP.$request['cfg']['PATHS']['viewsTemplates']);
+    define('VIEWS_PATTERNS', APP.$request['cfg']['PATHS']['viewsPatterns']);
     define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
 
     // Log configuration.
