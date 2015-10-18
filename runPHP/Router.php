@@ -3,8 +3,8 @@
 namespace runPHP;
 
 /**
- * Analyze the request to know which application and which controller are
- * involved to load and run them.
+ * Analyze the request to know which application and which API is involved to
+ * load and run them.
  *
  * @author Miguel Angel Garcia
  *
@@ -25,24 +25,24 @@ namespace runPHP;
 class Router {
 
     /**
-     * Get the controller name involved with the request. If no controller is
-     * available, returns null.
+     * Get the API name involved with the request. If no API is available,
+     * returns null.
      *
      * @param  array   $request  A request information.
-     * @return string            The controller name or null.
+     * @return string            The API name or null.
      */
-    public static function getController (&$request) {
-        // Build the controller full class name.
-        $controller = $request['cfg']['PATHS']['controllers'].$request['controller']['path'].'/'.$request['controller']['name'];
-        // Check the controller and get the class namespace.
-        if (file_exists(APP.$controller.'.php')) {
-            return str_replace('/', '\\', substr($controller, 1));
+    public static function getApi (&$request) {
+        // Build the API full class name.
+        $api = APIS.$request['path'].'/'.$request['name'];
+        // Check the API and get the class namespace.
+        if (file_exists(APP.$api.'.php')) {
+            return str_replace('/', '\\', substr($api, 1));
         }
-        // Check if there is a backwards controller.
-        if ($request['controller']['path']) {
+        // Check if there is a backwards API.
+        if ($request['path']) {
             $path = '';
-            $root = APP.$request['cfg']['PATHS']['controllers'];
-            $pathParts = explode('/', substr($request['controller']['path'], 1));
+            $root = APP.APIS;
+            $pathParts = explode('/', substr($request['path'], 1));
             // Loop throw the URL path.
             while ($pathParts) {
                 if (!file_exists($root.$path.'/'.$pathParts[0].'.php')) {
@@ -52,10 +52,10 @@ class Router {
             }
             // If a part of the path is valid, set the rest as parameters.
             if ($path) {
-                $request['controller']['params'] = $pathParts;
-                $request['controller']['params'][] = $request['controller']['name'];
+                $request['params'] = $pathParts;
+                $request['params'][] = $request['name'];
                 // Return the backwards controller.
-                return str_replace('/', '\\', $request['cfg']['PATHS']['controllers'].$path);
+                return str_replace('/', '\\', APIS.$path);
             }
         }
         return null;
@@ -75,12 +75,10 @@ class Router {
             'from' => $_SERVER['REMOTE_ADDR'],
             'method' => $_SERVER['REQUEST_METHOD'],
             'url' => $_SERVER['REQUEST_URI'],
-            'controller' => array(
-                'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
-                'name' => $url['filename'] ? $url['filename'] : 'index',
-                'format' => $url['extension'],
-                'params' => array()
-            )
+            'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
+            'name' => $url['filename'] ? $url['filename'] : 'index',
+            'format' => $url['extension'],
+            'params' => array()
         );
     }
 }

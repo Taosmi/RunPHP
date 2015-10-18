@@ -50,6 +50,7 @@ try {
 
     // Shortcuts to the Web application folders and the console flag.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
+    define('APIS', $request['cfg']['PATHS']['apis']);
     define('STATICS', APP.$request['cfg']['PATHS']['statics']);
     define('VIEWS', APP.$request['cfg']['PATHS']['views']);
     define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
@@ -65,14 +66,14 @@ try {
     I18n::setDomain($request['cfg']['I18N']['domain']);
     I18n::setLocale();
 
-    // Load the controller.
+    // Load an API.
     Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
-    $controllerName = Router::getController($request);
-    if ($controllerName) {
-        // Get a specific controller.
-        $controller = new $controllerName($request);
+    $apiName = Router::getApi($request);
+    if ($apiName) {
+        // Get a specific API controller.
+        $controller = new $apiName($request);
     } else {
-        // Get a basic controller.
+        // Get a basic view controller.
         $controller = new plugins\BasicController($request);
     }
     // Run the controller.
@@ -99,7 +100,7 @@ try {
 }
 
 // Render the response.
-$response->render($request['controller']);
+$response->render($request);
 // Flush the log.
 Logger::flush($request['cfg']['LOGS']['path']);
 // End the script.

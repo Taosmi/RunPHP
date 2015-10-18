@@ -64,7 +64,7 @@ class Response {
      *
      * @param array  $controller  The controller information.
      */
-    public function render ($controller) {
+    public function render ($request) {
         // Render the response.
         switch ($this->style) {
         case 'data':
@@ -72,7 +72,7 @@ class Response {
             if (CONSOLE) {
                 $this->data['_console'] = Logger::getLog();
             }
-            if ($controller['format'] === 'xml') {
+            if ($request['format'] === 'xml') {
                 // Render the data structure as XML.
                 Logger::sys(__('Rendering XML view.', 'system'));
                 $this->renderXML();
@@ -86,7 +86,7 @@ class Response {
         default:
             // Render the response as HTML.
             Logger::sys(__('Rendering HTML view.', 'system'));
-            $this->renderHTML($controller['path'], $controller['name']);
+            $this->renderHTML($request['path'], $request['name']);
         }
     }
 
