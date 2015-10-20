@@ -45,13 +45,13 @@ class Router {
             $pathParts = explode('/', substr($request['path'], 1));
             // Loop throw the URL path.
             while ($pathParts) {
-                if (!file_exists($root.$path.'/'.$pathParts[0].'.php')) {
+                if (!file_exists($root.$path.'/'.$pathParts[0].'.php') && !is_dir($root.$path.'/'.$pathParts[0])) {
                     break;
                 }
                 $path .= '/'.array_shift($pathParts);
             }
             // If a part of the path is valid, set the rest as parameters.
-            if ($path) {
+            if ($path && !is_dir($root.$path)) {
                 $request['params'] = $pathParts;
                 $request['params'][] = $request['name'];
                 // Return the backwards controller.
