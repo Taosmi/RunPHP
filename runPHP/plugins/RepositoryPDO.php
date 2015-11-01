@@ -26,32 +26,27 @@ use PDO, PDOException;
 class RepositoryPDO implements IRepository {
 
     /**
-     * The PDO object.
-     * @var string
+     * @var string  The PDO object.
      */
     private $pdo;
 
     /**
-     * The DB table.
-     * @var string
+     * @var string  The DB table.
      */
     private $table;
 
     /**
-     * The table primary keys.
-     * @var array
+     * @var array  The table primary keys.
      */
     private $keys;
 
     /**
-     * The fields to retrieve when querying.
-     * @var string
+     * @var string  The fields to retrieve when querying.
      */
     private $fields;
 
     /**
-     * The full class name to cast from the DB results.
-     * @var string
+     * @var string  The full class name to cast from the DB results.
      */
     private $objectName;
 

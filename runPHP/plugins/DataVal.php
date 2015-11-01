@@ -30,8 +30,8 @@ class DataVal {
      * (0-9) or dots (.) or commas (,) or dashes (-) or underscores (_) or
      * semicolons (:).
      *
-     * @param  string   $value  The string to validate.
-     * @return boolean          True if the value contains the characters, otherwise false.
+     * @param  string  $value  The string to validate.
+     * @return boolean         True if the value contains the characters, otherwise false.
      */
     public static function alpha ($value) {
         return filter_var($value, FILTER_VALIDATE_REGEXP, array(
@@ -95,9 +95,9 @@ class DataVal {
     /**
      * Check if a string has a specific length.
      *
-     * @param  string   $value   A string.
-     * @param  int      $length  The supposed string length.
-     * @return boolean           True if the string length is equal to the length provided, otherwise false.
+     * @param  string  $value   A string.
+     * @param  int     $length  The supposed string length.
+     * @return boolean          True if the string length is equal to the length provided, otherwise false.
      */
     public static function length ($value, $length) {
         return (strlen($value) === $length);
