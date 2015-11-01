@@ -29,8 +29,8 @@ abstract class ApiController extends Controller {
      * This function is derived on four other functions, each one match one
      * of the four HTTP verbs available and must be implemented by the developer.
      *
-     * @return Response  A Response with the output data.
-     * @throws           RunException when the HTTP verb is not available.
+     * @return Response      A Response with the output data.
+     * @throws RunException  If the HTTP verb is not available.
      */
     public function main () {
         switch ($this->request['method']) {

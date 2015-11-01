@@ -10,7 +10,7 @@ use runPHP\IController, runPHP\Response;
 class BasicController implements IController {
 
     /**
-     * @param array $request
+     * @param array  $request  The request information.
      */
     public function __construct ($request) {
         // Does nothing.

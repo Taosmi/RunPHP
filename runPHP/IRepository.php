@@ -30,10 +30,10 @@ interface IRepository {
     /**
      * Initialize a repository with a connection string.
      *
-     * @param string  $connection  The repository connection parameters.
-     * @param string  $objectName  The full class name of the repository object.
-     * @param string  $pks         A separated by comma list of primary keys (optional).
-     * @throws                     RunException if the initialization fails.
+     * @param  string  $connection  The repository connection parameters.
+     * @param  string  $objectName  The full class name of the repository object.
+     * @param  string  $pks         A separated by comma list of primary keys (optional).
+     * @throws RunException         If the initialization fails.
      */
     public function __construct ($connection, $objectName, $pks = null);
 
@@ -79,7 +79,7 @@ interface IRepository {
      * @param   string  $query   A query.
      * @param   array   $data    The placeholders data if placeholders are used (optional).
      * @return \PDOStatement     The query statement.
-     * @throws                   RunException if the query fails.
+     * @throws  RunException     If the query fails.
      */
     public function query ($query, $data = null);
 

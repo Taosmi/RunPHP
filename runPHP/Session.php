@@ -1,6 +1,6 @@
 <?php
 
-namespace runPHP\plugins;
+namespace runPHP;
 
 session_name('rid');
 session_start();
@@ -53,7 +53,7 @@ class Session {
     /**
      * Check if the user is authorized.
      *
-     * @return  boolean  True if the user is authorized, otherwise false.
+     * @return boolean  True if the user is authorized, otherwise false.
      */
     public static function isAuthorized () {
         session_regenerate_id(true);

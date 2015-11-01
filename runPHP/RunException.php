@@ -26,20 +26,17 @@ namespace runPHP;
 class RunException extends \Exception {
 
     /**
-     * An error message.
-     * @var string
+     * @var string  An error message.
      */
     public $msg;
 
     /**
-     * Additional error information.
-     * @var array
+     * @var array  Additional error information.
      */
     public $data;
 
     /**
-     * An HTTP status code.
-     * @var int
+     * @var int  An HTTP status code.
      */
     public $httpStatus;
 

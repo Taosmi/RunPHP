@@ -28,32 +28,27 @@ namespace runPHP;
 class Logger {
 
     /**
-     * Log levels available.
-     * @var int
+     * @var int  Log levels available.
      */
     const NONE = 0, ERROR = 1, WARNING = 3, DEBUG = 7, ALL = 127;
 
     /**
-     * Specific log messages.
-     * @var int
+     * @var int  Specific log messages.
      */
     const SYS = 8, MEMO = 16, TIME = 32, REPO = 64;
 
     /**
-     * The current log level. By default show only the errors.
-     * @var string
+     * @var string  The current log level. By default show only the errors.
      */
     private static $level = self::ERROR;
 
     /**
-     * Log data buffer.
-     * @var array
+     * @var array  Log data buffer.
      */
     private static $logBuffer = array();
 
     /**
-     * Number of access to the persistent data.
-     * @var int
+     * @var int  Number of access to the persistent data.
      */
     private static $numRepoAccess = 0;
 

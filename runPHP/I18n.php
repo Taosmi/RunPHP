@@ -27,14 +27,12 @@ namespace runPHP {
     class I18n {
 
         /**
-         * Auto-locale mode. By default false.
-         * @var boolean
+         * @var boolean  Auto-locale mode. By default false.
          */
         private static $autolocale = false;
 
         /**
-         * Default locale.
-         * @var string
+         * @var string  Default locale.
          */
         private static $defaultLocale = 'es_US';
 
