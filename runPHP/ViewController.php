@@ -1,20 +1,12 @@
 <?php
 
-namespace runPHP\plugins;
-use runPHP\IController, runPHP\Response;
+namespace runPHP;
+use runPHP\Response;
 
 /**
- * This class implements the controller interface. It provides
- * no functionality, only renders a HTML view as response.
+ * This class provides no functionality, only renders a HTML view as response.
  */
-class BasicController implements IController {
-
-    /**
-     * @param array  $request  The request information.
-     */
-    public function __construct ($request) {
-        // Does nothing.
-    }
+class ViewController {
 
     /**
      * Main function.
