@@ -3,7 +3,7 @@
 namespace runPHP;
 
 /**
- * This class implements the functionality to render a response as HTML or as
+ * This class implements the functionality to render a response as HTML, as
  * JSON or as XML.
  *
  * @author Miguel Angel Garcia
@@ -25,68 +25,73 @@ namespace runPHP;
 class Response {
 
     /**
-     * The render style: html or data.
-     * @var string
+     * @var string  A render format (html, json or xml).
      */
-    private $style;
+    private $format;
 
     /**
-     * The data holder.
-     * @var mixed
+     * @var mixed  A data holder.
      */
     private $data;
 
     /**
-     * The HTTP status code.
-     * @var int
+     * @var int  An HTTP status code.
      */
     private $statusCode;
 
 
     /**
-     * Initialize the response. The response style should be 'html' to render
-     * a view with the same name as the controller or 'data' to render a JSON or
-     * XML data structure.
+     * Initialize the response. The format to render a view should be 'html'.
      *
-     * @param string   $style     The response style should be 'html' or 'data'.
+     * @param string   $format    The response format ('html', 'xml' or 'json').
      * @param array    $vars      A collection of variables (optional).
      * @param integer  $httpCode  The http response code (default value 200).
      */
-    public function __construct ($style, $vars = null, $httpCode = 200) {
-        $this->style = $style;
+    public function __construct ($format, $vars = null, $httpCode = 200) {
+        $this->format = $format;
         $this->data = $vars;
         $this->statusCode = $httpCode;
     }
 
 
     /**
-     * Render the response with an specific format (HTML as default).
+     * Render the response with a specific format. If no format is available, it
+     * will be rendered as HTML by default.
      *
-     * @param array  $controller  The controller information.
+     * @param array  $request  The request information.
      */
     public function render ($request) {
         // Render the response.
-        switch ($this->style) {
-        case 'data':
-            // Set the console information for JSON and XML.
+        switch ($this->format) {
+        case 'json':
+            Logger::sys(__('Rendering JSON view.', 'system'));
+            // Set the console information.
             if (CONSOLE) {
                 $this->data['_console'] = Logger::getLog();
             }
-            if ($request['format'] === 'xml') {
-                // Render the data structure as XML.
-                Logger::sys(__('Rendering XML view.', 'system'));
-                $this->renderXML();
-            } else {
-                // Render the data structure as JSON by default.
-                Logger::sys(__('Rendering JSON view.', 'system'));
-                $this->renderJSON();
-            }
+            // Render the data structure as JSON by default.
+            $this->renderJSON();
             break;
-        case 'html':
+        case 'xml':
+            Logger::sys(__('Rendering XML.', 'system'));
+            // Set the console information.
+            if (CONSOLE) {
+                $this->data['_console'] = Logger::getLog();
+            }
+            // Render the data structure as XML.
+            $this->renderXML();
+            break;
         default:
             // Render the response as HTML.
             Logger::sys(__('Rendering HTML view.', 'system'));
-            $this->renderHTML($request['path'], $request['name']);
+            if ($this->isError()) {
+                // Set the application specific HTML error or the framework HTML error.
+                $file = file_exists(VIEWS_ERRORS.'/error.php') ? VIEWS_ERRORS.'/error' : SYSTEM.'/html/error';
+            } else {
+                $file = Router::getView($request);
+                $this->data['params'] = $request['params'];
+            }
+            $this->renderHTML($file);
         }
     }
 
@@ -132,46 +137,28 @@ class Response {
     }
 
     /**
-     * Render the HTML view to the output system. If the view does not exist,
-     * render the not found page. If there is an exception, render the error
-     * page.
+     * Render the HTML view to the output system. If the view does not exist or
+     * an exception is raised, then render the error page.
      *
-     * @param  string  $path  The view path.
-     * @param  string  $name  The view name.
+     * @param  string  $file  The view file.
      */
-    private function renderHTML ($path, $name) {
-        // Render the HTML error view if there is an error.
-        if ($this->isError()) {
-            // Set the application specific HTML error or the framework HTML error.
-            $file = VIEWS_ERRORS.'/error';
-            // Set the framework HTML error, if the application HTML error doesn't exist.
-            if (!file_exists($file.'.php')) {
-                $file = SYSTEM.'/html/error';
-            }
-        } else {
-            // Render the HTML view.
-            $file = VIEWS.$path.'/'.$name;
-            // Set the application HTML error view, if the view does not exist.
-            if (!file_exists($file.'.php')) {
-                // Set the error info.
-                $this->statusCode = 404;
-                $this->data = array(
-                    'error' => array(
-                        'msg' => __('The view does not exist.', 'system'),
-                        'data' => array(
-                            'code' => 'RPP-021',
-                            'file' => $file
-                        ),
-                        'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
-                    )
-                );
-                // Set the application HTML view.
-                $file = VIEWS_ERRORS.'/notFoundError';
-                // Set the framework HTML error, if the application HTML error view does not exist.
-                if (!file_exists($file.'.php')) {
-                    $file = SYSTEM.'/html/notFoundError';
-                }
-            }
+    private function renderHTML ($file) {
+        // Set the application HTML error view, if the view does not exist.
+        if (!file_exists($file.'.php')) {
+            // Set the error info.
+            $this->statusCode = 404;
+            $this->data = array(
+                'error' => array(
+                    'msg' => __('The view does not exist.', 'system'),
+                    'data' => array(
+                        'code' => 'RPP-021',
+                        'file' => $file
+                    ),
+                    'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
+                )
+            );
+            // Set the application HTML view.
+            $file = file_exists(VIEWS_ERRORS.'/notFoundError.php') ? VIEWS_ERRORS.'/notFoundError' : SYSTEM.'/html/notFoundError';
         }
         // Set the HTTP status code.
         header('HTTP/1.1 '.$this->statusCode);

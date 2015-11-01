@@ -3,7 +3,7 @@
 namespace runPHP;
 
 /**
- * Analyze the request to know which application and which API is involved to
+ * Analyze the request to know which application, API or view is involved to
  * load and run them.
  *
  * @author Miguel Angel Garcia
@@ -25,40 +25,49 @@ namespace runPHP;
 class Router {
 
     /**
-     * Get the API name involved with the request. If no API is available,
-     * returns null.
+     * Get a backward controller iterating throw the dynamic part of the path.
+     * If no controller is available, return null.
      *
      * @param  array   $request  A request information.
-     * @return string            The API name or null.
+     * @param  string  $root     Static part of the path.
+     * @param  string  $path     Dynamic part of the path.
+     * @return string            A controller path or null.
+     */
+    private function getBackwardPath (&$request, $root, $path) {
+        if ($path) {
+            $pathParts = explode('/', substr($path, 1));
+            // Loop throw the dynamic path.
+            $newPath = '';
+            while ($pathParts && (file_exists($root.$newPath.'/'.$pathParts[0].'.php') || is_dir($root.$newPath.'/'.$pathParts[0]))) {
+                $newPath .= '/'.array_shift($pathParts);
+            }
+            // If a part of the path is valid, set the rest as parameters.
+            if ($newPath && !is_dir($root.$newPath)) {
+                $request['params'] = $pathParts;
+                return $root.$newPath;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Get the API name involved with the request. If no API is available,
+     * return null.
+     *
+     * @param  array  $request  A request information.
+     * @return string           An API name or null.
      */
     public static function getApi (&$request) {
         // Build the API full class name.
         $api = APIS.$request['path'].'/'.$request['name'];
         // Check the API and get the class namespace.
-        if (file_exists(APP.$api.'.php')) {
-            return str_replace('/', '\\', substr($api, 1));
+        if (file_exists($api.'.php')) {
+            return str_replace('/', '\\', substr($api, strlen(APP) + 1));
         }
-        // Check if there is a backwards API.
-        if ($request['path']) {
-            $path = '';
-            $root = APP.APIS;
-            $pathParts = explode('/', substr($request['path'], 1));
-            // Loop throw the URL path.
-            while ($pathParts) {
-                if (!file_exists($root.$path.'/'.$pathParts[0].'.php') && !is_dir($root.$path.'/'.$pathParts[0])) {
-                    break;
-                }
-                $path .= '/'.array_shift($pathParts);
-            }
-            // If a part of the path is valid, set the rest as parameters.
-            if ($path && !is_dir($root.$path)) {
-                $request['params'] = $pathParts;
-                $request['params'][] = $request['name'];
-                // Return the backwards controller.
-                return str_replace('/', '\\', APIS.$path);
-            }
-        }
-        return null;
+        // Get a backwards API controller.
+        $api = self::getBackwardPath($request, APIS, $request['path'].'/'.$request['name']);
+        return str_replace('/', '\\', substr($api, strlen(APP) + 1));
     }
 
     /**
@@ -81,4 +90,23 @@ class Router {
             'params' => array()
         );
     }
+
+    /**
+     * Get the view name involved with the request. If no view is available,
+     * return null.
+     *
+     * @param  array  $request  A request information.
+     * @return string           A view name or null.
+     */
+    public static function getView (&$request) {
+        // Build the full file name.
+        $file = VIEWS.$request['path'].'/'.$request['name'];
+        // Check the view and get the file name.
+        if (file_exists($file.'.php')) {
+            return $file;
+        }
+        // Get a backwards view file name.
+        return self::getBackwardPath($request, VIEWS, $request['path'].'/'.$request['name']);
+    }
+
 }

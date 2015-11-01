@@ -50,12 +50,12 @@ try {
 
     // Shortcuts to the Web application folders and the console flag.
     define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
-    define('APIS', $request['cfg']['PATHS']['apis']);
+    define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
+    define('APIS', APP.$request['cfg']['PATHS']['apis']);
     define('STATICS', APP.$request['cfg']['PATHS']['statics']);
     define('VIEWS', APP.$request['cfg']['PATHS']['views']);
     define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
     define('VIEWS_PATTERNS', APP.$request['cfg']['PATHS']['viewsPatterns']);
-    define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
 
     // Log configuration.
     Logger::setLevel($request['cfg']['LOGS']['logLevel']);
@@ -70,11 +70,11 @@ try {
     Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
     $apiName = Router::getApi($request);
     if ($apiName) {
-        // Get a specific API controller.
+        // Get a API controller.
         $controller = new $apiName($request);
     } else {
-        // Get a basic view controller.
-        $controller = new plugins\BasicController($request);
+        // Get a view controller.
+        $controller = new ViewController($request);
     }
     // Run the controller.
     $response = $controller->main();
