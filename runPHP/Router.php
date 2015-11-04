@@ -83,6 +83,7 @@ class Router {
             'cfg' => parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true),
             'from' => $_SERVER['REMOTE_ADDR'],
             'method' => $_SERVER['REQUEST_METHOD'],
+            'mime' => strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'])[0])),
             'url' => $_SERVER['REQUEST_URI'],
             'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
             'name' => $url['filename'] ? $url['filename'] : 'index',
