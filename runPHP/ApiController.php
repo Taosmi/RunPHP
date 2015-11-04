@@ -36,6 +36,11 @@ abstract class ApiController {
     private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
 
     /**
+     * @var array  The request input data.
+     */
+    private $input;
+
+    /**
      * @var array  The request info.
      */
     public $request;
@@ -48,6 +53,12 @@ abstract class ApiController {
      */
     public function __construct ($request) {
         $this->request = $request;
+        // Get the request input data.
+        if ($request['mime'] === 'application/json' && $request['method'] != 'GET') {
+            parse_str(file_get_contents('php://input'), $this->input);
+        } else {
+            $this->input = $_REQUEST;
+        }
     }
 
     /**
@@ -83,7 +94,7 @@ abstract class ApiController {
      * @return Response  A Response with the output data.
      */
     public function get () {
-        return new Response('data', null, 404);
+        return new Response(null, 404);
     }
 
     /**
@@ -94,7 +105,7 @@ abstract class ApiController {
      * @return Response  A Response with the output data.
      */
     public function post () {
-        return new Response('data', null, 404);
+        return new Response(null, 404);
     }
 
     /**
@@ -105,7 +116,7 @@ abstract class ApiController {
      * @return Response  A Response with the output data.
      */
     public function put () {
-        return new Response('data', null, 404);
+        return new Response(null, 404);
     }
 
     /**
@@ -116,48 +127,9 @@ abstract class ApiController {
      * @return Response  A Response with the output data.
      */
     public function delete () {
-        return new Response('data', null, 404);
+        return new Response(null, 404);
     }
 
-
-    /**
-     * Test a key and his value against a filter validation. If the value does
-     * not pass the validation, return an exception. Otherwise return the value
-     * for the key provided.
-     *
-     * @param  string   $key     The key name that holds a request value.
-     * @param  string   $filter  A filter or function to apply.
-     * @param  string   $param   A parameter used by the filter (optional).
-     * @return boolean           True if the value pass the test. Otherwise false.
-     * @throws RunException      If the validation class or the filter is not available.
-     * @throws RunException      If the value does not pass the validation.
-     */
-    public function inputCheck ($key, $filter, $param = null) {
-        // Check if the method exists.
-        if (!method_exists(self::$DATAVAL_CLASS, $filter)) {
-            throw new RunException(__('The Data Validation class or the filter is not available.', 'system'), array(
-                'code' => 'RPP-010',
-                'dataValClass' => self::$DATAVAL_CLASS,
-                'filter' => $filter,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp010'
-            ));
-        }
-        // Get the value and the function name.
-        $value = $this->inputGet($key);
-        $filterFunction = self::$DATAVAL_CLASS.'::'.$filter;
-        // Call the function and return the result.
-        $result = call_user_func($filterFunction, $value, $param);
-        if (!$result) {
-            throw new RunException(sprintf(__('The parameter "%s" has a wrong value.', 'system'), $key), array(
-                'code' => 'RPP-011',
-                'parameter' => $key,
-                'value' => $value,
-                'filter' => $filter,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpp011'
-            ), 400);
-        }
-        return $value;
-    }
 
     /**
      * Get the value corresponding to the key from the input data. If the key
@@ -168,8 +140,8 @@ abstract class ApiController {
      */
     public function inputGet ($key) {
         // Parse the input data to avoid XSS attacks.
-        if (array_key_exists($key, $_REQUEST)) {
-            return htmlentities(stripslashes(strip_tags($_REQUEST[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
+        if (array_key_exists($key, $this->input)) {
+            return htmlentities(stripslashes(strip_tags($this->input[$key], self::$TAGS_ALLOWED)), ENT_QUOTES);
         }
         // If no input data, return null.
         return null;

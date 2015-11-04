@@ -27,12 +27,12 @@ namespace runPHP;
 date_default_timezone_set('UTC');
 
 // Shortcuts to the RunPHP folders.
-define('SYSTEM', 'runPHP');
-define('SYS_LOCALES', SYSTEM.'/locales');
+define('SYS', 'runPHP');
+define('SYS_LOCALES', SYS.'/locales');
 define('WEBAPPS', 'webapps');
 
 // Class loader.
-require(SYSTEM.'/Loader.php');
+require(SYS.'/Loader.php');
 //  Load the framework I18N domain.
 I18n::loadDomain('system', SYS_LOCALES);
 
@@ -66,7 +66,7 @@ try {
     I18n::setDomain($request['cfg']['I18N']['domain']);
     I18n::setLocale();
 
-    // Load an API.
+    // Load a controller.
     Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
     $apiName = Router::getApi($request);
     if ($apiName) {
@@ -90,7 +90,7 @@ try {
     // Log the error exception.
     Logger::error($exception);
     // Override the response with an error response.
-    $response = new Response('html', array(
+    $response = new Response(array(
         'error' => array(
             'msg' => $exception->msg,
             'data' => $exception->data,

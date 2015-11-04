@@ -25,11 +25,6 @@ namespace runPHP;
 class Response {
 
     /**
-     * @var string  A render format (html, json or xml).
-     */
-    private $format;
-
-    /**
      * @var mixed  A data holder.
      */
     private $data;
@@ -41,29 +36,32 @@ class Response {
 
 
     /**
-     * Initialize the response. The format to render a view should be 'html'.
+     * Initialize the response.
      *
-     * @param string   $format    The response format ('html', 'xml' or 'json').
      * @param array    $vars      A collection of variables (optional).
      * @param integer  $httpCode  The http response code (default value 200).
      */
-    public function __construct ($format, $vars = null, $httpCode = 200) {
-        $this->format = $format;
+    public function __construct ($vars = null, $httpCode = 200) {
         $this->data = $vars;
         $this->statusCode = $httpCode;
     }
 
 
     /**
-     * Render the response with a specific format. If no format is available, it
-     * will be rendered as HTML by default.
+     * Render the response.
      *
      * @param array  $request  The request information.
      */
     public function render ($request) {
+        // Get the format from the request.
+        $format = $request['format'];
+        // Get the format from the header.
+        if (!$format) {
+            $format = $request['mime'];
+        }
         // Render the response.
-        switch ($this->format) {
-        case 'json':
+        switch ($format) {
+        case 'application/json': case 'json':
             Logger::sys(__('Rendering JSON view.', 'system'));
             // Set the console information.
             if (CONSOLE) {
@@ -72,7 +70,7 @@ class Response {
             // Render the data structure as JSON by default.
             $this->renderJSON();
             break;
-        case 'xml':
+        case 'application/xml': case 'xml':
             Logger::sys(__('Rendering XML.', 'system'));
             // Set the console information.
             if (CONSOLE) {
@@ -86,7 +84,7 @@ class Response {
             Logger::sys(__('Rendering HTML view.', 'system'));
             if ($this->isError()) {
                 // Set the application specific HTML error or the framework HTML error.
-                $file = file_exists(VIEWS_ERRORS.'/error.php') ? VIEWS_ERRORS.'/error' : SYSTEM.'/html/error';
+                $file = file_exists(VIEWS_ERRORS.'/error.php') ? VIEWS_ERRORS.'/error' : SYS.'/html/error';
             } else {
                 $file = Router::getView($request);
                 $this->data['params'] = $request['params'];
@@ -158,16 +156,17 @@ class Response {
                 )
             );
             // Set the application HTML view.
-            $file = file_exists(VIEWS_ERRORS.'/notFoundError.php') ? VIEWS_ERRORS.'/notFoundError' : SYSTEM.'/html/notFoundError';
+            $file = file_exists(VIEWS_ERRORS.'/notFoundError.php') ? VIEWS_ERRORS.'/notFoundError' : SYS.'/html/notFoundError';
         }
         // Set the HTTP status code.
         header('HTTP/1.1 '.$this->statusCode);
+        header('Content-Type: text/html');
         // Extract the data and include the view file.
         extract($this->data);
         include($file.'.php');
         // Show the HTML console.
         if (CONSOLE) {
-            require(SYSTEM.'/html/console.php');
+            require(SYS.'/html/console.php');
         }
     }
 
@@ -176,6 +175,7 @@ class Response {
      */
     private function renderJSON () {
         header('HTTP/1.1 '.$this->statusCode);
+        header('Content-Type: application/json');
         if ($this->data) {
             echo json_encode($this->data);
         }
@@ -186,6 +186,7 @@ class Response {
      */
     private function renderXML () {
         header('HTTP/1.1 '.$this->statusCode);
+        header('Content-Type: application/xml');
         echo 'WIP: XML view not available.';
     }
 }

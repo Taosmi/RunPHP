@@ -13,6 +13,6 @@ class ViewController {
      */
     public function main () {
         // Render the page.
-        return new Response('html');
+        return new Response();
     }
 }
