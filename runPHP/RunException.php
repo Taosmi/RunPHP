@@ -41,15 +41,14 @@ class RunException extends \Exception {
     public $httpStatus;
 
     /**
-     * Initialize a new error exception. The error exception may have some
-     * additional information and a HTTP status code to use at the response
-     * (default value 500).
+     * Initialize a new error exception. The error exception may have a HTTP
+     * status code and an error message. Additional information is optional.
      *
+     * @param int     $httpStatus  The HTTP status code.
      * @param string  $msg         A description of the error.
      * @param array   $data        Additional error information (optional).
-     * @param int     $httpStatus  The HTTP status code (optional).
      */
-    public function __construct ($msg, $data = array(), $httpStatus = 500) {
+    public function __construct ($httpStatus, $msg, $data = array()) {
         parent::__construct($msg);
         $this->msg = $msg;
         $this->data = $data;

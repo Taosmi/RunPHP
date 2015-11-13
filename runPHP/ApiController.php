@@ -79,10 +79,10 @@ abstract class ApiController {
              case 'DELETE':
                 return $this->delete();
              default:
-                throw new RunException(__('The HTTP verb used is not available.'), array(
+                throw new RunException(500, __('The HTTP verb used is not available.'), array(
                     'code' => 'RPP-020',
                     'helpLink' => 'http://runphp.taosmi.es/faq/rpp020'
-                ), 500);
+                ));
         }
     }
 
@@ -157,7 +157,7 @@ abstract class ApiController {
     public function repository ($className) {
         // Get the connection string.
         if (!isset($this->request['cfg']['REPOS']['connection'])) {
-            throw new RunException(__('No connection string defined', 'system'), array(
+            throw new RunException(500, __('No connection string defined', 'system'), array(
                 'code' => 'RPP-012',
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp012'
             ));

@@ -75,7 +75,7 @@ class RepositoryPDO implements IRepository {
                 $this->keys = $pksResult->fetchAll();
             }
         } catch (PDOException $e) {
-            throw new RunException(__('The connection to the persistence has failed.', 'system'), array(
+            throw new RunException(500, __('The connection to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-01',
                 'error' => $e->getMessage(),
                 'resource' => $resource,
@@ -149,7 +149,7 @@ class RepositoryPDO implements IRepository {
             }
             return $statement;
         } catch (PDOException $e) {
-            throw new RunException(__('The query to the persistence has failed.', 'system'), array(
+            throw new RunException(500, __('The query to the persistence has failed.', 'system'), array(
                 'code' => 'RPDO-02',
                 'error' => $e->getMessage(),
                 'query' => $query,
@@ -204,7 +204,7 @@ class RepositoryPDO implements IRepository {
     private function getKeysCondition ($item) {
         $condition = [];
         foreach ($this->keys as $key) {
-            $condition[] = $key.'="'.$item->$key.'"';
+            $condition[] = $key.'=\''.$item->$key.'\'';
         }
         return implode(' and ', $condition);
     }
