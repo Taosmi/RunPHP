@@ -3,7 +3,7 @@
 <head>
     <title><?php _e('Error', 'system') ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link type="text/css" rel="stylesheet" href="runPHP/static/error.css"/>
+    <link type="text/css" rel="stylesheet" href="/runPHP/static/error.css"/>
 </head>
 <body>
     <div class="error">
