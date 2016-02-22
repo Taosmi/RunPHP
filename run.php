@@ -25,83 +25,91 @@ namespace runPHP;
 
 // Set the time zone to UTC.
 date_default_timezone_set('UTC');
-
-// Shortcuts to the RunPHP folders.
+// Shortcuts to the framework folders.
 define('SYS', 'runPHP');
 define('SYS_LOCALES', SYS.'/locales');
 define('WEBAPPS', 'webapps');
-
-// Class loader.
-require(SYS.'/Loader.php');
-//  Load the framework I18N domain.
+define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME']);
+// Set auto-load and error handlers.
+require(SYS.'/handlers.php');
+// Load the I18N framework domain.
 I18n::loadDomain('system', SYS_LOCALES);
+// Session initialization.
+session_name('rid');
+session_start();
 
 try {
 
-    // Get the request info and check the cfg file.
-    $request = Router::getRequest();
-    if (!$request['cfg']) {
+    // Get and check the application configuration file.
+    $cfg = parse_ini_file(APP.DIRECTORY_SEPARATOR.'app.cfg', true);
+    if (!$cfg) {
         throw new RunException(500, __('The configuration file is not available.', 'system'), array(
             'code' => 'RPP-001',
-            'configFile' => WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg',
+            'configFile' => APP.DIRECTORY_SEPARATOR.'app.cfg',
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp001'
         ));
     }
 
-    // Shortcuts to the Web application folders and the console flag.
-    define('APP', WEBAPPS.DIRECTORY_SEPARATOR.$request['app']);
-    define('CONSOLE', $request['cfg']['LOGS']['console'] && array_key_exists('console', $_REQUEST));
-    define('APIS', APP.$request['cfg']['PATHS']['apis']);
-    define('STATICS', APP.$request['cfg']['PATHS']['statics']);
-    define('VIEWS', APP.$request['cfg']['PATHS']['views']);
-    define('VIEWS_ERRORS', APP.$request['cfg']['PATHS']['viewsErrors']);
-    define('VIEWS_PATTERNS', APP.$request['cfg']['PATHS']['viewsPatterns']);
-
-    // Log configuration.
-    Logger::setLevel($request['cfg']['LOGS']['logLevel']);
+    // Shortcuts to the Web Application folders.
+    define('APIS', APP.$cfg['PATHS']['apis']);
+    define('STATICS', APP.$cfg['PATHS']['statics']);
+    define('VIEWS', APP.$cfg['PATHS']['views']);
+    define('VIEWS_ERRORS', APP.$cfg['PATHS']['viewsErrors']);
+    define('VIEWS_PATTERNS', APP.$cfg['PATHS']['viewsPatterns']);
+    // Console flag and log configuration.
+    define('CONSOLE', $cfg['LOGS']['console'] && array_key_exists('console', $_REQUEST));
+    Logger::setLevel($cfg['LOGS']['logLevel']);
     // I18n configuration.
-    I18n::setAutoLocale($request['cfg']['I18N']['autolocale']);
-    I18n::setDefaultLocale($request['cfg']['I18N']['default']);
-    I18n::loadDomain($request['cfg']['I18N']['domain'], APP.$request['cfg']['I18N']['path']);
-    I18n::setDomain($request['cfg']['I18N']['domain']);
+    I18n::setAutoLocale($cfg['I18N']['autolocale']);
+    I18n::setDefaultLocale($cfg['I18N']['default']);
+    I18n::loadDomain($cfg['I18N']['domain'], APP.$cfg['I18N']['path']);
+    I18n::setDomain($cfg['I18N']['domain']);
     I18n::setLocale();
 
-    // Load a controller.
+    // Get the request information.
+    $request = Router::getRequest();
     Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
-    $apiName = Router::getApi($request);
-    if ($apiName) {
-        // Get a API controller.
-        $controller = new $apiName($request);
-    } else {
-        // Get a view controller.
-        $controller = new ViewController($request);
+    // If no request available, return a 404 error page.
+    if (!$request['ctrl']) {
+        throw new RunException(404, __('The page does not exist.', 'system'), array(
+            'code' => 'RPP-00?',
+            'url' => $request['url'],
+            'helpLink' => 'http://runphp.taosmi.es/faq/rpp00?'
+        ));
     }
-    // Run the controller.
-    $response = $controller->main();
+
+    // Load and run a controller.
+    $controller = Router::getControllerClass($cfg['REPOS'], $request);
+    $response = $controller->main($request['params']);
     if (!$response) {
         throw new RunException(500, __('No response is available from the server.'), array(
             'code' => 'RPP-002',
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp002'
         ));
     }
+    // Render the response.
+    $response->render($request['mime']);
 
 } catch (RunException $exception) {
 
     // Log the error exception.
     Logger::error($exception);
-    // Override the response with an error response.
+    // Use an HTML error page.
+    $file = $exception->httpStatus === 404 ? 'notFoundError' : 'error';
+    $path = file_exists(VIEWS_ERRORS.'/'.$file.'.php') ? VIEWS_ERRORS : SYS.'/html';
+    // Create an error response.
     $response = new Response(array(
         'error' => array(
             'msg' => $exception->msg,
             'data' => $exception->data,
         )
     ), $exception->httpStatus);
-
+    // Render the error.
+    $response->setFile($path.DIRECTORY_SEPARATOR.$file);
+    $response->render($request['mime']);
 }
 
-// Render the response.
-$response->render($request);
 // Flush the log.
-Logger::flush($request['cfg']['LOGS']['path']);
+Logger::flush($cfg['LOGS']['path']);
 // End the script.
 exit();

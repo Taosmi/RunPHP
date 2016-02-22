@@ -62,7 +62,7 @@ namespace runPHP {
          * @return string  The current locale or an empty string.
          */
         private static function setLocaleFromCookie () {
-            if ($_COOKIE['language']) {
+            if (array_key_exists('language', $_COOKIE)) {
                 return self::set($_COOKIE['language']);
             }
             return '';

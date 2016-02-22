@@ -13,7 +13,7 @@
             <br/>
             <?php _e('Please try again later or contact the administrator.', 'system') ?>
         </h2>
-        <?php if (!empty($error['data'])) { ?>
+        <?php if ($error['data']) { ?>
         <p><?php _e('Details', 'system') ?></p>
         <p>
             <?php foreach ($error['data'] as $key => $value) { ?>

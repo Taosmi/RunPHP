@@ -26,32 +26,39 @@ use runPHP\plugins\RepositoryPDO;
 abstract class ApiController {
 
     /**
-     * @var string  The data validation class name to be used.
+     * @var string  A data validation class name to be used.
      */
     private static $DATAVAL_CLASS = 'runPHP\plugins\DataVal';
 
     /**
-     * @var string  The list of allowed HTML tags.
+     * @var string  A list of allowed HTML tags on input data.
      */
     private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
 
     /**
-     * @var array  The request input data.
+     * @var array  A request input data.
      */
     private $input;
 
     /**
-     * @var array  The request info.
+     * @var array  A request info.
      */
-    public $request;
+    private $request;
+
+    /**
+     * @var array  The repositories configuration
+     */
+    private $repos;
 
 
     /**
      * The controller get a reference to the request information.
      *
-     * @param array  $request  The request information.
+     * @param  array  $repos    The repositories configuration.
+     * @param  array  $request  The request information.
      */
-    public function __construct ($request) {
+    public function __construct ($repos, $request) {
+        $this->repos = $repos;
         $this->request = $request;
         // Get the request input data.
         if ($request['mime'] === 'application/json' && $request['method'] != 'GET') {
@@ -61,23 +68,25 @@ abstract class ApiController {
         }
     }
 
+
     /**
      * This function is derived on four other functions, each one match one
      * of the four HTTP verbs available and must be implemented by the developer.
      *
-     * @return Response      A Response with the output data.
-     * @throws RunException  If the HTTP verb is not available.
+     * @param  array  $params  The parameters when the URL is a backward URL.
+     * @return Response        A Response with the output data.
+     * @throws RunException    If the HTTP verb is not available.
      */
-    public function main () {
+    public function main ($params = array()) {
         switch ($this->request['method']) {
             case 'GET':
-                return $this->get();
+                return $this->get($params);
              case 'PUT':
-                return $this->put();
+                return $this->put($params);
              case 'POST':
-                return $this->post();
+                return $this->post($params);
              case 'DELETE':
-                return $this->delete();
+                return $this->delete($params);
              default:
                 throw new RunException(500, __('The HTTP verb used is not available.'), array(
                     'code' => 'RPP-020',
@@ -91,9 +100,10 @@ abstract class ApiController {
      * override this method with some logic. By default, this method sends a
      * HTTP error code 404 Page not found.
      *
-     * @return Response  A Response with the output data.
+     * @param  array  $params  The parameters.
+     * @return Response        A Response with the output data.
      */
-    public function get () {
+    public function get ($params) {
         return new Response(null, 404);
     }
 
@@ -102,9 +112,10 @@ abstract class ApiController {
      * override this method with some logic. By default, this method sends a
      * HTTP error code 404 Page not found.
      *
-     * @return Response  A Response with the output data.
+     * @param  array  $params  The parameters.
+     * @return Response        A Response with the output data.
      */
-    public function post () {
+    public function post ($params) {
         return new Response(null, 404);
     }
 
@@ -113,9 +124,10 @@ abstract class ApiController {
      * override this method with some logic. By default, this method sends a
      * HTTP error code 404 Page not found.
      *
-     * @return Response  A Response with the output data.
+     * @param  array  $params  The parameters.
+     * @return Response        A Response with the output data.
      */
-    public function put () {
+    public function put ($params) {
         return new Response(null, 404);
     }
 
@@ -124,9 +136,10 @@ abstract class ApiController {
      * override this method with some logic. By default, this method sends a
      * HTTP error code 404 Page not found.
      *
-     * @return Response  A Response with the output data.
+     * @param  array  $params  The parameters.
+     * @return Response        A Response with the output data.
      */
-    public function delete () {
+    public function delete ($params) {
         return new Response(null, 404);
     }
 
@@ -156,15 +169,17 @@ abstract class ApiController {
      */
     public function repository ($className) {
         // Get the connection string.
-        if (!isset($this->request['cfg']['REPOS']['connection'])) {
+        if (!isset($this->repos['connection'])) {
             throw new RunException(500, __('No connection string defined', 'system'), array(
                 'code' => 'RPP-012',
                 'helpLink' => 'http://runphp.taosmi.es/faq/rpp012'
             ));
         }
         // Get the repository parameters from the app.cfg configuration.
-        $connectString = $this->request['cfg']['REPOS']['connection'];
-        $pks = $this->request['cfg']['REPOS'][$className];
+        $connectString = $this->repos['connection'];
+        $pks = array_key_exists($className, $this->repos)
+            ? $this->repos[$className]
+            : null;
         // Get the repository.
         if (class_exists($className.'Repository')) {
             // Get the specific repository.

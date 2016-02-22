@@ -3,8 +3,8 @@
 namespace runPHP;
 
 /**
- * Analyze the request to know which application, API or view is involved to
- * load and run them.
+ * Analyze the request to know which application and controller (API or View) is
+ * involved to load and run it.
  *
  * @author Miguel Angel Garcia
  *
@@ -25,89 +25,121 @@ namespace runPHP;
 class Router {
 
     /**
-     * Get a backward controller iterating throw the dynamic part of the path.
-     * If no controller is available, return null.
+     * Get a controller class.
      *
-     * @param  array   $request  A request information.
-     * @param  string  $root     Static part of the path.
-     * @param  string  $path     Dynamic part of the path.
-     * @return string            A controller path or null.
+     * @param   array   $repos    The repositories configuration.
+     * @param   array   $request  The request information.
+     * @return  object            A controller class.
      */
-    private function getBackwardPath (&$request, $root, $path) {
+    public static function getControllerClass ($repos, $request) {
+        switch ($request['mime']) {
+            // API controller class.
+            case 'application/json': case 'json':
+            case 'application/xml': case 'xml':
+                $class = str_replace('/', '\\', substr($request['ctrl'], strlen(APP) + 1));
+                return new $class($repos, $request);
+            // View controller class (default).
+            case 'text/html': case 'html': default:
+                return new ViewController($request);
+        }
+    }
+
+    /**
+     * Analyze the HTTP request and retrieve the relevant information.
+     *
+     * @return array  The request information.
+     */
+    public static function getRequest () {
+        // Get the URL and the MIME type.
+        $uri = parse_url($_SERVER['REQUEST_URI']);
+        $ext = pathinfo($uri['path'], PATHINFO_EXTENSION);
+        if ($ext) {
+            $mime = $ext;
+            $url = substr($uri['path'], 0, -(strlen($ext) + 1));
+        } else {
+            $mime = array_key_exists('CONTENT_TYPE', $_SERVER)
+                ? current(explode(';', $_SERVER['CONTENT_TYPE']))
+                : current(explode(',', $_SERVER['HTTP_ACCEPT']));
+            $url = $uri['path'];
+        }
+        // Get a controller for this request based on the MIME type.
+        switch ($mime) {
+            // API controller.
+            case 'application/json': case 'json':
+            case 'application/xml': case 'xml':
+                $controller = self::getController(APIS, $url);
+                $params = explode('/', substr(APIS.$url, strlen($controller) + 1));
+                break;
+            // View controller (default).
+            case 'text/html': case 'html': default:
+                $controller = self::getController(VIEWS, $url);
+                $params = explode('/', substr(VIEWS.$url, strlen($controller) + 1));
+        }
+        // Return the request data.
+        return array(
+            'uri' => $uri['path'],
+            'app' => $_SERVER['SERVER_NAME'],
+            'from' => $_SERVER['REMOTE_ADDR'],
+            'url' => $url,
+            'query' => array_key_exists('query', $uri) ? $uri['query'] : '',
+            'method' => $_SERVER['REQUEST_METHOD'],
+            'mime' => $mime,
+            'date' => date('Y-m-d H:i:s'),
+            'ctrl' => $controller,
+            'params' => $params
+        );
+    }
+
+
+    /**
+     * Get a backward class/file name iterating throw the URL hierarchy.
+     * If no class name available, return null.
+     *
+     * @param  string  $root     Static part of an UTL.
+     * @param  string  $path     A URL to iterate throw.
+     * @return string            A class/file name or null.
+     */
+    private static function getBackwardPath ($root, $path) {
         if ($path) {
-            $pathParts = explode('/', substr($path, 1));
-            // Loop throw the dynamic path.
-            $newPath = '';
-            while ($pathParts && (file_exists($root.$newPath.'/'.$pathParts[0].'.php') || is_dir($root.$newPath.'/'.$pathParts[0]))) {
-                $newPath .= '/'.array_shift($pathParts);
+            // Decompose the path into a hierarchy.
+            $pathParts = explode('/', $path);
+            $bwPath = array_shift($pathParts);
+            // Go across the directory hierarchy.
+            while (is_dir($root.$bwPath.DIRECTORY_SEPARATOR.current($pathParts))) {
+                $bwPath.= DIRECTORY_SEPARATOR.array_shift($pathParts);
             }
-            // If a part of the path is valid, set the rest as parameters.
-            if ($newPath && !is_dir($root.$newPath)) {
-                $request['params'] = $pathParts;
-                return $root.$newPath;
+            // Check if the file exist.
+            $file = array_shift($pathParts);
+            if (file_exists($root.$bwPath.DIRECTORY_SEPARATOR.$file.'.php')) {
+                // Return the class/file name.
+                return $root.$bwPath.DIRECTORY_SEPARATOR.$file;
             }
         }
         return null;
     }
 
-
     /**
-     * Get the API name involved with the request. If no API is available,
-     * return null.
+     * Get a controller for the current request. The controller may be an API
+     * controller or a View controller.
      *
-     * @param  array  $request  A request information.
-     * @return string           An API name or null.
+     * @param  string   $ctrlFolder  A folder related with the controller.
+     * @param  string   $url         An URL.
+     * @return string                A controller path or null.
      */
-    public static function getApi (&$request) {
-        // Build the API full class name.
-        $api = APIS.$request['path'].'/'.$request['name'];
-        // Check the API and get the class namespace.
-        if (file_exists($api.'.php')) {
-            return str_replace('/', '\\', substr($api, strlen(APP) + 1));
+    private static function getController ($ctrlFolder, $url) {
+        // Get a controller.
+        $ctrl = '';
+        if (file_exists($ctrlFolder.$url.'.php')) {
+            $ctrl = $ctrlFolder.$url;
+        } else {
+            // If the URL is a folder, try to get an index controller.
+            if (is_dir($ctrlFolder.$url) && file_exists($ctrlFolder.$url.'index.php')) {
+                $ctrl = $ctrlFolder.$url.'index';
+            } else {
+                // If no controller, try to get a backward controller.
+                $ctrl = self::getBackwardPath($ctrlFolder, $url);
+            }
         }
-        // Get a backwards API controller.
-        $api = self::getBackwardPath($request, APIS, $request['path'].'/'.$request['name']);
-        return str_replace('/', '\\', substr($api, strlen(APP) + 1));
+        return $ctrl;
     }
-
-    /**
-     * Analyze the HTTP request and retrieve the relevant request information.
-     *
-     * @return array  The request information.
-     */
-    public static function getRequest () {
-        // Get the relevant request data.
-        $url = pathinfo(str_replace('?'.$_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']));
-        return array(
-            'app' => $_SERVER['SERVER_NAME'],
-            'cfg' => parse_ini_file(WEBAPPS.DIRECTORY_SEPARATOR.$_SERVER['SERVER_NAME'].DIRECTORY_SEPARATOR.'app.cfg', true),
-            'from' => $_SERVER['REMOTE_ADDR'],
-            'method' => $_SERVER['REQUEST_METHOD'],
-            'mime' => strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'])[0])),
-            'url' => $_SERVER['REQUEST_URI'],
-            'path' => $url['dirname'] === '/' ? '' : $url['dirname'],
-            'name' => $url['filename'] ? $url['filename'] : 'index',
-            'format' => $url['extension'],
-            'params' => array()
-        );
-    }
-
-    /**
-     * Get the view name involved with the request. If no view is available,
-     * return null.
-     *
-     * @param  array  $request  A request information.
-     * @return string           A view name or null.
-     */
-    public static function getView (&$request) {
-        // Build the full file name.
-        $file = VIEWS.$request['path'].'/'.$request['name'];
-        // Check the view and get the file name.
-        if (file_exists($file.'.php')) {
-            return $file;
-        }
-        // Get a backwards view file name.
-        return self::getBackwardPath($request, VIEWS, $request['path'].'/'.$request['name']);
-    }
-
 }

@@ -92,22 +92,25 @@ class Logger {
     }
 
     /**
-     * Store the logs to the file.
+     * Store the logs to a file.
      *
-     * @param string  $path  The application log folder.
+     * @param string  $path  An application log folder.
      */
     public static function flush ($path) {
-        // Open the files.
-        $appFilePath = APP.$path.'/log'.date('Y.m.d').'.txt';
-        $appFile = fopen($appFilePath, 'a');
-        // The id that identifies the logs from this request.
-        $id = mt_rand(0, 10000);
-        // Write the log files.
-        foreach (self::$logBuffer as $logItem) {
-            fwrite($appFile, sprintf("%s (%05d) [%s] %7s - %s\n", $logItem['date'], $id, APP, $logItem['level'], $logItem['msg']));
+        // Write log file if the path exist.
+        if (is_dir(APP.$path)) {
+            // Open file.
+            $appFilePath = APP.$path.'/log'.date('Y.m.d').'.txt';
+            $appFile = fopen($appFilePath, 'a');
+            // An ID that identifies all the logs from one request.
+            $id = mt_rand(0, 10000);
+            // Write log file.
+            foreach (self::$logBuffer as $logItem) {
+                fwrite($appFile, sprintf("%s (%05d) [%s] %7s - %s\n", $logItem['date'], $id, APP, $logItem['level'], $logItem['msg']));
+            }
+            // Close file.
+            fclose($appFile);
         }
-        // Close the file.
-        fclose($appFile);
     }
 
     /**

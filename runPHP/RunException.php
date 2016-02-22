@@ -3,9 +3,9 @@
 namespace runPHP;
 
 /**
- * This class implements an extended version of an Exception with additional
- * data as an array that will be available when handling the error. It is also
- * possible to assign an HTTP status code to be used at the response.
+ * An extended version of an Exception with additional data as an array that
+ * will be available when handling an error. It also assigns an HTTP status
+ * code to be used at the response.
  *
  * @author Miguel Angel Garcia
  *
@@ -25,10 +25,6 @@ namespace runPHP;
  */
 class RunException extends \Exception {
 
-    /**
-     * @var string  An error message.
-     */
-    public $msg;
 
     /**
      * @var array  Additional error information.
@@ -41,7 +37,13 @@ class RunException extends \Exception {
     public $httpStatus;
 
     /**
-     * Initialize a new error exception. The error exception may have a HTTP
+     * @var string  An error message.
+     */
+    public $msg;
+
+
+    /**
+     * Initialize a new error exception. The error exception may have an HTTP
      * status code and an error message. Additional information is optional.
      *
      * @param int     $httpStatus  The HTTP status code.

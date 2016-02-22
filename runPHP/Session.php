@@ -2,12 +2,8 @@
 
 namespace runPHP;
 
-session_name('rid');
-session_start();
-
 /**
- * This class implements the functionality to manage user authentication and
- * session data storage.
+ * Manage user authentication and session data storage.
  *
  * @author Miguel Angel Garcia
  *
@@ -28,8 +24,8 @@ session_start();
 class Session {
 
     /**
-     * Authorize the current session and store authorization data. It will
-     * replace the previous one if any and will regenerate the session Id.
+     * Authorize the current user. Any previous session data will be erased.
+     * The session ID will be regenerated.
      */
     public static function authorize () {
         // Erase previous session data and regenerate the session ID.
@@ -40,34 +36,47 @@ class Session {
     }
 
    /**
-     * Get the data of the current session with the provided key. If there is
-     * no authorized session or the key does not exist, return null.
+     * Get the data for a key on the current session. If there is no session
+     * data or the key does not exist, return null.
      * 
      * @param  string  $key  A key name.
      * @return array         The session data requested or null.
      */
     public static function get ($key) {
-        return $_SESSION[$key];
+        return self::isAuthorized() ? $_SESSION[$key] : null;
     }
 
     /**
-     * Check if the user is authorized.
+     * Get all the session data. If no session is available return null.
+     *
+     * @return array  All the session data or null.
+     */
+    public static function getAll () {
+        return self::isAuthorized() ? $_SESSION : null;
+    }
+
+    /**
+     * Check if the current user has an authorized session.
      *
      * @return boolean  True if the user is authorized, otherwise false.
      */
     public static function isAuthorized () {
-        session_regenerate_id(true);
-        return ($_SESSION['fingerprint'] === self::getFingerPrint());
+        if (array_key_exists('fingerprint', $_SESSION)) {
+            return ($_SESSION['fingerprint'] === self::getFingerPrint());
+        }
+        return false;
     }
 
     /**
-     * Set a key value pair to the session.
+     * Set a key value pair on the session data.
      * 
      * @param string  $key    A key name to set on the session.
      * @param object  $value  The corresponding value.
      */
     public static function set ($key, $value) {
-        $_SESSION[$key] = $value;
+        if (self::isAuthorized()) {
+            $_SESSION[$key] = $value;
+        }
     }
 
     /**
@@ -80,10 +89,11 @@ class Session {
             $ckData = session_get_cookie_params();
             setcookie(session_name(), '', -1, $ckData['path'], $ckData['domain'], $ckData['secure'], $ckData['httponly']);
         }
-        // Erase the session and session data.
+        // Erase the session and the session data.
         $_SESSION = array();
         session_destroy();
     }
+
 
     /**
      * Retrieve the finger print for the current user.

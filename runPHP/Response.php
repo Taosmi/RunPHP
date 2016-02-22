@@ -30,6 +30,11 @@ class Response {
     private $data;
 
     /**
+     * @var string  An HTML file to render.
+     */
+    private $file;
+
+    /**
      * @var int  An HTTP status code.
      */
     private $statusCode;
@@ -38,8 +43,8 @@ class Response {
     /**
      * Initialize the response.
      *
-     * @param array    $vars      A collection of variables (optional).
-     * @param integer  $httpCode  The http response code (default value 200).
+     * @param array    $vars      A collection of variables (optional: default null).
+     * @param integer  $httpCode  The http response code (optional: default 200).
      */
     public function __construct ($vars = null, $httpCode = 200) {
         $this->data = $vars;
@@ -48,48 +53,49 @@ class Response {
 
 
     /**
-     * Render the response.
+     * Display a pattern from inside a view. Very useful to separate common
+     * visual segments (headers, footer, etc.) into independent files.
      *
-     * @param array  $request  The request information.
+     * @param string  $pattern  A name of the pattern.
+     * @param array   $data     The data that may be used inside the pattern.
      */
-    public function render ($request) {
-        // Get the format from the request.
-        $format = $request['format'];
-        // Get the format from the header.
-        if (!$format) {
-            $format = $request['mime'];
+    public function pattern ($pattern, $data = array()) {
+        // Check if the template file exist.
+        $patternFile = VIEWS_PATTERNS.$pattern.'.php';
+        if (!file_exists($patternFile)) {
+            _e('The HTML pattern does not exist.', 'system');
+            echo '('.$pattern.')';
+        } else {
+            // Include the template file.
+            extract(array_merge($this->data, $data));
+            include($patternFile);
         }
+    }
+
+    /**
+     * Render a response based on the request MIME type.
+     *
+     * @param string  $format  A MIME type of the response.
+     */
+    public function render ($format) {
         // Render the response.
         switch ($format) {
         case 'application/json': case 'json':
-            Logger::sys(__('Rendering JSON view.', 'system'));
-            // Set the console information.
-            if (CONSOLE) {
-                $this->data['_console'] = Logger::getLog();
-            }
             // Render the data structure as JSON by default.
+            Logger::sys(__('Rendering JSON response.', 'system'));
+            $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
             $this->renderJSON();
             break;
         case 'application/xml': case 'xml':
-            Logger::sys(__('Rendering XML.', 'system'));
-            // Set the console information.
-            if (CONSOLE) {
-                $this->data['_console'] = Logger::getLog();
-            }
             // Render the data structure as XML.
+            Logger::sys(__('Rendering XML response.', 'system'));
+            $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
             $this->renderXML();
             break;
-        default:
+        case 'text/html':case 'html': default:
             // Render the response as HTML.
-            Logger::sys(__('Rendering HTML view.', 'system'));
-            if ($this->isError()) {
-                // Set the application specific HTML error or the framework HTML error.
-                $file = file_exists(VIEWS_ERRORS.'/error.php') ? VIEWS_ERRORS.'/error' : SYS.'/html/error';
-            } else {
-                $file = Router::getView($request);
-                $this->data['params'] = $request['params'];
-            }
-            $this->renderHTML($file);
+            Logger::sys(__('Rendering HTML View.', 'system'));
+            $this->renderHTML();
         }
     }
 
@@ -104,66 +110,26 @@ class Response {
     }
 
     /**
-     * Display a pattern from inside a view. Very useful to separate common
-     * visual segments (headers, footer, etc.) into independent files.
+     * Set a file as HTML response.
      *
-     * @param string  $pattern  The name of the pattern.
-     * @param array   $data     Data that can be used inside the pattern.
+     * @param string  $file  A file with HTML code.
      */
-    public function pattern ($pattern, $data = null) {
-        // Check if the template content exists.
-        $patternFile = VIEWS_PATTERNS.$pattern.'.php';
-        if (!file_exists($patternFile)) {
-            _e('The HTML pattern does not exist.', 'system');
-            echo '('.$pattern.')';
-        } else {
-            // Include the template file.
-            extract($data);
-            require($patternFile);
-        }
+    public function setFile ($file) {
+        $this->file = $file.'.php';
     }
 
-
-    /**
-     * If there is an HTTP error code, return true otherwise return false.
-     * The HTTP error codes are in the range from 400 to 600.
-     *
-     * @return bool  True if there is an HTTP error code. False otherwise.
-     */
-    private function isError () {
-        return ($this->statusCode > 399 and $this->statusCode < 600);
-    }
 
     /**
      * Render the HTML view to the output system. If the view does not exist or
      * an exception is raised, then render the error page.
-     *
-     * @param  string  $file  The view file.
      */
-    private function renderHTML ($file) {
-        // Set the application HTML error view, if the view does not exist.
-        if (!file_exists($file.'.php')) {
-            // Set the error info.
-            $this->statusCode = 404;
-            $this->data = array(
-                'error' => array(
-                    'msg' => __('The view does not exist.', 'system'),
-                    'data' => array(
-                        'code' => 'RPP-021',
-                        'file' => $file
-                    ),
-                    'helpLink' => 'http://runphp.taosmi.es/faq/rpp021'
-                )
-            );
-            // Set the application HTML view.
-            $file = file_exists(VIEWS_ERRORS.'/notFoundError.php') ? VIEWS_ERRORS.'/notFoundError' : SYS.'/html/notFoundError';
-        }
+    private function renderHTML () {
         // Set the HTTP status code.
         header('HTTP/1.1 '.$this->statusCode);
         header('Content-Type: text/html');
         // Extract the data and include the view file.
         extract($this->data);
-        include($file.'.php');
+        include($this->file);
         // Show the HTML console.
         if (CONSOLE) {
             require(SYS.'/html/console.php');

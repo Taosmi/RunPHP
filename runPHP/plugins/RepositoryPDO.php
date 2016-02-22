@@ -1,267 +1,354 @@
 <?php
 
-namespace runPHP\plugins;
-use runPHP\IRepository, runPHP\RunException, runPHP\Logger;
-use PDO, PDOException;
+namespace runPHP\plugins {
 
-/**
- * This class implements the repository interface with PDO technology.
- *
- * @author Miguel Angel Garcia
- *
- * Copyright 2014 TAOSMI Technology
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-class RepositoryPDO implements IRepository {
+    use runPHP\IRepository, runPHP\RunException, runPHP\Logger;
+    use PDO, PDOException;
 
     /**
-     * @var string  The PDO object.
+     * This class implements a repository interface with PDO technology.
+     *
+     * @author Miguel Angel Garcia
+     *
+     * Copyright 2014 TAOSMI Technology
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     * http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
      */
-    private $pdo;
+    class RepositoryPDO implements IRepository {
 
-    /**
-     * @var string  The DB table.
-     */
-    private $table;
+        /**
+         * @var string  A PDO object.
+         */
+        private $pdo;
 
-    /**
-     * @var array  The table primary keys.
-     */
-    private $keys;
+        /**
+         * @var string  A DB table.
+         */
+        private $table;
 
-    /**
-     * @var string  The fields to retrieve when querying.
-     */
-    private $fields;
+        /**
+         * @var array  The table primary keys.
+         */
+        private $keys;
 
-    /**
-     * @var string  The full class name to cast from the DB results.
-     */
-    private $objectName;
+        /**
+         * @var string  The fields to retrieve when querying.
+         */
+        private $fields = '*';
+
+        /**
+         * @var string  A full class name to cast from the DB results.
+         */
+        private $object;
 
 
-    public function __construct ($connection, $objectName, $pks = null) {
-        try {
-            // Get the DB parameters.
-            list($resource, $user, $pwd) = explode(',', $connection);
-            // Get the PDO resource.
-            $start = microtime(true);
-            $this->pdo = new PDO($resource, $user, $pwd);
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            Logger::repo('Connecting to the DDBB ('.$resource.')', $start);
-            $this->query('SET NAMES utf8');
-            // Set the repository configuration.
-            $this->objectName = $objectName;
-            $this->table = substr($objectName, strrpos($objectName, '\\') + 1);
-            // Set the primary keys.
-            if ($pks) {
-                // Get primary keys from argument.
-                $this->keys = explode(',', $pks);
-            } else {
-                // Get primary keys querying the DB.
-                $pksResult = $this->query('SHOW KEYS FROM '.$this->table);
-                $pksResult->setFetchMode(PDO::FETCH_COLUMN, 4);
-                $this->keys = $pksResult->fetchAll();
+        public function __construct($dsn, $object, $pks = null) {
+            try {
+                // Get the DSN connection parameters.
+                list($resource, $user, $pwd) = explode(',', $dsn);
+                // Get the PDO resource.
+                $start = microtime(true);
+                $this->pdo = new PDO($resource, $user, $pwd);
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                Logger::repo('Connecting to the DDBB (' . $resource . ')', $start);
+                // Set the repository configuration.
+                $this->query('SET NAMES utf8');
+                $this->object = $object;
+                $this->table = substr($object, strrpos($object, '\\') + 1);
+                // Set the primary keys.
+                if ($pks) {
+                    // Get primary keys from argument.
+                    $this->keys = explode(',', $pks);
+                } else {
+                    // Get primary keys querying the DB of the table.
+                    $pksResult = $this->query('SHOW KEYS FROM ' . $this->table);
+                    $pksResult->setFetchMode(PDO::FETCH_COLUMN, 4);
+                    $this->keys = $pksResult->fetchAll();
+                }
+            } catch (PDOException $e) {
+                throw new RunException(500, __('The connection to the persistence has failed.', 'system'), array(
+                    'code' => 'RPDO-01',
+                    'error' => $e->getMessage(),
+                    'resource' => $resource,
+                    'table' => $this->table,
+                    'keys' => $this->keys,
+                    'helpLink' => 'http://runphp.taosmi.es/faq/rpdo01'
+                ));
             }
-        } catch (PDOException $e) {
-            throw new RunException(500, __('The connection to the persistence has failed.', 'system'), array(
-                'code' => 'RPDO-01',
-                'error' => $e->getMessage(),
-                'resource' => $resource,
-                'table' => $this->table,
-                'keys' => $this->keys,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo01'
-            ));
         }
-    }
 
 
-    public function add ($item) {
-        // Get the object keys.
-        $objData = get_object_vars($item);
-        $keys = array_keys($objData);
-        // Query time.
-        $sql = 'INSERT INTO '.$this->table.' ('.implode(',', $keys).') VALUES (:'.implode(',:', $keys).')';
-        $this->query($sql, $objData);
-        // Return the item with the primary key if single.
-        if (count($this->keys) === 1) {
-            $pk = current($this->keys);
-            $item->$pk = $this->pdo->lastInsertId();
-        }
-        return $item;
-    }
-
-    public function find ($options = null) {
-        // Get the fields to retrieve.
-        $fields = $this->fields ? $this->fields : '*';
-        // Query time.
-        $sql = 'SELECT '.$fields.' FROM '.$this->table.$this->parseOptions($options);
-        $statement = $this->query($sql);
-        // Fetch the result.
-        if ($this->objectName) {
-            $statement->setFetchMode(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, $this->objectName);
-        } else {
-            $statement->setFetchMode(PDO::FETCH_ASSOC);
-        }
-        return $statement->fetchAll();
-    }
-
-    public function from ($resource) {
-        $this->table = $resource;
-    }
-
-    public function modify ($item, $options = null, $pkFilter = true) {
-        // Add the primary keys to the query condition.
-        if ($pkFilter) {
-            $pksRule = $this->getKeysCondition($item);
-            $options['condition'].= $options['condition'] ? ' and '.$pksRule : $pksRule;
-        }
-        // Update query.
-        $sql = 'UPDATE '.$this->table.' SET '.$this->toQuery($item, $this->fields).' '.$this->parseOptions($options);
-        $statement = $this->query($sql);
-        // Return the number of items updated.
-        return $statement->rowCount();
-    }
-
-    public function query ($query, $data = null) {
-        try {
-            // Process the query.
-            if ($data) {
-                $qStart = microtime(true);
-                $statement = $this->pdo->prepare($query);
-                $statement->execute($data);
-                Logger::repo($query, $qStart);
-            } else {
-                $qStart = microtime(true);
-                $statement = $this->pdo->query($query);
-                Logger::repo($query, $qStart);
+        public function add($item) {
+            // Get the item properties.
+            $objData = get_object_vars($item);
+            $keys = array_keys($objData);
+            // Query time.
+            $sql = 'INSERT INTO ' . $this->table . ' (' . implode(',', $keys) . ') VALUES (:' . implode(',:', $keys) . ')';
+            $this->query($sql, $objData);
+            // Update the item primary key if single before returning it.
+            if (count($this->keys) === 1) {
+                $pk = current($this->keys);
+                $item->$pk = $this->pdo->lastInsertId();
             }
-            return $statement;
-        } catch (PDOException $e) {
-            throw new RunException(500, __('The query to the persistence has failed.', 'system'), array(
-                'code' => 'RPDO-02',
-                'error' => $e->getMessage(),
-                'query' => $query,
-                'helpLink' => 'http://runphp.taosmi.es/faq/rpdo02'
-            ));
+            return $item;
         }
-    }
 
-    public function remove ($item) {
-        // Set the primary key option.
-        $options = array(
-            'condition' => $this->getKeysCondition($item)
-        );
-        // Delete query.
-        $sql = 'DELETE FROM '.$this->table.$this->parseOptions($options);
-        $statement = $this->query($sql);
-        // Return the number of items deleted.
-        return $statement->rowCount();
-    }
-
-    public function select ($fields) {
-        $this->fields = $fields;
-        return $this;
-    }
-
-    public function to ($objectName, $pks = null) {
-        $this->objectName = $objectName;
-        if ($pks) {
-            $this->keys = explode(',', $pks);
+        public function find($filter = null, $orderBy = null) {
+            // Set a basic select query and transform a filter criteria into SQL.
+            $sql = 'SELECT ' . $this->fields . ' FROM ' . $this->table;
+            if ($filter) {
+                $sql .= ' WHERE '.$this->getFilterSQL($filter);
+            }
+            if ($orderBy) {
+                $sql .= ' ORDER BY ' . $orderBy;
+            }
+            // Query and fetch the result.
+            $statement = $this->query($sql);
+            if ($this->object) {
+                // Fetch the results as objects if it was previously set.
+                $statement->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, $this->object);
+            } else {
+                // Fetch the results as arrays.
+                $statement->setFetchMode(PDO::FETCH_ASSOC);
+            }
+            // Reset the fields.
+            $this->fields = '*';
+            // Return the query results.
+            return $statement->fetchAll();
         }
-    }
 
-    public function beginTransaction () {
-        $this->pdo->beginTransaction();
-    }
-
-    public function commit () {
-        $this->pdo->commit();
-    }
-
-    public function rollback () {
-        $this->pdo->rollBack();
-    }
-
-
-    /**
-     * Get a query condition with the primary keys and values for an item.
-     *
-     * @param  object  $item  An item with the primary keys values.
-     * @return string         The primary keys condition for this item.
-     */
-    private function getKeysCondition ($item) {
-        $condition = [];
-        foreach ($this->keys as $key) {
-            $condition[] = $key.'=\''.$item->$key.'\'';
+        public function findOne($filter = null, $orderBy = null) {
+            return current($this->find($filter, $orderBy));
         }
-        return implode(' and ', $condition);
-    }
 
-    /**
-     * Transform the options array into a string that can be delivered to the DB.
-     * If no options, return an empty string.
-     *
-     * @param  array  $options  The options (optional).
-     * @return string           The options condition.
-     */
-    private function parseOptions ($options = null) {
-        $sql = '';
-        if (!$options) {
-            return $sql;
+        public function from($resource) {
+            $this->table = $resource;
+            return $this;
         }
-        if (isset($options['condition'])) {
-            $sql.= ' WHERE '.$options['condition'];
-        }
-        if (isset($options['groupBy'])) {
-            $sql.= ' GROUP BY '.$options['groupBy'];
-        }
-        if (isset($options['orderBy'])) {
-            $sql.= ' ORDER BY '.$options['orderBy'];
-        }
-        if (isset($options['limit'])) {
-            $limit = $options['limit'];
-            $offset = isset($options['offset']) ? $options['offset'] : '0';
-            $sql.= ' LIMIT '.$offset.','.$limit;
-        }
-        return $sql;
-    }
 
-    /**
-     * Transform an object or an associative array into a separated by comma
-     * key - value pairs string. By default, the pair of values will be joined
-     * by comma. It is also possible to specify the fields that would be
-     * affected by the process.
-     * Example:
-     *      Source: array(key => value, key => value);
-     *      Result: key='value',key='value'
-     *
-     * @param  object  $item    A item with public data.
-     * @param  string  $fields  The affected fields separated by comma (optional).
-     * @param  string  $join    The character in between pair of values (optional).
-     * @return string           A separated by comma key - value pairs string.
-     */
-    private function toQuery ($item, $fields = null, $join = ',') {
-        $query = '';
-        // Apply the filter criteria if specified.
-        $keys = $fields
+        public function modify($item, $filter = array(), $pkFilter = true) {
+            // Set a basic update query.
+            $sql = 'UPDATE ' . $this->table . ' SET ' . $this->toQuery($item, $this->fields);
+            // Add the primary keys filter criteria.
+            if ($pkFilter) {
+                $filter = array_merge($filter, $this->getKeysFilter($item));
+            }
+            // Transform the filter criteria into SQL.
+            if ($filter) {
+                $sql .= ' WHERE '.$this->getFilterSQL($filter);
+            }
+            // Query time.
+            $statement = $this->query($sql);
+            // Reset the fields.
+            $this->fields = '*';
+            // Return the number of items updated.
+            return $statement->rowCount();
+        }
+
+        public function query($query, $data = null) {
+            try {
+                if ($data) {
+                    // If data, use a prepare - execute query.
+                    $qStart = microtime(true);
+                    $statement = $this->pdo->prepare($query);
+                    $statement->execute($data);
+                    Logger::repo($query, $qStart);
+                } else {
+                    // If no data, run a standard query.
+                    $qStart = microtime(true);
+                    $statement = $this->pdo->query($query);
+                    Logger::repo($query, $qStart);
+                }
+                return $statement;
+            } catch (PDOException $e) {
+                throw new RunException(500, __('The query to the persistence has failed.', 'system'), array(
+                    'code' => 'RPDO-02',
+                    'error' => $e->getMessage(),
+                    'query' => $query,
+                    'helpLink' => 'http://runphp.taosmi.es/faq/rpdo02'
+                ));
+            }
+        }
+
+        public function remove($item, $filter = array(), $pkFilter = true) {
+            // Set a delete query.
+            $sql = 'DELETE FROM ' . $this->table;
+            // Add the primary keys filter criteria.
+            if ($pkFilter) {
+                $filter = array_merge($filter, $this->getKeysFilter($item));
+            }
+            // Transform the filter criteria into SQL.
+            if ($filter) {
+                $sql .= ' WHERE '.$this->getFilterSQL($filter);
+            }
+            // Query time.
+            $statement = $this->query($sql);
+            // Return the number of items deleted.
+            return $statement->rowCount();
+        }
+
+        public function select($fields) {
+            $this->fields = $fields;
+            return $this;
+        }
+
+        public function to($object, $pks = null) {
+            $this->object = $object;
+            $this->keys = $pks ? explode(',', $pks) : null;
+            return $this;
+        }
+
+        public function beginTransaction() {
+            $this->pdo->beginTransaction();
+        }
+
+        public function commit() {
+            $this->pdo->commit();
+        }
+
+        public function rollback() {
+            $this->pdo->rollBack();
+        }
+
+        private function getFilterSQL($filter, $join = ' AND ') {
+            if (!$filter) {
+                return '';
+            }
+            $sql = array();
+            while (list($key, $value) = each($filter)) {
+                switch ($key) {
+                    case 'and':
+                        $sql[] = $this->getFilterSQL($value);
+                        break;
+                    case 'or':
+                        $sql[] = '('.$this->getFilterSQL($value, ' OR ').')';
+                        break;
+                    default:
+                        $sql[] = $key . $value;
+                }
+            }
+            return implode($join, $sql);
+        }
+
+        /**
+         * Get a query filter criteria with the primary keys and values for an item.
+         *
+         * @param  object $item An item with the primary keys values.
+         * @return array          The primary keys filter criteria.
+         */
+        private function getKeysFilter($item) {
+            $filter = array();
+            foreach ($this->keys as $key) {
+                $filter[$key] = eq($item->$key);
+            }
+            return $filter;
+        }
+
+        /**
+         * Transform an object (public variables) or an associative array into a
+         * string with key - value pairs. By default, the pair of values will be
+         * joined by comma. It is also possible to specify the fields affected by
+         * the process.
+         *
+         * @param  object $item An item with public data.
+         * @param  string $fields The affected fields (optional: all by default).
+         * @param  string $join The character in between pair of values (optional: comma by default).
+         * @return string           A string with key - value pairs.
+         */
+        private function toQuery($item, $fields = null, $join = ',') {
+            $query = '';
+            // Get the keys. Apply the filter criteria if specified.
+            $keys = $fields
                 ? array_intersect(explode(',', $fields), array_keys(get_object_vars($item)))
                 : array_keys(get_object_vars($item));
-        // Create the key - value pair string.
-        foreach ($keys as $key) {
-            $query.= $key.'=\''.$item->$key.'\''.$join;
+            // Create the key - value pair string.
+            foreach ($keys as $key) {
+                $query .= $key . '=\'' . $item->$key . '\'' . $join;
+            }
+            return rtrim($query, $join);
         }
-        return rtrim($query, $join);
+    }
+}
+
+namespace {
+
+    /**
+     * Return an equal SQL condition.
+     *
+     * @param  string  $value  A value to be equal.
+     * @return string          An equal condition.
+     */
+    function eq ($value) {
+        return '=\''.$value.'\'';
+    }
+
+    /**
+     * Return a not equal SQL condition.
+     *
+     * @param  string  $value  A value to compare.
+     * @return string          A not equal condition.
+     */
+    function ne ($value) {
+        return '!=\''.$value.'\'';
+    }
+
+    /**
+     * Return a greater than SQL condition.
+     *
+     * @param  number  $value  A value to compare.
+     * @return string          A greater than condition.
+     */
+    function gt ($value) {
+        return '> '.$value;
+    }
+
+    /**
+     * Return a lower than SQL condition.
+     *
+     * @param  number  $value  A value to compare.
+     * @return string          A lower than condition.
+     */
+    function lt ($value) {
+        return '< '.$value;
+    }
+
+    /**
+     * Return a greater or equal SQL condition.
+     *
+     * @param  number  $value  A value to compare.
+     * @return string          A greater or equal condition.
+     */
+    function ge ($value) {
+        return '>= '.$value;
+    }
+
+    /**
+     * Return a lower or equal SQL condition.
+     *
+     * @param  string  $value  A value to compare.
+     * @return string          A lower or equal condition.
+     */
+    function le ($value) {
+        return '<= '.$value;
+    }
+
+    /**
+     * Return a string like SQL condition
+     *
+     * @param  string  $value  A value to compare.
+     * @return string          A string like condition.
+     */
+    function like ($value) {
+        return ' like \''.$value.'\'';
     }
 }
