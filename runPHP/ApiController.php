@@ -80,12 +80,16 @@ abstract class ApiController {
     public function main ($params = array()) {
         switch ($this->request['method']) {
             case 'GET':
+                Logger::sys('Running an API GET method.');
                 return $this->get($params);
              case 'PUT':
+                 Logger::sys('Running an API PUT method.');
                 return $this->put($params);
              case 'POST':
+                 Logger::sys('Running an API POST method.');
                 return $this->post($params);
              case 'DELETE':
+                 Logger::sys('Running an API DELETE method.');
                 return $this->delete($params);
              default:
                 throw new RunException(500, __('The HTTP verb used is not available.'), array(
@@ -158,6 +162,24 @@ abstract class ApiController {
         }
         // If no input data, return null.
         return null;
+    }
+
+    /**
+     * Set a redirect header to the HTTP response so the browser could do a
+     * redirect.
+     *
+     * @param  string  $url     URL to redirect.
+     * @param  array   $params  Variables that would be appended as query string.
+     */
+    public function redirect ($url, $params = null) {
+        // Get the query string from the parameters.
+        if ($params) {
+            $url.= '?'.http_build_query($params);
+        }
+        // Set the HTML redirection headers.
+        header('HTTP/1.1 302 found');
+        header('Location: '.$url);
+        exit();
     }
 
     /**
