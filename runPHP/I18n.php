@@ -76,14 +76,17 @@ namespace runPHP {
          * @return string  The current locale or an empty string.
          */
         private static function setLocaleFromHTTP () {
-            // Parse the HTTP ACCEPT LANGUAGE header.
-            $format = '/([^;,]+)[^,]*/';
-            $result = preg_match_all($format, $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang);
-            // Set the main locale.
-            if ($result) {
-                $locale = explode('-', current($lang[1]));
-                $locale = $locale[0].'_'.strtoupper($locale[1]);
-                return self::set($locale);
+            // Check if the HTTP ACCEPT LANGUAGE header is set.
+            if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+                // Parse the HTTP ACCEPT LANGUAGE header.
+                $format = '/([^;,]+)[^,]*/';
+                $result = preg_match_all($format, $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang);
+                // Set the main locale.
+                if ($result) {
+                    $locale = explode('-', current($lang[1]));
+                    $locale = $locale[0] . '_' . strtoupper($locale[1]);
+                    return self::set($locale);
+                }
             }
             return '';
         }
