@@ -3,7 +3,7 @@
 <head>
     <title><?php _e('Page not found', 'system') ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link type="text/css" rel="stylesheet" href="runPHP/static/error.css"/>
+    <link type="text/css" rel="stylesheet" href="runPHP/statics/error.css"/>
 </head>
 <body>
     <div class="error">

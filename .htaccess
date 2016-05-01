@@ -7,11 +7,11 @@ RewriteEngine On
 RewriteBase /
 
 # Let the runPHP static content pass through.
-RewriteCond %{REQUEST_URI} ^/runPHP/static/
+RewriteCond %{REQUEST_URI} ^/runPHP/statics/
 RewriteRule ^ - [L]
 
 # Let the apps static content pass through.
-RewriteCond %{REQUEST_URI} ^/webapps/.*/static/
+RewriteCond %{REQUEST_URI} ^/webapps/.*/statics/
 RewriteRule ^ - [L]
 
 # Dodge trailing slashes.
