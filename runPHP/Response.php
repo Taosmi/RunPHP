@@ -118,6 +118,25 @@ class Response {
         $this->file = $file.'.php';
     }
 
+    /**
+     * Set a 302 header to the HTTP response so the browser could do a
+     * redirect to the URL specified.
+     *
+     * @param  string  $url     URL to redirect.
+     * @param  array   $params  Variables that would be appended as query string.
+     * @return Response         Return this response.
+     */
+    public function setRedirect($url, $params = null) {
+        // Get the query string from the parameters.
+        if ($params) {
+            $url.= '?'.http_build_query($params);
+        }
+        // Set the HTML redirection headers.
+        header('HTTP/1.1 302 found');
+        header('Location: '.$url);
+        // Return this response.
+        return $this;
+    }
 
     /**
      * Render the HTML view to the output system. If the view does not exist or
