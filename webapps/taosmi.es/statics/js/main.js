@@ -2,7 +2,7 @@
 $.ajax({
     type: "GET",
     url: "/v1/saying",
-    dataType: "json"
+    contentType: "application/json"
 }).done(function(data) {
     $('#quote').text('"' + data.saying.quote + '"');
     $('#author').text(data.saying.author);
