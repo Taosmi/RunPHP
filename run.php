@@ -68,7 +68,8 @@ try {
 
     // Get the request information.
     $request = Router::getRequest();
-    Logger::sys(__('Request from %s to "%s%s".', 'system'), $request['from'], $request['app'], $request['url']);
+    Logger::sys(__('Request from "%s" to "%s%s", MIME type:"%s".', 'system'), $request['from'], $request['app'], $request['url'], $request['mime']);
+    Logger::sys(__('Loading "%s" controller.', 'system'), $request['ctrl']);
     // If no request available, return a 404 error page.
     if (!$request['ctrl']) {
         throw new RunException(404, __('The page does not exist.', 'system'), array(
