@@ -2,7 +2,7 @@
 
 namespace apis\v1;
 use runPHP\ApiController, runPHP\Response;
-use domain\Saying;
+use domain\Saying as oSaying;
 
 /**
  * The saying API.
