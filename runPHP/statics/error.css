@@ -1,17 +1,17 @@
 
 @font-face {
     font-family: 'SegoeUINormal';
-    src: url('/runPHP/static/fonts/segoe-ui-72888-webfont.eot');
-    src: url('/runPHP/static/fonts/segoe-ui-72888-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/runPHP/static/fonts/segoe-ui-72888-webfont.woff') format('woff'),
-         url('/runPHP/static/fonts/segoe-ui-72888-webfont.ttf') format('truetype'),
-         url('/runPHP/static/fonts/segoe-ui-72888-webfont.svg#SegoeUINormal') format('svg');
+    src: url('/runPHP/statics/fonts/segoe-ui-72888-webfont.eot');
+    src: url('/runPHP/statics/fonts/segoe-ui-72888-webfont.eot?#iefix') format('embedded-opentype'),
+         url('/runPHP/statics/fonts/segoe-ui-72888-webfont.woff') format('woff'),
+         url('/runPHP/statics/fonts/segoe-ui-72888-webfont.ttf') format('truetype'),
+         url('/runPHP/statics/fonts/segoe-ui-72888-webfont.svg#SegoeUINormal') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 .error {
-    background: url('/runPHP/static/error.png') no-repeat;
+    background: url('/runPHP/statics/error.png') no-repeat;
     color: #999;
     font-family: SegoeUINormal;
     font-weight: lighter;
