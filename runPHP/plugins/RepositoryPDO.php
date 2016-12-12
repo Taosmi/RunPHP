@@ -51,8 +51,13 @@ namespace runPHP\plugins {
          */
         private $object;
 
+        /**
+         * @var number  A maximum number of items to get from the repository.
+         */
+        private $limit, $offset;
 
-        public function __construct($dsn, $object, $pks = null) {
+
+        public function __construct ($dsn, $object, $pks = null) {
             try {
                 // Get the DSN connection parameters.
                 list($resource, $user, $pwd) = explode(',', $dsn);
@@ -88,7 +93,7 @@ namespace runPHP\plugins {
         }
 
 
-        public function add($item) {
+        public function add ($item) {
             // Get the item properties.
             $objData = get_object_vars($item);
             $keys = array_keys($objData);
@@ -96,21 +101,29 @@ namespace runPHP\plugins {
             $sql = 'INSERT INTO ' . $this->table . ' (' . implode(',', $keys) . ') VALUES (:' . implode(',:', $keys) . ')';
             $this->query($sql, $objData);
             // Update the item primary key if single before returning it.
+/*
             if (count($this->keys) === 1) {
                 $pk = current($this->keys);
                 $item->$pk = $this->pdo->lastInsertId();
             }
+*/
             return $item;
         }
 
-        public function find($filter = null, $orderBy = null) {
-            // Set a basic select query and transform a filter criteria into SQL.
+        public function find ($filter = null, $orderBy = null) {
+            // Set a basic SQL select query from a filter criteria.
             $sql = 'SELECT ' . $this->fields . ' FROM ' . $this->table;
             if ($filter) {
                 $sql .= ' WHERE '.$this->getFilterSQL($filter);
             }
             if ($orderBy) {
                 $sql .= ' ORDER BY ' . $orderBy;
+            }
+            if ($this->limit) {
+                $sql .= ' LIMIT '.$this->limit;
+            }
+            if ($this->offset) {
+                $sql .= ' OFFSET '.$this->offset;
             }
             // Query and fetch the result.
             $statement = $this->query($sql);
@@ -127,16 +140,16 @@ namespace runPHP\plugins {
             return $statement->fetchAll();
         }
 
-        public function findOne($filter = null, $orderBy = null) {
+        public function findOne ($filter = null, $orderBy = null) {
             return current($this->find($filter, $orderBy));
         }
 
-        public function from($resource) {
+        public function from ($resource) {
             $this->table = $resource;
             return $this;
         }
 
-        public function modify($item, $filter = array(), $pkFilter = true) {
+        public function modify ($item, $filter = array(), $pkFilter = true) {
             // Set a basic update query.
             $sql = 'UPDATE ' . $this->table . ' SET ' . $this->toQuery($item, $this->fields);
             // Add the primary keys filter criteria.
@@ -155,7 +168,12 @@ namespace runPHP\plugins {
             return $statement->rowCount();
         }
 
-        public function query($query, $data = null) {
+        public function paginate ($limit, $offset = null) {
+            $this->limit = $limit;
+            $this->offset = $offset;
+        }
+
+        public function query ($query, $data = null) {
             try {
                 if ($data) {
                     // If data, use a prepare - execute query.
@@ -180,7 +198,7 @@ namespace runPHP\plugins {
             }
         }
 
-        public function remove($item, $filter = array(), $pkFilter = true) {
+        public function remove ($item, $filter = array(), $pkFilter = true) {
             // Set a delete query.
             $sql = 'DELETE FROM ' . $this->table;
             // Add the primary keys filter criteria.
@@ -197,30 +215,30 @@ namespace runPHP\plugins {
             return $statement->rowCount();
         }
 
-        public function select($fields) {
+        public function select ($fields) {
             $this->fields = $fields;
             return $this;
         }
 
-        public function to($object, $pks = null) {
+        public function to ($object, $pks = null) {
             $this->object = $object;
             $this->keys = $pks ? explode(',', $pks) : null;
             return $this;
         }
 
-        public function beginTransaction() {
+        public function beginTransaction () {
             $this->pdo->beginTransaction();
         }
 
-        public function commit() {
+        public function commit () {
             $this->pdo->commit();
         }
 
-        public function rollback() {
+        public function rollback () {
             $this->pdo->rollBack();
         }
 
-        private function getFilterSQL($filter, $join = ' AND ') {
+        private function getFilterSQL ($filter, $join = ' AND ') {
             if (!$filter) {
                 return '';
             }
@@ -246,7 +264,7 @@ namespace runPHP\plugins {
          * @param  object $item An item with the primary keys values.
          * @return array          The primary keys filter criteria.
          */
-        private function getKeysFilter($item) {
+        private function getKeysFilter ($item) {
             $filter = array();
             foreach ($this->keys as $key) {
                 $filter[$key] = eq($item->$key);
@@ -265,7 +283,7 @@ namespace runPHP\plugins {
          * @param  string $join The character in between pair of values (optional: comma by default).
          * @return string           A string with key - value pairs.
          */
-        private function toQuery($item, $fields = null, $join = ',') {
+        private function toQuery ($item, $fields = null, $join = ',') {
             $query = '';
             // Get the keys. Apply the filter criteria if specified.
             $keys = $fields

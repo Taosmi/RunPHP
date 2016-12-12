@@ -85,6 +85,15 @@ interface IRepository {
     public function modify ($item, $filter = null, $pkFilter = true);
 
     /**
+     * Set the pagination configuration for the find method.
+     *
+     * @param  number  $limit   Maximum number of items returned.
+     * @param  number  $offset  Offset of items (optional).
+     * @return IRepository      The repository (chaining method).
+     */
+    public function paginate ($limit, $offset = null);
+
+    /**
      * Execute a custom query directly to the repository.
      *
      * @param   string  $query   A query.
