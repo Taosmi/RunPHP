@@ -52,6 +52,7 @@ try {
 
     // Shortcuts to the Web Application folders.
     define('APIS', APP.$cfg['PATHS']['apis']);
+    define('APIS_PATH', $cfg['PATHS']['apis']);
     define('STATICS', APP.$cfg['PATHS']['statics']);
     define('VIEWS', APP.$cfg['PATHS']['views']);
     define('VIEWS_ERRORS', APP.$cfg['PATHS']['viewsErrors']);
@@ -78,9 +79,8 @@ try {
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp00?'
         ));
     }
-
     // Load and run a controller.
-    $controller = Router::getControllerClass($cfg['REPOS'], $request);
+    $controller =  new $request['ctrlClass']($request, $cfg['REPOS']);
     $response = $controller->main($request['params']);
     if (!$response) {
         throw new RunException(500, __('No response is available from the server.'), array(

@@ -25,26 +25,6 @@ namespace runPHP;
 class Router {
 
     /**
-     * Get a controller class.
-     *
-     * @param   array   $repos    The repositories configuration.
-     * @param   array   $request  The request information.
-     * @return  object            A controller class.
-     */
-    public static function getControllerClass ($repos, $request) {
-        switch ($request['mime']) {
-            // API controller class.
-            case 'application/json': case 'json':
-            case 'application/xml': case 'xml':
-                $class = str_replace('/', '\\', substr($request['ctrl'], strlen(APP) + 1));
-                return new $class($repos, $request);
-            // View controller class (default).
-            case 'text/html': case 'html': default:
-                return new ViewController($request);
-        }
-    }
-
-    /**
      * Analyze the HTTP request and retrieve the relevant information.
      *
      * @return array  The request information.
@@ -54,7 +34,7 @@ class Router {
         $uri = parse_url($_SERVER['REQUEST_URI']);
         $ext = pathinfo($uri['path'], PATHINFO_EXTENSION);
         if ($ext) {
-            $mime = $ext;
+            $mime = 'application/'.$ext;
             $url = substr($uri['path'], 0, -(strlen($ext) + 1));
         } else {
             $mime = array_key_exists('CONTENT_TYPE', $_SERVER)
@@ -65,14 +45,17 @@ class Router {
         // Get a controller for this request based on the MIME type.
         switch ($mime) {
             // API controller.
-            case 'application/json': case 'json':
-            case 'application/xml': case 'xml':
-                $controller = self::getController(APIS, $url);
+            case 'application/json':
+            case 'application/xml':
+                $controller = self::getController(APIS, str_replace(APIS_PATH, '', $url));
+                $controllerClass = str_replace('/', '\\', substr($controller, strlen(APP) + 1));
                 $params = explode('/', substr(APIS.$url, strlen($controller) + 1));
                 break;
             // View controller (default).
-            case 'text/html': case 'html': default:
+            case 'text/html': case 'html':
+            default:
                 $controller = self::getController(VIEWS, $url);
+                $controllerClass = 'runPHP\\ViewController';
                 $params = explode('/', substr(VIEWS.$url, strlen($controller) + 1));
         }
         // Return the request data.
@@ -86,7 +69,10 @@ class Router {
             'mime' => $mime,
             'date' => date('Y-m-d H:i:s'),
             'ctrl' => $controller,
-            'params' => $params
+            'ctrlClass' => $controllerClass,
+            'params' => $params,
+            'user' => isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '',
+            'secret' => isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : ''
         );
     }
 
@@ -95,8 +81,8 @@ class Router {
      * Get a backward class/file name iterating throw the URL hierarchy.
      * If no class name available, return null.
      *
-     * @param  string  $root     Static part of an UTL.
-     * @param  string  $path     A URL to iterate throw.
+     * @param  string  $root     Static part of an URL.
+     * @param  string  $path     An URL to iterate throw.
      * @return string            A class/file name or null.
      */
     private static function getBackwardPath ($root, $path) {

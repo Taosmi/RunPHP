@@ -35,10 +35,10 @@ class Session {
         $_SESSION['fingerprint'] = self::getFingerPrint();
     }
 
-   /**
+    /**
      * Get the data for a key on the current session. If there is no session
      * data or the key does not exist, return null.
-     * 
+     *
      * @param  string  $key  A key name.
      * @return array         The session data requested or null.
      */
@@ -69,7 +69,7 @@ class Session {
 
     /**
      * Set a key value pair on the session data.
-     * 
+     *
      * @param string  $key    A key name to set on the session.
      * @param object  $value  The corresponding value.
      */
