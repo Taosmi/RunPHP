@@ -45,9 +45,9 @@ class Router {
         // Get a controller for this request based on the MIME type.
         switch ($mime) {
             // API controller.
-            case 'application/json': case 'json':
-            case 'application/xml': case 'xml':
-                $controller = self::getController(APP, $url);
+            case 'application/json':
+            case 'application/xml':
+                $controller = self::getController(APIS, str_replace(APIS_PATH, '', $url));
                 $controllerClass = str_replace('/', '\\', substr($controller, strlen(APP) + 1));
                 $params = explode('/', substr(APIS.$url, strlen($controller) + 1));
                 break;
