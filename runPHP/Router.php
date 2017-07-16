@@ -60,7 +60,6 @@ class Router {
         }
         // Return the request data.
         return array(
-            'uid' => uniqid(),
             'uri' => $uri['path'],
             'app' => $_SERVER['SERVER_NAME'],
             'from' => $_SERVER['REMOTE_ADDR'],
