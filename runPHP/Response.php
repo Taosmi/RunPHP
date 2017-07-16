@@ -35,6 +35,11 @@ class Response {
     private $file;
 
     /**
+     * @var array  A string array of headers.
+     */
+    private $headers;
+
+    /**
      * @var int  An HTTP status code.
      */
     private $statusCode;
@@ -45,10 +50,12 @@ class Response {
      *
      * @param array    $vars      A collection of variables (optional: default null).
      * @param integer  $httpCode  The http response code (optional: default 200).
+     * @param array    $headers   A collection of headers (optional).
      */
-    public function __construct ($vars = null, $httpCode = 200) {
+    public function __construct ($vars = null, $httpCode = 200, $headers = null) {
         $this->data = $vars;
         $this->statusCode = $httpCode;
+        $this->headers = $headers;
     }
 
 
@@ -80,22 +87,26 @@ class Response {
     public function render ($format) {
         // Render the response.
         switch ($format) {
-        case 'application/json': case 'json':
-            // Render the data structure as JSON by default.
-            Logger::sys(__('Rendering JSON response.', 'system'));
-            $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
-            $this->renderJSON();
-            break;
-        case 'application/xml': case 'xml':
-            // Render the data structure as XML.
-            Logger::sys(__('Rendering XML response.', 'system'));
-            $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
-            $this->renderXML();
-            break;
-        case 'text/html':case 'html': default:
-            // Render the response as HTML.
-            Logger::sys(__('Rendering HTML View.', 'system'));
-            $this->renderHTML();
+            case 'application/json':
+            case 'json':
+                // Render the data structure as JSON by default.
+                Logger::sys(__('Rendering JSON response.', 'system'));
+                $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
+                $this->renderJSON();
+                break;
+            case 'application/xml':
+            case 'xml':
+                // Render the data structure as XML.
+                Logger::sys(__('Rendering XML response.', 'system'));
+                $this->data['_console'] = CONSOLE ? Logger::getLog() : '';
+                $this->renderXML();
+                break;
+            case 'text/html':
+            case 'html':
+            default:
+                // Render the response as HTML.
+                Logger::sys(__('Rendering HTML View.', 'system'));
+                $this->renderHTML();
         }
     }
 
@@ -138,14 +149,27 @@ class Response {
         return $this;
     }
 
+
+    /**
+     * Set the headers to the response.
+     */
+    private function setHeaders() {
+        if ($this->headers) {
+            foreach ($this->headers as $header) {
+                header($header);
+            }
+        }
+    }
+
     /**
      * Render the HTML view to the output system. If the view does not exist or
      * an exception is raised, then render the error page.
      */
     private function renderHTML () {
-        // Set the HTTP status code.
+        // Set the HTTP status code and headers.
         header('HTTP/1.1 '.$this->statusCode);
         header('Content-Type: text/html');
+        $this->setHeaders();
         // Extract the data and include the view file.
         extract($this->data);
         include($this->file);
@@ -161,6 +185,7 @@ class Response {
     private function renderJSON () {
         header('HTTP/1.1 '.$this->statusCode);
         header('Content-Type: application/json');
+        $this->setHeaders();
         if ($this->data) {
             echo json_encode($this->data);
         }
@@ -172,6 +197,7 @@ class Response {
     private function renderXML () {
         header('HTTP/1.1 '.$this->statusCode);
         header('Content-Type: application/xml');
+        $this->setHeaders();
         echo 'WIP: XML view not available.';
     }
 }

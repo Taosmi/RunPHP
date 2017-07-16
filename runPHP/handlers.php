@@ -3,7 +3,7 @@
 namespace runPHP {
 
     /**
-     * Load function to set has auto-load handler. Load the class from a file
+     * Function to be set as auto-load handler. Load the class from a file
      * that match the full class name (with namespace), adding the extension
      * '.php'.
      *
