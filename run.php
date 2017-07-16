@@ -78,9 +78,8 @@ try {
             'helpLink' => 'http://runphp.taosmi.es/faq/rpp00?'
         ));
     }
-
     // Load and run a controller.
-    $controller = Router::getControllerClass($cfg['REPOS'], $request);
+    $controller =  new $request['ctrlClass']($request, $cfg['REPOS']);
     $response = $controller->main($request['params']);
     if (!$response) {
         throw new RunException(500, __('No response is available from the server.'), array(

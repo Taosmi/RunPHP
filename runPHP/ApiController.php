@@ -26,11 +26,6 @@ use runPHP\plugins\RepositoryPDO;
 abstract class ApiController {
 
     /**
-     * @var string  A data validation class name to be used.
-     */
-    private static $DATAVAL_CLASS = 'runPHP\plugins\DataVal';
-
-    /**
      * @var string  A list of allowed HTML tags on input data.
      */
     private static $TAGS_ALLOWED = '<a><b><br><img><p><ul><li>';
@@ -54,12 +49,12 @@ abstract class ApiController {
     /**
      * The controller get a reference to the request information.
      *
-     * @param  array  $repos    The repositories configuration.
      * @param  array  $request  The request information.
+     * @param  array  $repos    The repositories configuration.
      */
-    public function __construct ($repos, $request) {
-        $this->repos = $repos;
+    public function __construct ($request, $repos) {
         $this->request = $request;
+        $this->repos = $repos;
         // Get the request input data.
         if ($request['mime'] === 'application/json' && $request['method'] != 'GET') {
             parse_str(file_get_contents('php://input'), $this->input);
@@ -83,13 +78,13 @@ abstract class ApiController {
                 Logger::sys('Running an API GET method.');
                 return $this->get($params);
             case 'PUT':
-                 Logger::sys('Running an API PUT method.');
+                Logger::sys('Running an API PUT method.');
                 return $this->put($params);
             case 'POST':
-                 Logger::sys('Running an API POST method.');
+                Logger::sys('Running an API POST method.');
                 return $this->post($params);
             case 'DELETE':
-                 Logger::sys('Running an API DELETE method.');
+                Logger::sys('Running an API DELETE method.');
                 return $this->delete($params);
             default:
                 throw new RunException(500, __('The HTTP verb used is not available.'), array(
@@ -184,14 +179,24 @@ abstract class ApiController {
         $pks = array_key_exists($className, $this->repos)
             ? $this->repos[$className]
             : null;
-        // Get the repository.
+        // Get a repository.
         if (class_exists($className.'Repository')) {
-            // Get the specific repository.
+            // Get a specific repository.
             $repoClassName = $className.'Repository';
             $repo = new $repoClassName($connectString, $className, $pks);
         } else {
-            // Get the generic repository.
+            // Get a generic repository.
             $repo = new RepositoryPDO($connectString, $className, $pks);
+        }
+        // Set the parameters from the request.
+        $fields = $this->inputGet('fields');
+        if ($fields) {
+            $repo->select($fields);
+        }
+        $limit = $this->inputGet('limit');
+        $offset = $this->inputGet('offset');
+        if ($limit){
+            $repo->paginate($limit, $offset);
         }
         return $repo;
     }
