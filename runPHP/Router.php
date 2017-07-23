@@ -54,9 +54,9 @@ class Router {
             // View controller (default).
             case 'text/html': case 'html':
             default:
-                $controller = self::getController(VIEWS, $url);
+                $controller = self::getController(PAGES, $url);
                 $controllerClass = 'runPHP\\ViewController';
-                $params = explode('/', substr(VIEWS.$url, strlen($controller) + 1));
+                $params = explode('/', substr(PAGES.$url, strlen($controller) + 1));
         }
         // Return the request data.
         return array(

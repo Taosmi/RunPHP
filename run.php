@@ -54,8 +54,8 @@ try {
     define('APIS', APP.$cfg['PATHS']['apis']);
     define('APIS_PATH', $cfg['PATHS']['apis']);
     define('STATICS', APP.$cfg['PATHS']['statics']);
-    define('VIEWS', APP.$cfg['PATHS']['views']);
-    define('VIEWS_ERRORS', APP.$cfg['PATHS']['viewsErrors']);
+    define('PAGES', APP.$cfg['PATHS']['pages']);
+    define('ERROR_PAGES', APP.$cfg['PATHS']['errorPages']);
     define('VIEWS_PATTERNS', APP.$cfg['PATHS']['viewsPatterns']);
     // Console flag and log configuration.
     define('CONSOLE', $cfg['LOGS']['console'] && array_key_exists('console', $_REQUEST));
@@ -97,7 +97,7 @@ try {
     Logger::error($exception);
     // Use an HTML error page.
     $file = $exception->httpStatus === 404 ? 'notFoundError' : 'error';
-    $path = file_exists(VIEWS_ERRORS.'/'.$file.'.php') ? VIEWS_ERRORS : SYS.'/html';
+    $path = file_exists(ERROR_PAGES.'/'.$file.'.php') ? ERROR_PAGES : SYS.'/html';
     // Create an error response.
     $response = new Response(array(
         'error' => array(
